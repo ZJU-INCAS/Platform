@@ -11,6 +11,7 @@
     <modules>
         <module>educoin-transaction</module>
         <module>educoin-common</module>
+        <module>educoin-regulation</module>
     </modules>
 
     <parent>

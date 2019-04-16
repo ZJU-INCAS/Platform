@@ -12,17 +12,15 @@ import team.educoin.common.controller.CommonResponse;
  * @create: 2019-04-16
  */
 @RequestMapping("/test")
-public class TestController {
+public class UserController {
 
-
-
-    @RequestMapping(value = "/fabric",method = RequestMethod.GET)
-    public CommonResponse testFabricRequest(){
+    @RequestMapping(value = "/fabric", method = RequestMethod.GET)
+    public CommonResponse testFabricRequest() {
         return new CommonResponse();
     }
 
-    @RequestMapping(value = "/mysql",method = RequestMethod.GET)
-    public CommonResponse testMysqlRequest(){
+    @RequestMapping(value = "/mysql", method = RequestMethod.GET)
+    public CommonResponse testMysqlRequest() {
         return new CommonResponse();
     }
 }
