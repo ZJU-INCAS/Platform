@@ -8,16 +8,10 @@ import team.educoin.transaction.pojo.FabricUserInfo;
 
 import java.util.List;
 
-/**
- * description:
- *
- * @author: chenzhou04
- * @create: 2019-04-16
- */
 @Component
-@FeignClient(value = "fabricUserClient",url="${educoin.fabric.url}")
+@FeignClient(value = "fabricUserClient", url = "${educoin.fabric.url}")
 @RequestMapping("/api")
 public interface UserFabricClient {
-    @RequestMapping(value = "/user",method = RequestMethod.GET)
+    @RequestMapping(value = "/User", method = RequestMethod.GET)
     List<FabricUserInfo> getUser();
 }

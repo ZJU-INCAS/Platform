@@ -9,12 +9,6 @@ import team.educoin.transaction.service.UserService;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * description:
- *
- * @author: chenzhou04
- * @create: 2019-04-16
- */
 @Service
 public class UserServiceImpl implements UserService {
 

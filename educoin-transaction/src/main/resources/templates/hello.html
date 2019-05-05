@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<!--声明当前文件是 thymeleaf, 里面可以用th开头的属性-->
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<p th:text="${name}" >name</p>
+<p th:text="'Hello！ ' + ${name} + '!'" >hello world</p>
+<p th:text="|Hello！ ${name}!|" >hello world</p>
+</body>
+</html>

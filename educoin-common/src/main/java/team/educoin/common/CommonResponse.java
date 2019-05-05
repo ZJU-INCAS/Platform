@@ -1,17 +1,16 @@
-package team.educoin.common.controller;
+package team.educoin.common;
 
-/**
- * description:
- *
- * @author: chenzhou04
- * @create: 2019-04-16
- */
 public class CommonResponse {
     private int status;
     private String message;
     private Object data;
 
     public CommonResponse() {
+    }
+
+    public CommonResponse(int status, String message) {
+        this.status = status;
+        this.message = message;
     }
 
     public CommonResponse(int status, String message, Object data) {

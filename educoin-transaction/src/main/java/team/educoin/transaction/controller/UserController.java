@@ -5,15 +5,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import org.springframework.web.bind.annotation.RestController;
-import team.educoin.common.controller.CommonResponse;
+import team.educoin.common.CommonResponse;
 import team.educoin.transaction.service.impl.UserServiceImpl;
 
-/**
- * description:
- *
- * @author: chenzhou04
- * @create: 2019-04-16
- */
 @RestController
 @RequestMapping("/user")
 public class UserController {

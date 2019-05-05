@@ -3,10 +3,7 @@ package team.educoin.transaction.pojo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * description:
  *
- * @author: chenzhou04
- * @create: 2019-04-16
  */
 public class FabricUserInfo {
 
