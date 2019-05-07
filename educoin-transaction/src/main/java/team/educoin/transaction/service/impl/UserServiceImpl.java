@@ -14,6 +14,7 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserFabricClient userFabricClient;
+
     @Autowired
     private UserMapper userMapper;
 

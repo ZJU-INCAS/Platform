@@ -1,5 +1,6 @@
 package team.educoin.transaction.controller;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,6 +26,7 @@ import java.util.UUID;
 
 @Controller
 @RequestMapping("/service")
+@Api(value = "service")
 public class FileController {
 
     @Autowired
@@ -44,9 +46,9 @@ public class FileController {
     /*
      * 注册新资源
      */
-    @ApiOperation(value = "上传资源", notes = "上传资源文件，提交资源基本信息")
     @Transactional
     @RequestMapping(value = "/registService", method = RequestMethod.POST)
+    @ApiOperation(value = "上传资源", notes = "上传资源文件，提交资源基本信息")
     public String registService(@RequestParam("fileTitle") String fileTitle,
                                 @RequestParam("fileImage") String fileImage,
                                 @RequestParam("fileDescription") String fileDescription,
@@ -156,6 +158,7 @@ public class FileController {
      * 批量上传文件
      */
     @RequestMapping(value = "/registBatchService", method = RequestMethod.POST)
+    @ApiOperation(value = "批量上传资源", notes = "批量上传资源文件")
     public String handleFileUpload(HttpServletRequest request) throws IOException {
         List<MultipartFile> files = ((MultipartHttpServletRequest) request).getFiles("file");
         MultipartFile file = null;
@@ -188,9 +191,9 @@ public class FileController {
     /*
      * 根据文件id下载文件
      */
-    @ApiOperation(value = "下载资源", notes = "根据文件id下载文件")
     @ResponseBody
     @RequestMapping(value = "/downloadService/{id}", method = RequestMethod.GET)
+    @ApiOperation(value = "下载资源", notes = "根据文件id下载文件")
     public String downloadFile(@PathVariable String id, HttpServletRequest request, HttpServletResponse response)
             throws FileNotFoundException, UnsupportedEncodingException {
         List<FileInfo> fileInfo = fileServiceImpl.queryFileById(id);  // 根据文件id获取文件名
@@ -271,8 +274,8 @@ public class FileController {
     /*
      * 查看所有资源(从数据库中获取)
      */
-    @ApiOperation(value = "获取所有资源列表", notes = "获取所有资源列表")
     @RequestMapping(value = "/queryAllService", method = RequestMethod.GET)
+    @ApiOperation(value = "获取所有资源列表", notes = "获取所有资源列表")
     public String queryAllFile(Model model) {
         CommonResponse res = new CommonResponse();
         List<FileInfo> list = fileServiceImpl.queryAllFile();
@@ -286,8 +289,8 @@ public class FileController {
     /*
      * 查看所有未审核的资源(从数据库中获取)
      */
-    @ApiOperation(value = "获取未审核资源列表", notes = "根据fileChecked来获取未审核的资源")
     @RequestMapping(value = "/queryAllUnCheckedService", method = RequestMethod.GET)
+    @ApiOperation(value = "获取未审核资源列表", notes = "根据fileChecked来获取未审核的资源")
     public String queryAllUnCheckedFile(Model model) {
         List<FileInfo> list = fileServiceImpl.queryAllUnCheckedFile();
         model.addAttribute("unCheckedFileList", list);
@@ -298,8 +301,8 @@ public class FileController {
     /*
      * 查看所有已审查的资源(从数据库中获取)
      */
-    @ApiOperation(value = "获取已审核资源列表", notes = "根据fileChecked来获取已审核的资源")
     @RequestMapping(value = "/queryAllCheckedService", method = RequestMethod.GET)
+    @ApiOperation(value = "获取已审核资源列表", notes = "根据fileChecked来获取已审核的资源")
     public String queryAllCheckedFile(Model model) {
         List<FileInfo> list = fileServiceImpl.queryAllCheckedFile();
         model.addAttribute("checkedFileList", list);
@@ -310,10 +313,10 @@ public class FileController {
     /*
      * 审核资源信息 fileChecked 0->1
      */
-    @ApiOperation(value = "审核资源", notes = "根据资源ID审核资源")
-    @Transactional
     @ResponseBody
+    @Transactional
     @RequestMapping(value = "/checkeService/{id}", method = RequestMethod.PUT)
+    @ApiOperation(value = "审核资源", notes = "根据资源ID审核资源")
     public String checkFileInfo(@PathVariable("id") String id) {
         System.out.println("id" + id);
         try {
@@ -331,10 +334,10 @@ public class FileController {
     /*
      * 修改资源信息
      */
-    @ApiOperation(value = "修改资源信息", notes = "根据资源ID修改资源信息")
-    @Transactional
     @ResponseBody
+    @Transactional
     @RequestMapping(value = "/updateService/{id}/{email}", method = RequestMethod.POST)
+    @ApiOperation(value = "修改资源信息", notes = "根据资源ID修改资源信息")
     public String updateFile(@PathVariable("id") String id, @PathVariable("email") String email,
                              @RequestParam("fileTitle") String fileTitle,
                              @RequestParam("fileImage") String fileImage,
@@ -367,10 +370,10 @@ public class FileController {
     /*
      * 删除资源
      */
-    @ApiOperation(value = "删除资源", notes = "根据资源ID删除资源")
-    @Transactional
     @ResponseBody
+    @Transactional
     @RequestMapping(value = "/deleteService/{id}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "删除资源", notes = "根据资源ID删除资源")
     public String deleteFile(@PathVariable("id") String id) {
         System.out.println("id " + id);
         try {

@@ -1,8 +1,5 @@
 package team.educoin.transaction.pojo;
 
-import lombok.Data;
-
-@Data
 public class FileInfo {
     private String id;
     private String fileOwner;

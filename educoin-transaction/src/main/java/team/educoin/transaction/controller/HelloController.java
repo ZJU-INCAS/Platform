@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/hello")
 public class HelloController {
 
-    @ApiOperation(value = "hello world!", notes = "say hello springboot")
     @RequestMapping("/")
+    @ApiOperation(value = "hello world!", notes = "say hello springboot")
     public String hello(Model m) {
         m.addAttribute("name", "thymeleaf");
         return "hello";
