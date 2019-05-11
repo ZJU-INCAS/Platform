@@ -1,35 +1,32 @@
 package team.educoin.transaction.pojo;
 
 public class UserInfo {
-    private String id;
-    private String email;
-    private String password;
-    private String fringerprint;
-    private String iris;
-    private String qq;
-    private String identityCard;
-    private String buyerType;
-    private Integer age;
-    private String sexual;
-    private String educationLevel;
-    private String address;
-    private Double accountBalance;
-    private String bankAccount;
+    private String email;              // 邮箱
+    private String password;           // 密码
+    private String fringerprint;       // 自然人指纹信息
+    private String iris;               // 自然人虹膜信息
+    private String qq;                 // 自然人 QQ
+    private String identityCard;       // 自然人身份证
+    private String buyerType;          // 自然人用户类型
+    private Integer age;               // 自然人年龄
+    private String sexual;             // 自然人性别
+    private String educationLevel;     // 自然人教育水平
+    private String address;            // 自然人地址
+    private Double accountBalance;     // 自然人课程币余额
+    private String bankAccount;        // 绑定银行卡号
 
 
     public UserInfo() {
     }
 
-    public UserInfo(String id, String email, Double accountBalance) {
-        this.id = id;
+    public UserInfo(String email, Double accountBalance) {
         this.email = email;
         this.accountBalance = accountBalance;
     }
 
-    public UserInfo(String id, String email, String password, String fringerprint, String iris,
+    public UserInfo(String email, String password, String fringerprint, String iris,
                     String qq, String identityCard, String buyerType, Integer age, String sexual,
                     String educationLevel, String address, Double accountBalance, String bankAccount) {
-        this.id = id;
         this.email = email;
         this.password = password;
         this.fringerprint = fringerprint;
@@ -43,14 +40,6 @@ public class UserInfo {
         this.address = address;
         this.accountBalance = accountBalance;
         this.bankAccount = bankAccount;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getEmail() {

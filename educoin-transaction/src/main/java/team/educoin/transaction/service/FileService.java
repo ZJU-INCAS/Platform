@@ -34,12 +34,21 @@ public interface FileService {
     //查询所有资源列表
     List<FileInfo> queryAllFile();
 
-    //审核资源信息
+    //审核资源信息(通过)
     int checkFileInfo(String id);
+
+    //审核资源信息(拒绝)
+    int rejectFileInfo(String id);
 
     //根据id删除某个资源
     int deleteFile(String id);
 
     //修改资源信息
     int updateFileInfo(FileInfo fileInfo);
+
+    //修改资源阅读权价格
+    int updateServiceReadPrice(FileInfo fileInfo);
+
+    //修改资源所有权价格
+    int updateServiceOwnerShipPrice(FileInfo fileInfo);
 }

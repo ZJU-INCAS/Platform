@@ -1,6 +1,11 @@
 package team.educoin.transaction.pojo;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+@ApiModel("资源文件实体")
 public class FileInfo {
+    @ApiModelProperty(value = "资源文件id")
     private String id;
     private String fileOwner;
     private String fileInitialProvider;
@@ -8,7 +13,7 @@ public class FileInfo {
     private String fileImage;
     private String fileDescription;
     private Double fileReadPrice;
-    private Double fileOwnerPrice;
+    private Double fileOwnerShipPrice;
     private String fileName;
     private String fileKeyWord;
     private String fileContentType;
@@ -18,9 +23,14 @@ public class FileInfo {
 
     public FileInfo(){}
 
+    public FileInfo(String id, String fileOwner) {
+        this.id = id;
+        this.fileOwner = fileOwner;
+    }
+
     public FileInfo(String id, String fileOwner, String fileInitialProvider, String fileTitle,
                     String fileImage, String fileDescription, Double fileReadPrice,
-                    Double fileOwnerPrice, String fileName, String fileKeyWord,
+                    Double fileOwnerShipPrice, String fileName, String fileKeyWord,
                     String fileContentType, String fileFormat, String fileSize) {
         this.id = id;
         this.fileOwner = fileOwner;
@@ -29,7 +39,7 @@ public class FileInfo {
         this.fileImage = fileImage;
         this.fileDescription = fileDescription;
         this.fileReadPrice = fileReadPrice;
-        this.fileOwnerPrice = fileOwnerPrice;
+        this.fileOwnerShipPrice = fileOwnerShipPrice;
         this.fileName = fileName;
         this.fileKeyWord = fileKeyWord;
         this.fileContentType = fileContentType;
@@ -38,7 +48,7 @@ public class FileInfo {
     }
 
     public FileInfo(String id, String fileOwner, String fileTitle, String fileImage,
-                    String fileDescription, Double fileReadPrice, Double fileOwnerPrice,
+                    String fileDescription, Double fileReadPrice, Double fileOwnerShipPrice,
                     String fileKeyWord, String fileContentType) {
         this.id = id;
         this.fileOwner = fileOwner;
@@ -46,14 +56,14 @@ public class FileInfo {
         this.fileImage = fileImage;
         this.fileDescription = fileDescription;
         this.fileReadPrice = fileReadPrice;
-        this.fileOwnerPrice = fileOwnerPrice;
+        this.fileOwnerShipPrice = fileOwnerShipPrice;
         this.fileKeyWord = fileKeyWord;
         this.fileContentType = fileContentType;
     }
 
     public FileInfo(String id, String fileOwner, String fileInitialProvider,
                     String fileTitle, String fileImage, String fileDescription,
-                    Double fileReadPrice, Double fileOwnerPrice, String fileName,
+                    Double fileReadPrice, Double fileOwnerShipPrice, String fileName,
                     String fileKeyWord, String fileContentType, String fileFormat, String fileSize,
                     Integer fileChecked) {
         this.id = id;
@@ -63,7 +73,7 @@ public class FileInfo {
         this.fileImage = fileImage;
         this.fileDescription = fileDescription;
         this.fileReadPrice = fileReadPrice;
-        this.fileOwnerPrice = fileOwnerPrice;
+        this.fileOwnerShipPrice = fileOwnerShipPrice;
         this.fileName = fileName;
         this.fileKeyWord = fileKeyWord;
         this.fileContentType = fileContentType;
@@ -128,12 +138,12 @@ public class FileInfo {
         this.fileReadPrice = fileReadPrice;
     }
 
-    public Double getFileOwnerPrice() {
-        return fileOwnerPrice;
+    public Double getFileOwnerShipPrice() {
+        return fileOwnerShipPrice;
     }
 
-    public void setFileOwnerPrice(Double fileOwnerPrice) {
-        this.fileOwnerPrice = fileOwnerPrice;
+    public void setFileOwnerShipPrice(Double fileOwnerShipPrice) {
+        this.fileOwnerShipPrice = fileOwnerShipPrice;
     }
 
     public String getFileName() {

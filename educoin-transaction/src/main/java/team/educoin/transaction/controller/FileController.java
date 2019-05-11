@@ -2,6 +2,7 @@ package team.educoin.transaction.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ import java.util.UUID;
 
 @Controller
 @RequestMapping("/service")
-@Api(value = "service")
+@Api(value = "/service", description = "文件相关接口")
 public class FileController {
 
     @Autowired
@@ -53,7 +54,7 @@ public class FileController {
                                 @RequestParam("fileImage") String fileImage,
                                 @RequestParam("fileDescription") String fileDescription,
                                 @RequestParam("fileReadPrice") Double fileReadPrice,
-                                @RequestParam("fileOwnerPrice") Double fileOwnerPrice,
+                                @RequestParam("fileOwnerShipPrice") Double fileOwnerShipPrice,
                                 @RequestParam("fileKeyWord") String fileKeyWord,
                                 @RequestParam("fileContentType") String fileContentType,
                                 @RequestParam("fileInitialProvider") String fileInitialProvider,
@@ -74,7 +75,7 @@ public class FileController {
         if (StringUtils.isEmpty(fileReadPrice)) {
             return "资源阅读价不能为空";
         }
-        if (StringUtils.isEmpty(fileOwnerPrice)) {
+        if (StringUtils.isEmpty(fileOwnerShipPrice)) {
             return "资源所有价不能为空";
         }
         if (StringUtils.isEmpty(fileKeyWord)) {
@@ -108,9 +109,11 @@ public class FileController {
         File dest = new File(upload.getPath() + "/" + fileName);
         if (!dest.getParentFile().exists()) dest.getParentFile().mkdirs();  // 检测是否存在目录
         System.out.println(dest.getPath());
+        file.transferTo(dest);// 文件写入
+
         // 资源注册操作
         FileInfo fileInfo = new FileInfo(fileId, fileInitialProvider, fileInitialProvider, fileTitle, fileImage,
-                fileDescription, fileReadPrice, fileOwnerPrice, file.getOriginalFilename(), fileKeyWord, fileContentType,
+                fileDescription, fileReadPrice, fileOwnerShipPrice, file.getOriginalFilename(), fileKeyWord, fileContentType,
                 file.getContentType(), getFormatSize(file.getSize()));
         int resMySql = 0;
         Object resFabric = null;
@@ -122,7 +125,6 @@ public class FileController {
         }
         System.out.println("resFabric: " + resFabric);
         if (resMySql != 0) {
-            file.transferTo(dest);// 文件写入
             return "success";
         } else {
             return "error";
@@ -194,7 +196,7 @@ public class FileController {
     @ResponseBody
     @RequestMapping(value = "/downloadService/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "下载资源", notes = "根据文件id下载文件")
-    public String downloadFile(@PathVariable String id, HttpServletRequest request, HttpServletResponse response)
+    public String downloadService(@PathVariable("id") String id, HttpServletRequest request, HttpServletResponse response)
             throws FileNotFoundException, UnsupportedEncodingException {
         List<FileInfo> fileInfo = fileServiceImpl.queryFileById(id);  // 根据文件id获取文件名
         String fileName = null;
@@ -276,7 +278,7 @@ public class FileController {
      */
     @RequestMapping(value = "/queryAllService", method = RequestMethod.GET)
     @ApiOperation(value = "获取所有资源列表", notes = "获取所有资源列表")
-    public String queryAllFile(Model model) {
+    public String queryAllService(Model model) {
         CommonResponse res = new CommonResponse();
         List<FileInfo> list = fileServiceImpl.queryAllFile();
         res.setStatus(0);
@@ -291,7 +293,7 @@ public class FileController {
      */
     @RequestMapping(value = "/queryAllUnCheckedService", method = RequestMethod.GET)
     @ApiOperation(value = "获取未审核资源列表", notes = "根据fileChecked来获取未审核的资源")
-    public String queryAllUnCheckedFile(Model model) {
+    public String queryAllUnCheckedService(Model model) {
         List<FileInfo> list = fileServiceImpl.queryAllUnCheckedFile();
         model.addAttribute("unCheckedFileList", list);
         System.out.println(list);
@@ -303,7 +305,7 @@ public class FileController {
      */
     @RequestMapping(value = "/queryAllCheckedService", method = RequestMethod.GET)
     @ApiOperation(value = "获取已审核资源列表", notes = "根据fileChecked来获取已审核的资源")
-    public String queryAllCheckedFile(Model model) {
+    public String queryAllCheckedService(Model model) {
         List<FileInfo> list = fileServiceImpl.queryAllCheckedFile();
         model.addAttribute("checkedFileList", list);
         System.out.println(list);
@@ -311,13 +313,13 @@ public class FileController {
     }
 
     /*
-     * 审核资源信息 fileChecked 0->1
+     * 审核资源信息(通过) fileChecked 0->1
      */
     @ResponseBody
     @Transactional
-    @RequestMapping(value = "/checkeService/{id}", method = RequestMethod.PUT)
-    @ApiOperation(value = "审核资源", notes = "根据资源ID审核资源")
-    public String checkFileInfo(@PathVariable("id") String id) {
+    @RequestMapping(value = "/checkService/{id}", method = RequestMethod.PUT)
+    @ApiOperation(value = "审核资源(通过)", notes = "根据资源ID审核资源(通过)")
+    public String checkServiceInfo(@ApiParam(value = "资源文件id") @PathVariable("id") String id) {
         System.out.println("id" + id);
         try {
             int res = fileServiceImpl.checkFileInfo(id);
@@ -332,22 +334,43 @@ public class FileController {
     }
 
     /*
+     * 审核资源信息(拒绝) fileChecked 0->2
+     */
+    @ResponseBody
+    @Transactional
+    @RequestMapping(value = "/rejectService/{id}", method = RequestMethod.PUT)
+    @ApiOperation(value = "审核资源(拒绝)", notes = "根据资源ID审核资源(拒绝)")
+    public String rejectServiceInfo(@ApiParam(value = "资源文件id") @PathVariable("id") String id) {
+        System.out.println("id" + id);
+        try {
+            int res = fileServiceImpl.rejectFileInfo(id);
+            System.out.println("res " + res);
+            if (res != 0) {
+                return "资源审核不通过!";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "资源审核不通过!";
+    }
+
+    /*
      * 修改资源信息
      */
     @ResponseBody
     @Transactional
     @RequestMapping(value = "/updateService/{id}/{email}", method = RequestMethod.POST)
     @ApiOperation(value = "修改资源信息", notes = "根据资源ID修改资源信息")
-    public String updateFile(@PathVariable("id") String id, @PathVariable("email") String email,
+    public String updateServiceInfo(@PathVariable("id") String id, @PathVariable("email") String email,
                              @RequestParam("fileTitle") String fileTitle,
                              @RequestParam("fileImage") String fileImage,
                              @RequestParam("fileDescription") String fileDescription,
                              @RequestParam("fileReadPrice") Double fileReadPrice,
-                             @RequestParam("fileOwnerPrice") Double fileOwnerPrice,
+                             @RequestParam("fileOwnerShipPrice") Double fileOwnerShipPrice,
                              @RequestParam("fileKeyWord") String fileKeyWord,
                              @RequestParam("fileContentType") String fileContentType) {
         FileInfo fileInfo = new FileInfo(id, email, fileTitle, fileImage, fileDescription,
-                fileReadPrice, fileOwnerPrice, fileKeyWord, fileContentType);
+                fileReadPrice, fileOwnerShipPrice, fileKeyWord, fileContentType);
         System.out.println("fileInfo" + fileInfo);
         // 资源信息修改操作
         int resMySql = 0;
@@ -374,7 +397,7 @@ public class FileController {
     @Transactional
     @RequestMapping(value = "/deleteService/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value = "删除资源", notes = "根据资源ID删除资源")
-    public String deleteFile(@PathVariable("id") String id) {
+    public String deleteService(@PathVariable("id") String id) {
         System.out.println("id " + id);
         try {
             int resMySql = fileServiceImpl.deleteFile(id);
@@ -386,7 +409,49 @@ public class FileController {
             e.printStackTrace();
         }
 
-        return "删除资源成功！";
+        return "删除资源成功!";
+    }
+
+    /*
+     * 修改资源阅读权价格
+     */
+    @ResponseBody
+    @RequestMapping(value = "/updateServiceReadPrice/{id}", method = RequestMethod.POST)
+    @ApiOperation(value = "修改资源阅读权价", notes = "根据资源ID修改资源阅读权价")
+    public String updateServiceReadPrice(@PathVariable("id") String id,
+                                         @RequestParam("fileReadPrice") Double fileReadPrice) {
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setId(id);
+        fileInfo.setFileReadPrice(fileReadPrice);
+
+        int res = fileServiceImpl.updateServiceReadPrice(fileInfo);
+
+        if (res != 0) {
+            return "修改资源阅读权价格成功";
+        } else {
+            return "修改资源阅读权价格成功";
+        }
+    }
+
+    /*
+     * 修改资源所有权价格
+     */
+    @ResponseBody
+    @RequestMapping(value = "/updateServiceOwnerShipPrice/{id}", method = RequestMethod.POST)
+    @ApiOperation(value = "修改资源所有权价", notes = "根据资源ID修改资源所有权价")
+    public String updateServiceOwnerShipPrice(@PathVariable("id") String id,
+                                         @RequestParam("fileOwnerShipPrice") Double fileOwnerShipPrice) {
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setId(id);
+        fileInfo.setFileOwnerShipPrice(fileOwnerShipPrice);
+
+        int res = fileServiceImpl.updateServiceOwnerShipPrice(fileInfo);
+
+        if (res != 0) {
+            return "修改资源所有权价格成功";
+        } else {
+            return "修改资源所有权价格成功";
+        }
     }
 
 }

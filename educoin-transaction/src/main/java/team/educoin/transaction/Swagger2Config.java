@@ -2,7 +2,6 @@ package team.educoin.transaction;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -29,7 +28,7 @@ public class Swagger2Config {
         return new ApiInfoBuilder()
                 .title("RESTFull APIs")
                 .description("explore all of the APIs about this BitEducation project")
-                .termsOfServiceUrl("http://localhost:8081")
+                .termsOfServiceUrl("https://blog.csdn.net/qq_34611579")
                 .version("1.0")
                 .build();
     }

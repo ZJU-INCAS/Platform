@@ -11,9 +11,9 @@ import java.util.List;
 public interface FileMapper {
     //注册资源
     @Insert("insert into file_info (id, fileOwner,fileInitialProvider,fileTitle,fileImage,fileDescription," +
-            "fileReadPrice,fileOwnerPrice,fileName,fileKeyWord,fileContentType,fileFormat,fileSize) values " +
+            "fileReadPrice,fileOwnerShipPrice,fileName,fileKeyWord,fileContentType,fileFormat,fileSize) values " +
             "(#{id},#{fileOwner},#{fileInitialProvider},#{fileTitle},#{fileImage},#{fileDescription},#{fileReadPrice}," +
-            "#{fileOwnerPrice},#{fileName},#{fileKeyWord},#{fileContentType},#{fileFormat},#{fileSize})")
+            "#{fileOwnerShipPrice},#{fileName},#{fileKeyWord},#{fileContentType},#{fileFormat},#{fileSize})")
     int registService(FileInfo fileInfo);
 
     //根据id获取某个资源信息
@@ -32,9 +32,13 @@ public interface FileMapper {
     @Select("select * from file_info")
     List<FileInfo> queryAllFile();
 
-    //审核通过资源信息
+    //审核资源信息(通过)
     @Update("update file_info set fileChecked = 1 where id = #{id}")
     int checkFileInfo(@Param("id") String id);
+
+    //审核资源信息(拒绝)
+    @Update("update file_info set fileChecked = 2 where id = #{id}")
+    int rejectFileInfo(@Param("id") String id);
 
     //根据id删除某个资源
     @Delete("delete from file_info where id = #{id}")
@@ -42,7 +46,15 @@ public interface FileMapper {
 
     //修改资源信息
     @Update("update file_info set fileTitle=#{fileTitle},fileImage=#{fileImage},fileDescription=#{fileDescription}," +
-            "fileReadPrice=#{fileReadPrice},fileOwnerPrice=#{fileOwnerPrice},fileKeyWord=#{fileKeyWord}," +
+            "fileReadPrice=#{fileReadPrice},fileOwnerShipPrice=#{fileOwnerShipPrice},fileKeyWord=#{fileKeyWord}," +
             "fileContentType=#{fileContentType} where id=#{id}")
     int updateFileInfo(FileInfo fileInfo);
+
+    //修改资源阅读权价格
+    @Update("update file_info set fileReadPrice=#{fileReadPrice} where id=#{id}")
+    int updateFileReadPrice(FileInfo fileInfo);
+
+    //修改资源所有权价格
+    @Update("update file_info set fileOwnerShipPrice=#{fileOwnerShipPrice} where id=#{id}")
+    int updateFileOwnerShipPrice(FileInfo fileInfo);
 }

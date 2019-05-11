@@ -4,7 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import team.educoin.transaction.pojo.FabricUserInfo;
+import team.educoin.transaction.pojo.fabric.FabricUserInfo;
 
 import java.util.List;
 

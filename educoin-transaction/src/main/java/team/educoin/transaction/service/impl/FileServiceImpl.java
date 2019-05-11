@@ -8,8 +8,10 @@ import team.educoin.common.CommonResponse;
 import team.educoin.common.StatusCode;
 import team.educoin.transaction.dao.FileMapper;
 import team.educoin.transaction.fabric.FileFabricClient;
-import team.educoin.transaction.pojo.FabricFileInfo;
+import team.educoin.transaction.pojo.fabric.FabricFileInfo;
 import team.educoin.transaction.pojo.FileInfo;
+import team.educoin.transaction.pojo.fabric.FabricOwnerShipPriceInfo;
+import team.educoin.transaction.pojo.fabric.FabricReadPriceInfo;
 import team.educoin.transaction.service.FileService;
 
 import java.util.HashMap;
@@ -37,9 +39,9 @@ public class FileServiceImpl implements FileService {
     @Override
     @Transactional
     public Object registerService(FileInfo fileInfo) {
-        FabricFileInfo fabricFileInfo = new FabricFileInfo("org.education.Service",
+        FabricFileInfo fabricFileInfo = new FabricFileInfo("org.education.RegisterService",
                 fileInfo.getId(), fileInfo.getFileTitle(), fileInfo.getFileReadPrice(),
-                fileInfo.getFileOwnerPrice(), fileInfo.getFileOwner());
+                fileInfo.getFileOwnerShipPrice(), fileInfo.getFileOwner());
         JSONObject jsonObject = null;
         try {
             jsonObject = JSONObject.parseObject((fileFabricClient.registerService(fabricFileInfo)));
@@ -59,7 +61,7 @@ public class FileServiceImpl implements FileService {
     public Object updateService(FileInfo fileInfo) {
         FabricFileInfo fabricFileInfo = new FabricFileInfo("org.education.Service",
                 fileInfo.getId(), fileInfo.getFileTitle(), fileInfo.getFileReadPrice(),
-                fileInfo.getFileOwnerPrice(), fileInfo.getFileOwner());
+                fileInfo.getFileOwnerShipPrice(), fileInfo.getFileOwner());
         JSONObject jsonObject = null;
         try {
             jsonObject = JSONObject.parseObject((fileFabricClient.updateService(fileInfo.getId(), fabricFileInfo)));
@@ -99,11 +101,14 @@ public class FileServiceImpl implements FileService {
         return fileMapper.queryAllFile();
     }
 
-    //审核资源信息
+    //审核资源信息(通过)
     @Override
     public int checkFileInfo(String id) {
         return fileMapper.checkFileInfo(id);
     }
+
+    //审核资源信息(拒绝)
+    public int rejectFileInfo(String id) {return fileMapper.rejectFileInfo(id);}
 
     //删除资源
     @Override
@@ -112,4 +117,44 @@ public class FileServiceImpl implements FileService {
     //修改资源信息
     @Override
     public int updateFileInfo(FileInfo fileInfo){ return fileMapper.updateFileInfo(fileInfo); }
+
+    //修改资源阅读权价
+    @Override
+    public int updateServiceReadPrice(FileInfo fileInfo) {
+        FabricReadPriceInfo fabricReadPriceInfo = new FabricReadPriceInfo("org.education.UpdateServicereadPrice",
+                fileInfo.getId(), fileInfo.getFileReadPrice());
+        int res = 0;
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = JSONObject.parseObject((fileFabricClient.updateServiceReadPrice(fabricReadPriceInfo)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (jsonObject != null) {
+            res = fileMapper.updateFileReadPrice(fileInfo);
+        }
+
+        return res;
+    }
+
+    //修改资源所有权价
+    @Override
+    public int updateServiceOwnerShipPrice(FileInfo fileInfo) {
+        FabricOwnerShipPriceInfo fabricOwnerShipPriceInfo = new FabricOwnerShipPriceInfo("org.education.UpdateServiceownershipPrice",
+                fileInfo.getId(), fileInfo.getFileOwnerShipPrice());
+        int res = 0;
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = JSONObject.parseObject((fileFabricClient.updateServiceOwnershipPrice(fabricOwnerShipPriceInfo)));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (jsonObject != null) {
+            res = fileMapper.updateFileOwnerShipPrice(fileInfo);
+        }
+
+        return res;
+    }
 }

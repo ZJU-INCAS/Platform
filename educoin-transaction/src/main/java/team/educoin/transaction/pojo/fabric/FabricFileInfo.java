@@ -1,4 +1,4 @@
-package team.educoin.transaction.pojo;
+package team.educoin.transaction.pojo.fabric;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
