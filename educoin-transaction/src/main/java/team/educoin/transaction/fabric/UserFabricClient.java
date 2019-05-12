@@ -18,7 +18,7 @@ import java.util.List;
  * @create: 2019-04-16
  */
 @Component
-@FeignClient(value = "fabricUserClient",url="${educoin.fabric.url}")
+@FeignClient(value = "userFabricClient",url="${educoin.fabric.url}")
 @RequestMapping("/api")
 public interface UserFabricClient {
     /**

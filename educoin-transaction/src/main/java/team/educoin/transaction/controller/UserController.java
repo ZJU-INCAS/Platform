@@ -6,8 +6,11 @@ import org.springframework.web.bind.annotation.*;
 
 import team.educoin.common.controller.CommonResponse;
 import team.educoin.transaction.dto.TokenTransferDto;
+import team.educoin.transaction.pojo.Recharge;
 import team.educoin.transaction.pojo.Token;
 import team.educoin.transaction.service.UserService;
+
+import java.util.List;
 
 
 @RestController
@@ -31,6 +34,27 @@ public class UserController {
         return res;
     }
 
+
+    /**
+     * =============================================================
+     * @author PandaClark
+     * @date 2019/5/12 12:20 PM
+     * @param []
+     * @return CommonResponse
+     * =============================================================
+     */
+    @RequestMapping( value = "/getRechargesY", method = RequestMethod.GET )
+    public CommonResponse getRechargesY(){
+        CommonResponse res = new CommonResponse();
+
+        // email 应当从 session 中拿，此处只是测试
+        String email = "test1@qq.com";
+        List<Recharge> recharges = userService.getUserRechargeRecords(email, 0);
+        res.setStatus(0);
+        res.setMessage("success");
+        res.setData(recharges);
+        return res;
+    }
 
     /**
      * @author PandaClark
@@ -62,6 +86,26 @@ public class UserController {
         return res;
     }
 
+
+    /**
+     * =============================================================
+     * @author PandaClark
+     * @date 2019/5/12 1:20 PM
+     * @param []
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
+     */
+    @RequestMapping( value = "/getTransfers", method = RequestMethod.GET )
+    public CommonResponse getTransferRecords(){
+        CommonResponse res = new CommonResponse();
+        // email 应当从 session 中拿，此处只是测试
+        String email = "test1@qq.com";
+        List<Token> transfers = userService.getUserTransferRecords(email);
+        res.setStatus(0);
+        res.setMessage("success");
+        res.setData(transfers);
+        return res;
+    }
 
     /**
      * @author PandaClark

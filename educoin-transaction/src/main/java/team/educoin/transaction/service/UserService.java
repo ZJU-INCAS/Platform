@@ -1,7 +1,10 @@
 package team.educoin.transaction.service;
 
 import team.educoin.transaction.dto.TokenTransferDto;
+import team.educoin.transaction.pojo.Recharge;
+import team.educoin.transaction.pojo.Token;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,6 +20,18 @@ public interface UserService {
      */
     Map<String, Object> getUserInfo();
 
+
+    /**
+     * =============================================================
+     * @author PandaClark
+     * @date 2019/5/12 12:10 PM
+     * @param email 用户ID
+     * @param flag 充值记录审核状态： 0 待审核/1 通过/2 拒绝
+     * @return java.util.List<team.educoin.transaction.pojo.Recharge>
+     * =============================================================
+     */
+    List<Recharge> getUserRechargeRecords(String email, int flag);
+
     /**
      * ===================================================================
      * @desc 普通用户充值
@@ -26,6 +41,16 @@ public interface UserService {
      * ===================================================================
      */
     boolean userRecharge(String email, double balance);
+
+    /**
+     * =============================================================
+     * @author PandaClark
+     * @date 2019/5/12 1:10 PM
+     * @param email 用户ID
+     * @return java.util.List<team.educoin.transaction.pojo.Token>
+     * =============================================================
+     */
+    List<Token> getUserTransferRecords(String email);
 
     /**
      * ===================================================================
@@ -45,4 +70,6 @@ public interface UserService {
      * ===================================================================
      */
     boolean tokenTransferU2C(TokenTransferDto dto);
+
+
 }

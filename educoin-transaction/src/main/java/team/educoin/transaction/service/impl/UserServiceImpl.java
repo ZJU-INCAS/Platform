@@ -13,6 +13,7 @@ import team.educoin.transaction.pojo.Token;
 import team.educoin.transaction.service.UserService;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -45,6 +46,23 @@ public class UserServiceImpl implements UserService {
     }
 
 
+
+    /**
+     * =============================================================
+     * @author PandaClark
+     * @date 2019/5/12 12:10 PM
+     * @param email 用户ID
+     * @param flag 充值记录审核状态： 0 待审核/1 通过/2 拒绝
+     * @return java.util.List<Recharge>
+     * =============================================================
+     */
+    @Override
+    public List<Recharge> getUserRechargeRecords(String email, int flag) {
+        // 从 mysql 中查结果
+        List<Recharge> records = rechargeMapper.getRecordsByIdAndFlag(email, flag);
+        return records;
+    }
+
     /**
      * ===================================================================
      * @desc 普通用户充值
@@ -74,6 +92,21 @@ public class UserServiceImpl implements UserService {
         Recharge recharge = new Recharge(email, paymentID, "alipay",balance);
         int insert = rechargeMapper.addRecharge(recharge);
         return insert > 0;
+    }
+
+    /**
+     * =============================================================
+     * @author PandaClark
+     * @date 2019/5/12 1:11 PM
+     * @param email 用户ID
+     * @return java.util.List<Token>
+     * =============================================================
+     */
+    @Override
+    public List<Token> getUserTransferRecords(String email) {
+        // 从 mysql 中查询结果
+        List<Token> records = tokenMapper.getRecordsById(email);
+        return records;
     }
 
 
