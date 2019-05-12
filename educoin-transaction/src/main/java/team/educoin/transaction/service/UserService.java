@@ -13,4 +13,8 @@ public interface UserService {
     List<UserInfo> queryUserById(String email);
     // 根据机构email获取机构信息
     List<AgencyInfo> queryAgencyById(String email);
+    // 更新用户余额
+    int updateUserAccountBalance(UserInfo userInfo);
+    // 更新机构余额
+    int updateAgencyAccountBalance(AgencyInfo agencyInfo);
 }

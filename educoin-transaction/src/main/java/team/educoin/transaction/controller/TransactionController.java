@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,7 +28,6 @@ public class TransactionController {
     @Autowired
     private UserServiceImpl userServiceImpl;
 
-
     @Autowired
     private TransactionServiceImpl transactionServiceImpl;
 
@@ -38,6 +38,7 @@ public class TransactionController {
      * 普通用户购买资源阅读权
      */
     @ResponseBody
+    @Transactional
     @RequestMapping(value = "/userConsume/{id}/{email}", method = RequestMethod.POST)
     @ApiOperation(value = "普通用户购买资源阅读权", notes = "根据资源id，用户email，普通用户购买资源阅读权")
     public String userConsumeService(@PathVariable("id") String id, @PathVariable("email") String email) {
@@ -63,18 +64,34 @@ public class TransactionController {
 
         try {
             if (accountBalance > fileReadPrice) {
-                UserConsumeInfo userConsumeInfo = new UserConsumeInfo(email, servicId, fileTitle,
-                        fileReadPrice, fileName);
+                System.out.println("余额充足" + accountBalance);
+                double accountNewBalance = accountBalance - fileReadPrice;  // 更新用户余额
+                // 将更新后的余额插入到用户表中
+                UserInfo userInfo = new UserInfo();
+                userInfo.setEmail(email);
+                userInfo.setAccountBalance(accountNewBalance);
 
-                int result = transactionMapper.insertCommonConsume(userConsumeInfo);
+                FileInfo fileInfo = new FileInfo();
+                fileInfo.setId(id);
+                fileInfo.setFileOwner(email);
+                int res = transactionServiceImpl.userConsumeService(email, fileInfo);
 
-                if (result != 0) {
-                    // 执行一些跳转操作等
-                    System.out.println(result + "创建购买记录成功");
+                if (res != 0) {
+                    UserConsumeInfo userConsumeInfo = new UserConsumeInfo(email, servicId, fileTitle,
+                            fileReadPrice, fileName);
+
+                    userServiceImpl.updateUserAccountBalance(userInfo);  // 更新用户余额
+                    int result = transactionMapper.insertCommonConsume(userConsumeInfo);
+
+                    if (result != 0) {
+                        // 执行一些跳转操作等
+                        System.out.println(result + "创建购买记录成功");
+                    } else {
+                        return "创建购买记录失败";
+                    }
                 } else {
-                    return "创建购买记录失败";
+                    return "购买失败";
                 }
-
             } else {
                 return "账户余额不足，请充值";
             }
@@ -90,6 +107,7 @@ public class TransactionController {
      * 机构用户购买资源所有权
      */
     @ResponseBody
+    @Transactional
     @RequestMapping(value = "/agencyConsume/{id}/{email}", method = RequestMethod.POST)
     @ApiOperation(value = "机构用户购买资源所有权", notes = "根据资源id，用户email，机构用户购买资源所有权")
     public String agencyConsumeService(@PathVariable("id") String id, @PathVariable("email") String email) {
@@ -115,6 +133,12 @@ public class TransactionController {
 
         try {
             if (accountBalance > fileOwnerShipPrice) {
+                System.out.println("余额充足" + accountBalance);
+                double accountNewBalance = accountBalance - fileOwnerShipPrice;  // 更新用户余额
+                // 将更新后的余额插入到用户表中
+                AgencyInfo agency = new AgencyInfo();
+                agency.setEmail(email);
+                agency.setAccountBalance(accountNewBalance);
                 FileInfo fileInfo = new FileInfo();
                 fileInfo.setId(id);
                 fileInfo.setFileOwner(email);
@@ -124,19 +148,19 @@ public class TransactionController {
                     AgencyConsumerInfo agencyConsumerInfo = new AgencyConsumerInfo(email, servicId, fileTitle,
                             fileOwnerShipPrice, fileName);
 
+                    userServiceImpl.updateAgencyAccountBalance(agency);  // 更新机构用户余额
+
                     int result = transactionMapper.insertAgencyConsume(agencyConsumerInfo);
 
                     if (result != 0) {
                         return "创建购买记录成功";
                     }
-
                 } else {
                     return "购买失败";
                 }
             } else {
                 return "账户余额不足，请充值";
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }

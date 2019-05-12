@@ -3,6 +3,7 @@ package team.educoin.transaction.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import team.educoin.transaction.dao.TransactionMapper;
 import team.educoin.transaction.fabric.FileFabricClient;
 import team.educoin.transaction.fabric.TransactionFabricClient;
@@ -20,21 +21,24 @@ public class TransactionServiceImpl implements TransactionService {
     private TransactionFabricClient transactionFabricClient;
 
     // 普通用户购买资源阅读权
-    public String userConsumeService(String email, FileInfo fileInfo){
+    public int userConsumeService(String email, FileInfo fileInfo){
         FabricUserConsumeInfo fabricUserConsumeInfo = new FabricUserConsumeInfo("org.education.UserConsumeService",
                 fileInfo.getId(), email);
+        int flag = 0;
         JSONObject jsonObject = null;
 
         try {
             jsonObject = JSONObject.parseObject((transactionFabricClient.userConsumeService(fabricUserConsumeInfo)));
+            flag = 1;
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return "购买成功";
+        return flag;
     }
 
     // 机构用户购买资源所有权
+    @Transactional
     public int agencyConsumeService(String email, FileInfo fileInfo){
         FabricAgencyConsumeInfo fabricAgencyConsumeInfo = new FabricAgencyConsumeInfo("org.education.CompanyBuyOnwership",
                 fileInfo.getId(), email);

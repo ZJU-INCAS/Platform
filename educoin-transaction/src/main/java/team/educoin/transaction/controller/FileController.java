@@ -109,7 +109,6 @@ public class FileController {
         File dest = new File(upload.getPath() + "/" + fileName);
         if (!dest.getParentFile().exists()) dest.getParentFile().mkdirs();  // 检测是否存在目录
         System.out.println(dest.getPath());
-        file.transferTo(dest);// 文件写入
 
         // 资源注册操作
         FileInfo fileInfo = new FileInfo(fileId, fileInitialProvider, fileInitialProvider, fileTitle, fileImage,
@@ -118,12 +117,16 @@ public class FileController {
         int resMySql = 0;
         Object resFabric = null;
         try {
-            resMySql = fileServiceImpl.registService(fileInfo);
             resFabric = fileServiceImpl.registerService(fileInfo);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("resFabric: " + resFabric);
+        if (resFabric != null) {
+            file.transferTo(dest);// 文件写入
+            resMySql = fileServiceImpl.registService(fileInfo);
+        } else {
+            return "资源上链失败";
+        }
         if (resMySql != 0) {
             return "success";
         } else {
@@ -362,13 +365,13 @@ public class FileController {
     @RequestMapping(value = "/updateService/{id}/{email}", method = RequestMethod.POST)
     @ApiOperation(value = "修改资源信息", notes = "根据资源ID修改资源信息")
     public String updateServiceInfo(@PathVariable("id") String id, @PathVariable("email") String email,
-                             @RequestParam("fileTitle") String fileTitle,
-                             @RequestParam("fileImage") String fileImage,
-                             @RequestParam("fileDescription") String fileDescription,
-                             @RequestParam("fileReadPrice") Double fileReadPrice,
-                             @RequestParam("fileOwnerShipPrice") Double fileOwnerShipPrice,
-                             @RequestParam("fileKeyWord") String fileKeyWord,
-                             @RequestParam("fileContentType") String fileContentType) {
+                                    @RequestParam("fileTitle") String fileTitle,
+                                    @RequestParam("fileImage") String fileImage,
+                                    @RequestParam("fileDescription") String fileDescription,
+                                    @RequestParam("fileReadPrice") Double fileReadPrice,
+                                    @RequestParam("fileOwnerShipPrice") Double fileOwnerShipPrice,
+                                    @RequestParam("fileKeyWord") String fileKeyWord,
+                                    @RequestParam("fileContentType") String fileContentType) {
         FileInfo fileInfo = new FileInfo(id, email, fileTitle, fileImage, fileDescription,
                 fileReadPrice, fileOwnerShipPrice, fileKeyWord, fileContentType);
         System.out.println("fileInfo" + fileInfo);
@@ -376,12 +379,16 @@ public class FileController {
         int resMySql = 0;
         Object resFabric = null;
         try {
-            resMySql = fileServiceImpl.updateFileInfo(fileInfo);
             resFabric = fileServiceImpl.updateService(fileInfo);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("resMySql: " + resMySql);
+
+        if (resFabric != null) {
+            resMySql = fileServiceImpl.updateFileInfo(fileInfo);
+        } else {
+            return "链上资源信息修改失败";
+        }
         if (resMySql != 0) {
             return "资源信息修改成功";
         } else {
@@ -440,7 +447,7 @@ public class FileController {
     @RequestMapping(value = "/updateServiceOwnerShipPrice/{id}", method = RequestMethod.POST)
     @ApiOperation(value = "修改资源所有权价", notes = "根据资源ID修改资源所有权价")
     public String updateServiceOwnerShipPrice(@PathVariable("id") String id,
-                                         @RequestParam("fileOwnerShipPrice") Double fileOwnerShipPrice) {
+                                              @RequestParam("fileOwnerShipPrice") Double fileOwnerShipPrice) {
         FileInfo fileInfo = new FileInfo();
         fileInfo.setId(id);
         fileInfo.setFileOwnerShipPrice(fileOwnerShipPrice);

@@ -58,6 +58,7 @@ public class FileServiceImpl implements FileService {
     }
 
     //修改fabric中的service
+    @Transactional
     public Object updateService(FileInfo fileInfo) {
         FabricFileInfo fabricFileInfo = new FabricFileInfo("org.education.Service",
                 fileInfo.getId(), fileInfo.getFileTitle(), fileInfo.getFileReadPrice(),
@@ -108,6 +109,7 @@ public class FileServiceImpl implements FileService {
     }
 
     //审核资源信息(拒绝)
+    @Override
     public int rejectFileInfo(String id) {return fileMapper.rejectFileInfo(id);}
 
     //删除资源
@@ -120,6 +122,7 @@ public class FileServiceImpl implements FileService {
 
     //修改资源阅读权价
     @Override
+    @Transactional
     public int updateServiceReadPrice(FileInfo fileInfo) {
         FabricReadPriceInfo fabricReadPriceInfo = new FabricReadPriceInfo("org.education.UpdateServicereadPrice",
                 fileInfo.getId(), fileInfo.getFileReadPrice());
@@ -140,6 +143,7 @@ public class FileServiceImpl implements FileService {
 
     //修改资源所有权价
     @Override
+    @Transactional
     public int updateServiceOwnerShipPrice(FileInfo fileInfo) {
         FabricOwnerShipPriceInfo fabricOwnerShipPriceInfo = new FabricOwnerShipPriceInfo("org.education.UpdateServiceownershipPrice",
                 fileInfo.getId(), fileInfo.getFileOwnerShipPrice());

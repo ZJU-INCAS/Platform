@@ -29,12 +29,24 @@ public class UserServiceImpl implements UserService {
         return userInfoMap;
     }
 
+    // 根据用户email查询用户信息
     public List<UserInfo> queryUserById(String email) {
         return userMapper.queryUserById(email);
     }
 
+    // 根据机构email查询机构信息
     public List<AgencyInfo> queryAgencyById(String email) {
         return userMapper.queryAgencyById(email);
+    }
+
+    // 更新用户余额
+    public int updateUserAccountBalance(UserInfo userInfo) {
+        return userMapper.updateUserAccountBalance(userInfo);
+    }
+
+    // 更新机构余额
+    public int updateAgencyAccountBalance(AgencyInfo agencyInfo) {
+        return userMapper.updateAgencyAccountBalance(agencyInfo);
     }
 
 }
