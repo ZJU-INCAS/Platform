@@ -47,6 +47,20 @@ public class UserServiceImpl implements UserService {
 
 
 
+
+    /**
+     * =============================================================
+     * @author PandaClark
+     * @date 2019/5/12 12:10 PM
+     * @param id payment_id
+     * @return team.educoin.transaction.pojo.Recharge
+     * =============================================================
+     */
+    @Override
+    public Recharge getRechargeRecordById(String id) {
+        Recharge record = rechargeMapper.getRecordByPaymentId(id);
+        return record;
+    }
     /**
      * =============================================================
      * @author PandaClark

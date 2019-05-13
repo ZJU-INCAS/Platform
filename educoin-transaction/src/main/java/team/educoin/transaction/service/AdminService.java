@@ -4,6 +4,9 @@ import team.educoin.transaction.dto.CentralBankDto;
 import team.educoin.transaction.dto.ContractDto;
 import team.educoin.transaction.pojo.Recharge;
 import team.educoin.transaction.pojo.Token;
+import team.educoin.transaction.pojo.Withdraw;
+
+import java.util.List;
 
 /**
  * @description: 管理员Service
@@ -35,14 +38,24 @@ public interface AdminService {
 
     /**
      * =============================================================
-     * @desc 根据 id 返回一条充值记录
+     * @desc 获取所有待审核用户充值列表
      * @author PandaClark
-     * @date 2019/5/12 8:09 PM
-     * @param id 充值记录id
-     * @return team.educoin.transaction.pojo.Token
+     * @date 2019/5/13 5:46 PM
+     * @return java.util.List<team.educoin.transaction.pojo.Recharge>
      * =============================================================
      */
-    Recharge getRechargeRecordById(String id);
+    List<Recharge> getUnCheckedRechargeList();
+
+
+    /**
+     * =============================================================
+     * @desc 获取所有待审核用户充值列表
+     * @author PandaClark
+     * @date 2019/5/13 5:48 PM
+     * @return java.util.List<Withdraw>
+     * =============================================================
+     */
+    List<Withdraw> getUnCheckedWithdrawList();
 
     /**
      * =============================================================
@@ -61,4 +74,26 @@ public interface AdminService {
      * =============================================================
      */
     void rejectUserRecharge(String paymentId, String adminEmail);
+
+    /**
+     * =============================================================
+     * @desc 同意机构用户提现：只操作数据库
+     * @author PandaClark
+     * @date 2019/5/13 4:21 PM
+     * @param paymentId, admin
+     * @return void
+     * =============================================================
+     */
+    void acceptCompanyWithdraw(String paymentId, String admin);
+
+    /**
+     * =============================================================
+     * @desc 拒绝机构用户提现：只操作数据库
+     * @author PandaClark
+     * @date 2019/5/13 4:21 PM
+     * @param paymentId, admin
+     * @return void
+     * =============================================================
+     */
+    void rejectCompanyWithdraw(String paymentId, String admin);
 }

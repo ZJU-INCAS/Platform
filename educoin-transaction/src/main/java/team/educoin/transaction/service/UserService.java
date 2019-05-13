@@ -20,6 +20,16 @@ public interface UserService {
      */
     Map<String, Object> getUserInfo();
 
+    /**
+     * =============================================================
+     * @desc 根据 id 返回一条充值记录
+     * @author PandaClark
+     * @date 2019/5/12 8:09 PM
+     * @param id 充值记录id
+     * @return team.educoin.transaction.pojo.Token
+     * =============================================================
+     */
+    Recharge getRechargeRecordById(String id);
 
     /**
      * =============================================================

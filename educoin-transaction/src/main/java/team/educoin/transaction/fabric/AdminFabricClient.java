@@ -27,6 +27,27 @@ public interface AdminFabricClient {
     @RequestMapping( value = "/Contract", method = RequestMethod.GET )
     List<ContractDto> getContractInfo();
 
+    /**
+     * =============================================================
+     * @desc 审核普通用户充值：同意
+     * @author PandaClark
+     * @date 2019/5/13 3:49 PM
+     * @param rechargeInfo 待审核充值记录信息
+     * @return java.util.Map<String, String>
+     * =============================================================
+     */
     @RequestMapping( value = "/CheckUserRecharge", method = RequestMethod.POST )
     Map<String,String> CheckUserRechargeFabric(@RequestBody Map<String,String> rechargeInfo);
+
+    /**
+     * =============================================================
+     * @desc 审核普通用户充值：拒绝
+     * @author PandaClark
+     * @date 2019/5/13 4:04 PM
+     * @param rechargeInfo 待审核充值记录信息
+     * @return java.util.Map<String, String>
+     * =============================================================
+     */
+    @RequestMapping( value = "/RejectUserRecharge", method = RequestMethod.POST )
+    Map<String,String> RejectUserRechargeFabric(@RequestBody Map<String,String> rechargeInfo);
 }

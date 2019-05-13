@@ -1,6 +1,7 @@
 package team.educoin.transaction.controller;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -10,10 +11,15 @@ import team.educoin.common.controller.CommonResponse;
 import team.educoin.transaction.dto.CentralBankDto;
 import team.educoin.transaction.dto.ContractDto;
 import team.educoin.transaction.fabric.AdminFabricClient;
+import team.educoin.transaction.fabric.AgencyFabricClient;
 import team.educoin.transaction.pojo.Recharge;
+import team.educoin.transaction.pojo.Withdraw;
 import team.educoin.transaction.service.AdminService;
+import team.educoin.transaction.service.AgencyService;
+import team.educoin.transaction.service.UserService;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -29,11 +35,50 @@ public class AdminController {
 
 
     @Autowired
+    private UserService userService;
+    @Autowired
     private AdminService adminService;
     @Autowired
+    private AgencyService agencyService;
+    @Autowired
     private AdminFabricClient adminFabricClient;
+    @Autowired
+    private AgencyFabricClient agencyFabricClient;
 
     String admin = "clark@zju.incas";
+
+
+    /**
+     * =============================================================
+     * @desc 管理员获取所有待审核用户充值列表
+     * @author PandaClark
+     * @date 2019/5/13 5:40 PM
+     * @return CommonResponse
+     * =============================================================
+     */
+    @ApiOperation(value = "管理员获取所有未审核用户充值记录")
+    @RequestMapping( value = "/rechargeList", method = RequestMethod.GET )
+    public CommonResponse unCheckedRechargeList(){
+        List<Recharge> rechargeList = adminService.getUnCheckedRechargeList();
+        CommonResponse res = new CommonResponse(0, "success", rechargeList);
+        return res;
+    }
+
+    /**
+     * =============================================================
+     * @desc 管理员获取所有待审核机构提现列表
+     * @author PandaClark
+     * @date 2019/5/13 5:53 PM
+     * @return CommonResponse
+     * =============================================================
+     */
+    @ApiOperation(value = "管理员获取所有未审核机构提现记录")
+    @RequestMapping( value = "/withdrawList", method = RequestMethod.GET )
+    public CommonResponse unCheckedWithdrawList(){
+        List<Withdraw> withdrawList = adminService.getUnCheckedWithdrawList();
+        CommonResponse res = new CommonResponse(0, "success", withdrawList);
+        return res;
+    }
 
 
     /**
@@ -45,6 +90,7 @@ public class AdminController {
      * @return CommonResponse
      * =============================================================
      */
+    @ApiOperation(value = "管理员同意用户充值")
     @RequestMapping( value = "/rechargeY", method = RequestMethod.POST )
     public CommonResponse acceptUserRecharge( @RequestParam("rechargeId") String rechargeId ){
 
@@ -53,8 +99,10 @@ public class AdminController {
         res.setStatus(1);
         res.setMessage("failed");
         // mysql 查出相关记录信息
-        Recharge record = adminService.getRechargeRecordById(rechargeId);
-        if ( record.getIfChecked() != 0 ){
+        Recharge record = userService.getRechargeRecordById(rechargeId);
+        if ( record == null){
+            res.setData("没有改充值记录");
+        } else if ( record.getIfChecked() != 0 ){
             res.setMessage("该记录已被审核过了！请勿重复审核");
         } else {
             Map<String, String> rechargeInfo = new HashMap<>();
@@ -82,6 +130,7 @@ public class AdminController {
      * @return CommonResponse
      * =============================================================
      */
+    @ApiOperation(value = "管理员拒绝用户充值")
     @RequestMapping( value = "/rechargeR", method = RequestMethod.POST )
     public CommonResponse rejectUserRecharge( @RequestParam("rechargeId") String rechargeId ){
 
@@ -90,16 +139,17 @@ public class AdminController {
         res.setStatus(1);
         res.setMessage("failed");
         // mysql 查出相关记录信息
-        Recharge record = adminService.getRechargeRecordById(rechargeId);
-        if ( record.getIfChecked() != 0 ){
+        Recharge record = userService.getRechargeRecordById(rechargeId);
+        if ( record == null){
+            res.setData("没有改充值记录");
+        } else if ( record.getIfChecked() != 0 ){
             res.setMessage("该记录已被审核过了！请勿重复审核");
         } else {
             Map<String, String> rechargeInfo = new HashMap<>();
-            rechargeInfo.put("$class","org.education.CheckUserRecharge");
+            rechargeInfo.put("$class","org.education.RejectUserRecharge");
             rechargeInfo.put("rechargeID",record.getPaymentId());
-            rechargeInfo.put("paymentid",record.getPaymentMethod());
             // fabric 发 post
-            Map<String, String> result = adminFabricClient.CheckUserRechargeFabric(rechargeInfo);
+            Map<String, String> result = adminFabricClient.RejectUserRechargeFabric(rechargeInfo);
             System.out.println(result);
             // 修改 mysql 字段
             adminService.rejectUserRecharge(record.getPaymentId(), admin);
@@ -116,15 +166,38 @@ public class AdminController {
      * @desc 同意机构用户提现
      * @author PandaClark
      * @date 2019/5/12 5:17 PM
-     * @param tokenWithdrawId 提现请求ID
+     * @param withdrawId 提现记录的 payment_id
      * @return team.educoin.common.controller.CommonResponse
      * =============================================================
      */
-    @RequestMapping( value = "/companyWithdrawY", method = RequestMethod.POST )
-    public CommonResponse acceptCompanyWithdraw( @RequestParam("tokenWithdrawId") String tokenWithdrawId){
+    @ApiOperation(value = "管理员同意机构用户提现")
+    @RequestMapping( value = "/withdrawY", method = RequestMethod.POST )
+    public CommonResponse acceptCompanyWithdraw( @RequestParam("withdrawId") String withdrawId){
+
         CommonResponse res = new CommonResponse();
-
-
+        // 先默认失败
+        res.setStatus(1);
+        res.setMessage("failed");
+        // mysql 查出相关记录信息
+        Withdraw record = agencyService.getWithdrawRecordById(withdrawId);
+        if ( record == null){
+            res.setData("没有改提现记录");
+        } else if ( record.getIfChecked() != 0 ){
+            res.setMessage("该记录已被审核过了！请勿重复审核");
+        } else {
+            Map<String, String> rechargeInfo = new HashMap<>();
+            rechargeInfo.put("$class","org.education.CheckCompanyWithdraw");
+            rechargeInfo.put("tokenWithdrawID",record.getPaymentId());
+            rechargeInfo.put("paymentid",record.getPaymentMethod());
+            // fabric 发 post
+            Map<String, String> result = agencyFabricClient.CheckAgencyWithdrawFabric(rechargeInfo);
+            System.out.println(result);
+            // 修改 mysql 字段
+            adminService.acceptCompanyWithdraw(record.getPaymentId(), admin);
+            res.setStatus(0);
+            res.setMessage("success");
+            res.setData("已审核通过");
+        }
         return res;
     }
 
@@ -134,17 +207,40 @@ public class AdminController {
      * @desc 拒绝机构用户提现
      * @author PandaClark
      * @date 2019/5/12 5:18 PM
-     * @param tokenWithdrawId 提现请求ID
+     * @param withdrawId 提现记录的 payment_id
      * @return team.educoin.common.controller.CommonResponse
      * =============================================================
      */
-    @RequestMapping( value = "/companyWithdrawR", method = RequestMethod.POST )
-    public CommonResponse rejectCompanyWithdraw( @RequestParam("tokenWithdrawId") String tokenWithdrawId){
+    @ApiOperation(value = "管理员拒绝机构用户提现")
+    @RequestMapping( value = "/withdrawR", method = RequestMethod.POST )
+    public CommonResponse rejectCompanyWithdraw( @RequestParam("withdrawId") String withdrawId){
+
         CommonResponse res = new CommonResponse();
-
-
+        // 先默认失败
+        res.setStatus(1);
+        res.setMessage("failed");
+        // mysql 查出相关记录信息
+        Withdraw record = agencyService.getWithdrawRecordById(withdrawId);
+        if ( record == null){
+            res.setData("没有改提现记录");
+        } else if ( record.getIfChecked() != 0 ){
+            res.setMessage("该记录已被审核过了！请勿重复审核");
+        } else {
+            Map<String, String> rechargeInfo = new HashMap<>();
+            rechargeInfo.put("$class","org.education.RejectCompanyWithdraw");
+            rechargeInfo.put("tokenWithdrawID",record.getPaymentId());
+            // fabric 发 post
+            Map<String, Object> result = agencyFabricClient.RejectAgencyWithdrawFabric(rechargeInfo);
+            System.out.println(result);
+            // 修改 mysql 字段
+            adminService.rejectCompanyWithdraw(record.getPaymentId(), admin);
+            res.setStatus(0);
+            res.setMessage("success");
+            res.setData("已审核拒绝");
+        }
         return res;
     }
+
 
     /**
      * =============================================================
@@ -153,6 +249,7 @@ public class AdminController {
      * @date 2019/5/12 5:26 PM
      * =============================================================
      */
+    @ApiOperation(value = "获取中央账户信息")
     @RequestMapping( value = "/centralBank", method = RequestMethod.GET )
     public CommonResponse centralBank(){
         CommonResponse res = new CommonResponse();
@@ -172,6 +269,7 @@ public class AdminController {
      * @date 2019/5/12 5:27 PM
      * =============================================================
      */
+    @ApiOperation(value = "获取权益分配合约")
     @RequestMapping( value = "/contract", method = RequestMethod.GET )
     public CommonResponse contract(){
         CommonResponse res = new CommonResponse();

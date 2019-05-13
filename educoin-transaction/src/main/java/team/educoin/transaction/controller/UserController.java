@@ -43,16 +43,13 @@ public class UserController {
      * @return CommonResponse
      * =============================================================
      */
+    @ApiOperation(value = "获取所有审核通过的充值记录")
     @RequestMapping( value = "/getRechargesY", method = RequestMethod.GET )
     public CommonResponse getRechargesY(){
-        CommonResponse res = new CommonResponse();
-
         // email 应当从 session 中拿，此处只是测试
         String email = "test1@qq.com";
         List<Recharge> recharges = userService.getUserRechargeRecords(email, 0);
-        res.setStatus(0);
-        res.setMessage("success");
-        res.setData(recharges);
+        CommonResponse res = new CommonResponse(0, "success", recharges);
         return res;
     }
 
@@ -95,7 +92,8 @@ public class UserController {
      * @return team.educoin.common.controller.CommonResponse
      * =============================================================
      */
-    @RequestMapping( value = "/getTransfers", method = RequestMethod.GET )
+    @ApiOperation(value = "获取所有转账记录")
+    @RequestMapping( value = "/transferList", method = RequestMethod.GET )
     public CommonResponse getTransferRecords(){
         CommonResponse res = new CommonResponse();
         // email 应当从 session 中拿，此处只是测试
@@ -114,10 +112,6 @@ public class UserController {
      * @return
      */
     @ApiOperation(value = "普通用户向普通用户转账", notes = "普通用户向普通用户转账接口")
-    // @ApiResponses({
-    //         @ApiResponse(code = 0, message = "success"),
-    //         @ApiResponse(code = 1, message = "failed")
-    // })
     @RequestMapping( value = "/transferu2u", method = RequestMethod.POST )
     public CommonResponse transferU2U(@RequestBody TokenTransferDto transferDto){
         CommonResponse res = new CommonResponse();

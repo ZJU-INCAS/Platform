@@ -3,11 +3,13 @@ package team.educoin.transaction.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import team.educoin.transaction.dao.RechargeMapper;
+import team.educoin.transaction.dao.WithdrawMapper;
 import team.educoin.transaction.dto.CentralBankDto;
 import team.educoin.transaction.dto.ContractDto;
 import team.educoin.transaction.fabric.AdminFabricClient;
 import team.educoin.transaction.pojo.Recharge;
 import team.educoin.transaction.pojo.Token;
+import team.educoin.transaction.pojo.Withdraw;
 import team.educoin.transaction.service.AdminService;
 
 import java.util.List;
@@ -24,6 +26,8 @@ public class AdminServiceImpl implements AdminService {
     private AdminFabricClient adminFabricClient;
     @Autowired
     private RechargeMapper rechargeMapper;
+    @Autowired
+    private WithdrawMapper withdrawMapper;
 
     @Override
     public CentralBankDto getCentralBankInfo() {
@@ -38,9 +42,15 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public Recharge getRechargeRecordById(String id) {
-        Recharge record = rechargeMapper.getRecordByPaymentId(id);
-        return record;
+    public List<Recharge> getUnCheckedRechargeList() {
+        List<Recharge> list = rechargeMapper.getRecordsByFlag(0);
+        return list;
+    }
+
+    @Override
+    public List<Withdraw> getUnCheckedWithdrawList() {
+        List<Withdraw> list = withdrawMapper.getRecordsByFlag(0);
+        return list;
     }
 
     @Override
@@ -51,5 +61,15 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void rejectUserRecharge(String paymentId, String adminEmail) {
         rechargeMapper.updateRecordByPaymentId(paymentId, adminEmail, 2);
+    }
+
+    @Override
+    public void acceptCompanyWithdraw(String paymentId, String admin) {
+        withdrawMapper.updateRecordByPaymentId(paymentId, admin, 1);
+    }
+
+    @Override
+    public void rejectCompanyWithdraw(String paymentId, String admin) {
+        withdrawMapper.updateRecordByPaymentId(paymentId, admin, 2);
     }
 }
