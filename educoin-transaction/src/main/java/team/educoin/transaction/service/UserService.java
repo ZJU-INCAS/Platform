@@ -1,8 +1,10 @@
 package team.educoin.transaction.service;
 
 import team.educoin.transaction.dto.TokenTransferDto;
+import team.educoin.transaction.pojo.FileInfo;
 import team.educoin.transaction.pojo.Recharge;
 import team.educoin.transaction.pojo.Token;
+import team.educoin.transaction.pojo.UserInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -81,5 +83,15 @@ public interface UserService {
      */
     boolean tokenTransferU2C(TokenTransferDto dto);
 
+    /**
+     * =============================================================
+     * @desc 返回用户余额信息
+     * @author PandaClark
+     * @date 2019/5/16 6:26 PM
+     * @return team.educoin.transaction.pojo.UserInfo
+     * =============================================================
+     */
+    UserInfo getUserById(String email);
 
+    void userConsumeService(String email, String serviceID, FileInfo fileInfo);
 }

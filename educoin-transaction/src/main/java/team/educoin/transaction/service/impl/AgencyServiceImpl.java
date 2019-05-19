@@ -2,13 +2,21 @@ package team.educoin.transaction.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import team.educoin.transaction.dao.AgencyConsumeMapper;
+import team.educoin.transaction.dao.AgencyInfoMapper;
+import team.educoin.transaction.dao.FileInfoMapper;
 import team.educoin.transaction.dao.WithdrawMapper;
 import team.educoin.transaction.dto.AgencyWithdrawDto;
 import team.educoin.transaction.fabric.AgencyFabricClient;
+import team.educoin.transaction.pojo.FileInfo;
+import team.educoin.transaction.pojo.UserInfo;
 import team.educoin.transaction.pojo.Withdraw;
 import team.educoin.transaction.service.AgencyService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static team.educoin.transaction.util.UUIDutil.getUUID;
 
@@ -24,6 +32,12 @@ public class AgencyServiceImpl implements AgencyService {
     private AgencyFabricClient agencyFabricClient;
     @Autowired
     private WithdrawMapper withdrawMapper;
+    @Autowired
+    private AgencyInfoMapper agencyInfoMapper;
+    @Autowired
+    private AgencyConsumeMapper agencyConsumeMapper;
+    @Autowired
+    private FileInfoMapper fileInfoMapper;
 
     /**
      * =============================================================
@@ -82,5 +96,30 @@ public class AgencyServiceImpl implements AgencyService {
         // 从 mysql 中查结果
         List<Withdraw> records = withdrawMapper.getRecordsByIdAndFlag(email, flag);
         return records;
+    }
+
+    @Override
+    public UserInfo getAgencyById(String email) {
+        UserInfo userInfo = agencyInfoMapper.selectRecordById(email);
+        return userInfo;
+    }
+
+    @Override
+    @Transactional
+    public void agencyBuyOwnership(String email, String serviceID, FileInfo fileInfo) {
+        // 扣除机构用户余额
+        UserInfo agency = agencyInfoMapper.selectRecordById(email);
+        Double amount = agency.getAccountBalance() - fileInfo.getFileReadPrice();
+        agencyInfoMapper.updateBankAccountById(email,amount.toString());
+        // 记录机构用户消费记录
+        Map<String,Object> map = new HashMap<>();
+        map.put("email",email);
+        map.put("service_id",fileInfo.getId());
+        map.put("file_title",fileInfo.getFileTitle());
+        map.put("file_ownerPrice",fileInfo.getFileReadPrice());
+        map.put("file_name",fileInfo.getFileName());
+        agencyConsumeMapper.addRecord(map);
+        // 修改资源所有权
+        fileInfoMapper.updateFileOwner(serviceID,email);
     }
 }

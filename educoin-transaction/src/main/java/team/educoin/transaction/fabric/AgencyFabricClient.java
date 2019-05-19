@@ -56,4 +56,15 @@ public interface AgencyFabricClient {
      */
     @RequestMapping( value = "/RejectCompanyWithdraw", method = RequestMethod.POST )
     Map<String,Object> RejectAgencyWithdrawFabric(@RequestBody Map<String,String> rechargeInfo);
+
+    /**
+     * =============================================================
+     * @desc 机构用户购买所有权
+     * @author PandaClark
+     * @date 2019/5/17 11:37 AM
+     * @return java.util.Map<java.lang.String , java.lang.Object>
+     * =============================================================
+     */
+    @RequestMapping( value = "/CompanyBuyOnwership", method = RequestMethod.POST )
+    Map<String, Object> agencyBuyOwnership(Map<String, String> values) throws Exception;
 }

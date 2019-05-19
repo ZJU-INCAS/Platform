@@ -2,13 +2,15 @@ package team.educoin.transaction.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import team.educoin.transaction.dao.AdminInfoMapper;
+import team.educoin.transaction.dao.FileInfoMapper;
 import team.educoin.transaction.dao.RechargeMapper;
 import team.educoin.transaction.dao.WithdrawMapper;
 import team.educoin.transaction.dto.CentralBankDto;
 import team.educoin.transaction.dto.ContractDto;
 import team.educoin.transaction.fabric.AdminFabricClient;
 import team.educoin.transaction.pojo.Recharge;
-import team.educoin.transaction.pojo.Token;
+import team.educoin.transaction.pojo.UserInfo;
 import team.educoin.transaction.pojo.Withdraw;
 import team.educoin.transaction.service.AdminService;
 
@@ -28,6 +30,10 @@ public class AdminServiceImpl implements AdminService {
     private RechargeMapper rechargeMapper;
     @Autowired
     private WithdrawMapper withdrawMapper;
+    @Autowired
+    private AdminInfoMapper adminInfoMapper;
+    @Autowired
+    private FileInfoMapper fileInfoMapper;
 
     @Override
     public CentralBankDto getCentralBankInfo() {
@@ -71,5 +77,21 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public void rejectCompanyWithdraw(String paymentId, String admin) {
         withdrawMapper.updateRecordByPaymentId(paymentId, admin, 2);
+    }
+
+    @Override
+    public UserInfo getAdminById(String email) {
+        UserInfo userInfo = adminInfoMapper.selectRecordById(email);
+        return userInfo;
+    }
+
+    @Override
+    public void acceptService(String admin, String id) {
+        fileInfoMapper.updateFileChecked(admin, id, 1);
+    }
+
+    @Override
+    public void rejectService(String admin, String id) {
+        fileInfoMapper.updateFileChecked(admin, id, 2);
     }
 }

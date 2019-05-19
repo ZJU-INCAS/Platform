@@ -10,6 +10,7 @@ import team.educoin.transaction.dto.UserRechargeDto;
 import team.educoin.transaction.pojo.FabricUserInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * description:
@@ -63,4 +64,17 @@ public interface UserFabricClient {
      */
     @RequestMapping( value = "/TokenTransferU_C", method = RequestMethod.POST )
     TokenTransferDto tokenTransferU_CFabric(@RequestBody TokenTransferDto tokenTransferDto) throws Exception;
+
+
+    /**
+     * =============================================================
+     * @desc 普通用户购买阅读权
+     * @author PandaClark
+     * @date 2019/5/17 11:38 AM
+     * @return java.util.Map<java.lang.String       ,       java.lang.Object>
+     * =============================================================
+     */
+    @RequestMapping( value = "/UserConsumeService", method = RequestMethod.POST )
+    Map<String, Object> userConsumeService(Map<String,String> values) throws Exception;
+
 }

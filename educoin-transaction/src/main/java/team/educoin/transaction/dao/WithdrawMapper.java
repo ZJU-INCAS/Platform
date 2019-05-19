@@ -17,7 +17,7 @@ import java.util.List;
 @Component
 public interface WithdrawMapper {
 
-    String TABLE_NAME = "company_withdraw";
+    String TABLE_NAME = "agency_withdraw";
     String INSERT_FIELDS = "email, admin_email, payment_id, payment_method, if_checked, withdraw_amount, " +
             "check_time, update_time";
     String SELECT_FIELDS = "id, " + INSERT_FIELDS;

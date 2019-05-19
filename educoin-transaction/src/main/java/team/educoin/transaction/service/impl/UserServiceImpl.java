@@ -1,21 +1,25 @@
 package team.educoin.transaction.service.impl;
 
+import com.alibaba.druid.sql.ast.statement.SQLForeignKeyImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import team.educoin.transaction.dao.RechargeMapper;
 import team.educoin.transaction.dao.TokenMapper;
-import team.educoin.transaction.dao.UserMapper;
+import team.educoin.transaction.dao.UserConsumeMapper;
+import team.educoin.transaction.dao.UserInfoMapper;
 import team.educoin.transaction.dto.TokenTransferDto;
 import team.educoin.transaction.dto.UserRechargeDto;
 import team.educoin.transaction.fabric.UserFabricClient;
+import team.educoin.transaction.pojo.FileInfo;
 import team.educoin.transaction.pojo.Recharge;
 import team.educoin.transaction.pojo.Token;
+import team.educoin.transaction.pojo.UserInfo;
 import team.educoin.transaction.service.UserService;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static team.educoin.transaction.util.UUIDutil.getUUID;
 
@@ -31,17 +35,19 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserFabricClient userFabricClient;
     @Autowired
-    private UserMapper userMapper;
+    private UserInfoMapper userInfoMapper;
     @Autowired
     private RechargeMapper rechargeMapper;
     @Autowired
     private TokenMapper tokenMapper;
+    @Autowired
+    private UserConsumeMapper userConsumeMapper;
 
     @Override
     public Map<String, Object> getUserInfo() {
         Map<String, Object> userInfoMap = new HashMap<>();
         userInfoMap.put("fabricUserInfo", userFabricClient.getUser());
-        userInfoMap.put("mysqlUserInfo",userMapper.selectAllUser());
+        userInfoMap.put("mysqlUserInfo", userInfoMapper.selectAllUser());
         return userInfoMap;
     }
 
@@ -178,4 +184,28 @@ public class UserServiceImpl implements UserService {
         int insert = tokenMapper.addTransfer(token);
         return insert > 0;
     }
+
+    @Override
+    public UserInfo getUserById(String email) {
+        UserInfo userInfo = userInfoMapper.selectRecordById(email);
+        return userInfo;
+    }
+
+    @Override
+    @Transactional
+    public void userConsumeService(String email, String serviceID, FileInfo fileInfo) {
+        // 扣除用户余额
+        UserInfo user = userInfoMapper.selectRecordById(email);
+        Double amount = user.getAccountBalance() - fileInfo.getFileReadPrice();
+        userInfoMapper.updateBankAccountById(email, amount.toString());
+        // 记录用户消费记录
+        Map<String,Object> map = new HashMap<>();
+        map.put("email",email);
+        map.put("service_id",fileInfo.getId());
+        map.put("file_title",fileInfo.getFileTitle());
+        map.put("file_readPrice",fileInfo.getFileReadPrice());
+        map.put("file_name",fileInfo.getFileName());
+        userConsumeMapper.addRecord(map);
+    }
+
 }

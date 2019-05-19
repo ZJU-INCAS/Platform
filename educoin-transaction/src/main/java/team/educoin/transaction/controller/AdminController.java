@@ -12,10 +12,13 @@ import team.educoin.transaction.dto.CentralBankDto;
 import team.educoin.transaction.dto.ContractDto;
 import team.educoin.transaction.fabric.AdminFabricClient;
 import team.educoin.transaction.fabric.AgencyFabricClient;
+import team.educoin.transaction.fabric.FileFabricClient;
+import team.educoin.transaction.pojo.FileInfo;
 import team.educoin.transaction.pojo.Recharge;
 import team.educoin.transaction.pojo.Withdraw;
 import team.educoin.transaction.service.AdminService;
 import team.educoin.transaction.service.AgencyService;
+import team.educoin.transaction.service.FileService;
 import team.educoin.transaction.service.UserService;
 
 import java.util.HashMap;
@@ -41,9 +44,13 @@ public class AdminController {
     @Autowired
     private AgencyService agencyService;
     @Autowired
+    private FileService fileService;
+    @Autowired
     private AdminFabricClient adminFabricClient;
     @Autowired
     private AgencyFabricClient agencyFabricClient;
+    @Autowired
+    private FileFabricClient fileFabricClient;
 
     String admin = "clark@zju.incas";
 
@@ -141,7 +148,7 @@ public class AdminController {
         // mysql 查出相关记录信息
         Recharge record = userService.getRechargeRecordById(rechargeId);
         if ( record == null){
-            res.setData("没有改充值记录");
+            res.setData("没有该充值记录");
         } else if ( record.getIfChecked() != 0 ){
             res.setMessage("该记录已被审核过了！请勿重复审核");
         } else {
@@ -181,7 +188,7 @@ public class AdminController {
         // mysql 查出相关记录信息
         Withdraw record = agencyService.getWithdrawRecordById(withdrawId);
         if ( record == null){
-            res.setData("没有改提现记录");
+            res.setData("没有该提现记录");
         } else if ( record.getIfChecked() != 0 ){
             res.setMessage("该记录已被审核过了！请勿重复审核");
         } else {
@@ -281,4 +288,140 @@ public class AdminController {
         return res;
     }
 
+
+    /**
+     * =============================================================
+     * @desc 查看所有资源列表
+     * @author PandaClark
+     * @date 2019/5/16 1:53 PM
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
+     */
+    @ApiOperation(value = "查看所有资源列表", notes = "查看所有资源列表")
+    @RequestMapping( value = "/resourcelist", method = RequestMethod.GET )
+    public CommonResponse resourceList(){
+        List<FileInfo> files = fileService.getServiceList();
+        CommonResponse res = new CommonResponse(0, "success", files);
+        return res;
+    }
+
+    /**
+     * =============================================================
+     * @desc 管理员查看待审核列表
+     * @author PandaClark
+     * @date 2019/5/16 1:53 PM
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
+     */
+    @ApiOperation(value = "管理员查看待审核列表", notes = "管理员查看待审核列表")
+    @RequestMapping( value = "/resourcelistW", method = RequestMethod.GET )
+    public CommonResponse resourceListW(){
+        List<FileInfo> files = fileService.getUnCheckedServiceList();
+        CommonResponse res = new CommonResponse(0, "success", files);
+        return res;
+    }
+
+    /**
+     * =============================================================
+     * @desc 管理员查看审核通过记录
+     * @author PandaClark
+     * @date 2019/5/16 1:53 PM
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
+     */
+    @ApiOperation(value = "管理员查看审核通过记录", notes = "管理员查看审核通过记录")
+    @RequestMapping( value = "/resourcelistY", method = RequestMethod.GET )
+    public CommonResponse resourceListY(){
+        List<FileInfo> files = fileService.getCheckedServiceList();
+        CommonResponse res = new CommonResponse(0, "success", files);
+        return res;
+    }
+
+    /**
+     * =============================================================
+     * @desc 管理员查看审核拒绝记录
+     * @author PandaClark
+     * @date 2019/5/16 1:53 PM
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
+     */
+    @ApiOperation(value = "管理员查看审核拒绝记录", notes = "管理员查看审核拒绝记录")
+    @RequestMapping( value = "/resourcelistR", method = RequestMethod.GET )
+    public CommonResponse resourceListR(){
+        List<FileInfo> files = fileService.getRejectServiceList();
+        CommonResponse res = new CommonResponse(0, "success", files);
+        return res;
+    }
+
+
+    /**
+     * =============================================================
+     * @desc 管理员审核通过资源
+     * @author PandaClark
+     * @date 2019/5/16 10:16 PM
+     * @return CommonResponse
+     * =============================================================
+     */
+    @ApiOperation(value = "管理员审核通过资源", notes = "管理员查看审核拒绝记录")
+    @RequestMapping( value = "/serviceY", method = RequestMethod.GET )
+    public CommonResponse checkService( @RequestParam("id") String id ){
+
+        CommonResponse res = null;
+
+        try {
+            FileInfo fileInfo = fileService.getFileInfoById(id);
+            // 机构用户上传资源时，信息不上链，基本信息只存在数据库里，只有审核通过的资源才上链
+            Map<String, Object> map = new HashMap<>();
+            map.put("$class","org.education.RegisterService");
+            map.put("serviceID", fileInfo.getId());
+            map.put("serviceName", fileInfo.getFileTitle());
+            map.put("readPrice", fileInfo.getFileReadPrice());
+            map.put("ownershipPrice", fileInfo.getFileOwnerShipPrice());
+            map.put("company", fileInfo.getFileInitialProvider());
+
+            fileFabricClient.registerService(map);
+            adminService.acceptService(admin, id);
+            res = new CommonResponse(0, "success", "注册新资源");
+        } catch (Exception e){
+            e.printStackTrace();
+            res = new CommonResponse(1, "failed", e.getMessage());
+        }
+
+        return res;
+    }
+
+    /**
+     * =============================================================
+     * @desc 管理员审核拒绝资源
+     * @author PandaClark
+     * @date 2019/5/16 10:16 PM
+     * @return CommonResponse
+     * =============================================================
+     */
+    @ApiOperation(value = "管理员审核拒绝资源", notes = "管理员查看审核拒绝记录")
+    @RequestMapping( value = "/serviceR", method = RequestMethod.GET )
+    public CommonResponse rejectService( @RequestParam("id") String id ){
+        adminService.rejectService(admin, id);
+        CommonResponse res = new CommonResponse(0, "success", "已审核拒绝");
+        return res;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -4,6 +4,7 @@ import team.educoin.transaction.dto.CentralBankDto;
 import team.educoin.transaction.dto.ContractDto;
 import team.educoin.transaction.pojo.Recharge;
 import team.educoin.transaction.pojo.Token;
+import team.educoin.transaction.pojo.UserInfo;
 import team.educoin.transaction.pojo.Withdraw;
 
 import java.util.List;
@@ -96,4 +97,26 @@ public interface AdminService {
      * =============================================================
      */
     void rejectCompanyWithdraw(String paymentId, String admin);
+
+    UserInfo getAdminById(String admin);
+
+    /**
+     * =============================================================
+     * @desc 服务审核通过
+     * @author PandaClark
+     * @date 2019/5/17 11:07 AM
+     * @return void
+     * =============================================================
+     */
+    void acceptService(String admin, String id);
+
+    /**
+     * =============================================================
+     * @desc 服务审核拒绝
+     * @author PandaClark
+     * @date 2019/5/17 11:07 AM
+     * @return void
+     * =============================================================
+     */
+    void rejectService(String admin, String id);
 }

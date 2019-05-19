@@ -1,9 +1,12 @@
 package team.educoin.transaction.service;
 
 import org.springframework.stereotype.Service;
+import team.educoin.transaction.pojo.FileInfo;
+import team.educoin.transaction.pojo.UserInfo;
 import team.educoin.transaction.pojo.Withdraw;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @description: 机构Service
@@ -47,4 +50,8 @@ public interface AgencyService {
      * =============================================================
      */
     List<Withdraw> getAgencyWithdrawRecords(String email, int flag);
+
+    UserInfo getAgencyById(String email);
+
+    void agencyBuyOwnership(String email, String serviceID, FileInfo fileInfo);
 }

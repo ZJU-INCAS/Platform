@@ -16,7 +16,7 @@ import java.util.List;
 @Component
 public interface RechargeMapper {
 
-    String TABLE_NAME = "recharge_apply";
+    String TABLE_NAME = "user_recharge";
     String INSERT_FIELDS = "email, admin_email, payment_id, payment_method, if_checked, recharge_amount, " +
             "check_time, update_time";
     String SELECT_FIELDS = "id, " + INSERT_FIELDS;

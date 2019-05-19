@@ -16,7 +16,7 @@ import java.util.List;
 @Component
 public interface TokenMapper {
 
-    String TABLE_NAME = "token_transfer";
+    String TABLE_NAME = "user_transfer";
     String INSERT_FIELDS = "transfer_id, from_email, to_email, beneficiary_type, transfer_amount, update_time";
     String SELECT_FIELDS = "id, " + INSERT_FIELDS;
 
