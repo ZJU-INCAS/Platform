@@ -53,7 +53,7 @@ public interface FileInfoMapper {
             "fileContentType=#{fileContentType} where id=#{id}"})
     int updateFileInfo(FileInfo fileInfo);
 
-    @Insert({"insert into (", INSERT_FIELDS ,") values (#{id},#{fileOwner},#{fileInitialProvider},#{fileTitle},#{fileImage},#{fileDescription},#{fileReadPrice},#{fileOwnerShipPrice},#{fileName},#{fileKeyWord},#{fileContentType},#{fileFormat},#{fileSize},#{fileChecked})"})
+    @Insert({"insert into ", TABLE_NAME, "(",INSERT_FIELDS,") values (#{id},#{fileOwner},#{fileInitialProvider},#{fileTitle},#{fileImage},#{fileDescription},#{fileReadPrice},#{fileOwnerShipPrice},#{fileName},#{fileKeyWord},#{fileContentType},#{fileFormat},#{fileSize},#{fileChecked})"})
     int addRecord(FileInfo fileInfo);
 
 }

@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.ResourceUtils;
+import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,12 +18,13 @@ import team.educoin.transaction.pojo.UserInfo;
 import team.educoin.transaction.pojo.Withdraw;
 import team.educoin.transaction.service.AgencyService;
 import team.educoin.transaction.service.FileService;
+import team.educoin.transaction.util.FileUtil;
 import team.educoin.transaction.util.UUIDutil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.math.BigDecimal;
+import java.nio.file.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -343,25 +345,14 @@ public class AgencyController {
         String fileId = UUIDutil.getUUID();
 
 
-        // 设置文件上传路径
-        File path = new File(ResourceUtils.getURL("classpath:").getPath());
+        // 文件上传操作
+        Files.copy(file.getInputStream(), Paths.get(FileUtil.UPLOAD_DIR,fileName), StandardCopyOption.REPLACE_EXISTING);
 
-        // 检测是否存在路径
-        if (!path.exists())
-            path = new File("");
-        File upload = new File(path.getAbsolutePath(), "upload/");
-        // 检测是否存在目录
-        if (!upload.exists())
-            upload.mkdirs();
-        File dest = new File(upload.getPath() + "/" + fileName);
-        // 检测是否存在目录
-        if (!dest.getParentFile().exists())
-            dest.getParentFile().mkdirs();
 
         // 资源注册操作
         FileInfo fileInfo = new FileInfo(fileId, fileInitialProvider, fileInitialProvider, fileTitle, fileImage,
                 fileDescription, fileReadPrice, fileOwnerShipPrice, fileName, fileKeyWord, fileContentType,
-                type, getFormatSize(file.getSize()),0);
+                type, FileUtil.getFormatSize(file.getSize()),0);
 
         try {
             // 机构用户上传资源时，信息不上链，基本信息只存在数据库里，只有审核通过的资源才上链
@@ -375,7 +366,7 @@ public class AgencyController {
             //
             // fileFabricClient.registerService(map);
             fileService.registerService(fileInfo);
-            res = new CommonResponse(0, "success", "注册新资源");
+            res = new CommonResponse(0, "success", "注册新资源成功");
         } catch (Exception e){
             e.printStackTrace();
             res = new CommonResponse(1, "failed", e.getMessage());
@@ -385,30 +376,6 @@ public class AgencyController {
 
     }
 
-    // 工具函数：文件大小形式化(例：convert 1024 to 1KB)
-    private static String getFormatSize(long size) {
-        double kiloByte = size / 1024;
-        if (kiloByte < 1) {
-            return size + "Byte(s)";
-        }
-        double megaByte = kiloByte / 1024;
-        if (megaByte < 1) {
-            BigDecimal result1 = new BigDecimal(Double.toString(kiloByte));
-            return result1.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "KB";
-        }
-        double gigaByte = megaByte / 1024;
-        if (gigaByte < 1) {
-            BigDecimal result2 = new BigDecimal(Double.toString(megaByte));
-            return result2.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "MB";
-        }
-        double teraBytes = gigaByte / 1024;
-        if (teraBytes < 1) {
-            BigDecimal result3 = new BigDecimal(Double.toString(gigaByte));
-            return result3.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "GB";
-        }
-        BigDecimal result4 = new BigDecimal(teraBytes);
-        return result4.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "TB";
-    }
 
 
     /**
@@ -477,54 +444,57 @@ public class AgencyController {
 
         // 根据文件id获取文件名
         FileInfo fileInfo = fileService.getFileInfoById(id);
-        String fileName = fileInfo.getFileName();
+        String filename = fileInfo.getFileName();
 
-        // System.out.println(fileName);
 
         response.setContentType("application/force-download");  //设置强制下载不打开
-        response.addHeader("Content-Disposition", "attachment;fileName=" + new String(fileName.getBytes("UTF-8"), "iso-8859-1"));// 设置文件名
+        response.addHeader("Content-Disposition", "attachment;fileName=" + new String(filename.getBytes("UTF-8"), "iso-8859-1"));// 设置文件名
 
-        byte[] buffer = new byte[1024];
-        FileInputStream fis = null;
-        BufferedInputStream bis = null;
-
-        File file = new File(new File(ResourceUtils.getURL("classpath:").getPath()).getAbsolutePath() + "/upload/" + fileName);
-        // System.out.println(ResourceUtils.getURL("classpath:").getPath());
-        // System.out.println(new File(ResourceUtils.getURL("classpath:").getPath()).getAbsolutePath() + "/upload/" + fileName);
-
-        // 文件下载：将文件写到输出流中
         try {
-            fis = new FileInputStream(file);
-            bis = new BufferedInputStream(fis);
-            OutputStream os = response.getOutputStream();
-            int i = bis.read(buffer);
-            while (i != -1) {
-                os.write(buffer, 0, i);
-                os.flush();  // flush()表示强制将缓冲区中的数据发送出去,不必等到缓冲区满;
-                i = bis.read(buffer);
-            }
-        } catch (Exception e) {
+            // 文件下载操作
+            StreamUtils.copy(new FileInputStream(new File(FileUtil.UPLOAD_DIR) + "/" + filename), response.getOutputStream());
+        } catch (Exception e){
             e.printStackTrace();
             res.setStatus(1);
             res.setMessage("failed");
             res.setData(e.getMessage());
-        } finally {
-            if (bis != null) {
-                try {
-                    bis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
 
         return res;
+
     }
+
+    // @ResponseBody
+    // @RequestMapping(value = "/testup", method = RequestMethod.POST)
+    // @ApiOperation(value = "上传资源测试", notes = "上传资源测试")
+    // public String uploadTest(@RequestParam MultipartFile file,HttpServletResponse response) throws IOException {
+    //
+    //     // Files.copy(file.getInputStream(),new File("").toPath(), StandardCopyOption.REPLACE_EXISTING);
+    //     // StreamUtils.copy(new FileInputStream(new File("")),response.getOutputStream());
+    //
+    //     // int dotPos = file.getOriginalFilename().lastIndexOf(".");
+    //     // String fileName = file.getOriginalFilename().substring(dotPos + 1).toLowerCase();
+    //     String filename = file.getOriginalFilename();
+    //     Files.copy(file.getInputStream(), Paths.get(FileUtil.UPLOAD_DIR,filename), StandardCopyOption.REPLACE_EXISTING);
+    //
+    //     return "cha kan finder";
+    // }
+
+    // @ResponseBody
+    // @RequestMapping(value = "/testdown", method = RequestMethod.POST)
+    // @ApiOperation(value = "下载资源测试", notes = "下载资源测试")
+    // public String downloadTest(@RequestParam("name") String filename,HttpServletResponse response) throws IOException {
+    //
+    //     response.setContentType("application/force-download");  //设置强制下载不打开
+    //     response.addHeader("Content-Disposition", "attachment;fileName=" + new String(filename.getBytes("UTF-8"), "iso-8859-1"));// 设置文件名
+    //
+    //     try {
+    //         StreamUtils.copy(new FileInputStream(new File(FileUtil.UPLOAD_DIR) + "/" + filename), response.getOutputStream());
+    //     } catch (Exception e){
+    //         e.printStackTrace();
+    //     }
+    //
+    //     return "下载";
+    // }
+
 }
