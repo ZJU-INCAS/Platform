@@ -3,10 +3,7 @@ package team.educoin.transaction.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import team.educoin.common.controller.CommonResponse;
 import team.educoin.transaction.dto.CentralBankDto;
 import team.educoin.transaction.dto.ContractDto;
@@ -64,6 +61,7 @@ public class AdminController {
      * =============================================================
      */
     @ApiOperation(value = "管理员获取所有未审核用户充值记录")
+    @ResponseBody
     @RequestMapping( value = "/rechargeList", method = RequestMethod.GET )
     public CommonResponse unCheckedRechargeList(){
         List<Recharge> rechargeList = adminService.getUnCheckedRechargeList();
@@ -80,6 +78,7 @@ public class AdminController {
      * =============================================================
      */
     @ApiOperation(value = "管理员获取所有未审核机构提现记录")
+    @ResponseBody
     @RequestMapping( value = "/withdrawList", method = RequestMethod.GET )
     public CommonResponse unCheckedWithdrawList(){
         List<Withdraw> withdrawList = adminService.getUnCheckedWithdrawList();
@@ -98,6 +97,7 @@ public class AdminController {
      * =============================================================
      */
     @ApiOperation(value = "管理员同意用户充值")
+    @ResponseBody
     @RequestMapping( value = "/rechargeY", method = RequestMethod.POST )
     public CommonResponse acceptUserRecharge( @RequestParam("rechargeId") String rechargeId ){
 
@@ -138,6 +138,7 @@ public class AdminController {
      * =============================================================
      */
     @ApiOperation(value = "管理员拒绝用户充值")
+    @ResponseBody
     @RequestMapping( value = "/rechargeR", method = RequestMethod.POST )
     public CommonResponse rejectUserRecharge( @RequestParam("rechargeId") String rechargeId ){
 
@@ -178,6 +179,7 @@ public class AdminController {
      * =============================================================
      */
     @ApiOperation(value = "管理员同意机构用户提现")
+    @ResponseBody
     @RequestMapping( value = "/withdrawY", method = RequestMethod.POST )
     public CommonResponse acceptCompanyWithdraw( @RequestParam("withdrawId") String withdrawId){
 
@@ -219,6 +221,7 @@ public class AdminController {
      * =============================================================
      */
     @ApiOperation(value = "管理员拒绝机构用户提现")
+    @ResponseBody
     @RequestMapping( value = "/withdrawR", method = RequestMethod.POST )
     public CommonResponse rejectCompanyWithdraw( @RequestParam("withdrawId") String withdrawId){
 
@@ -257,6 +260,7 @@ public class AdminController {
      * =============================================================
      */
     @ApiOperation(value = "获取中央账户信息")
+    @ResponseBody
     @RequestMapping( value = "/centralBank", method = RequestMethod.GET )
     public CommonResponse centralBank(){
         CommonResponse res = new CommonResponse();
@@ -277,6 +281,7 @@ public class AdminController {
      * =============================================================
      */
     @ApiOperation(value = "获取权益分配合约")
+    @ResponseBody
     @RequestMapping( value = "/contract", method = RequestMethod.GET )
     public CommonResponse contract(){
         CommonResponse res = new CommonResponse();
@@ -298,6 +303,7 @@ public class AdminController {
      * =============================================================
      */
     @ApiOperation(value = "查看所有资源列表", notes = "查看所有资源列表")
+    @ResponseBody
     @RequestMapping( value = "/resourcelist", method = RequestMethod.GET )
     public CommonResponse resourceList(){
         List<FileInfo> files = fileService.getServiceList();
@@ -314,6 +320,7 @@ public class AdminController {
      * =============================================================
      */
     @ApiOperation(value = "管理员查看待审核列表", notes = "管理员查看待审核列表")
+    @ResponseBody
     @RequestMapping( value = "/resourcelistW", method = RequestMethod.GET )
     public CommonResponse resourceListW(){
         List<FileInfo> files = fileService.getUnCheckedServiceList();
@@ -330,6 +337,7 @@ public class AdminController {
      * =============================================================
      */
     @ApiOperation(value = "管理员查看审核通过记录", notes = "管理员查看审核通过记录")
+    @ResponseBody
     @RequestMapping( value = "/resourcelistY", method = RequestMethod.GET )
     public CommonResponse resourceListY(){
         List<FileInfo> files = fileService.getCheckedServiceList();
@@ -346,6 +354,7 @@ public class AdminController {
      * =============================================================
      */
     @ApiOperation(value = "管理员查看审核拒绝记录", notes = "管理员查看审核拒绝记录")
+    @ResponseBody
     @RequestMapping( value = "/resourcelistR", method = RequestMethod.GET )
     public CommonResponse resourceListR(){
         List<FileInfo> files = fileService.getRejectServiceList();
@@ -363,6 +372,7 @@ public class AdminController {
      * =============================================================
      */
     @ApiOperation(value = "管理员审核通过资源", notes = "管理员查看审核拒绝记录")
+    @ResponseBody
     @RequestMapping( value = "/serviceY", method = RequestMethod.GET )
     public CommonResponse checkService( @RequestParam("id") String id ){
 
@@ -399,6 +409,7 @@ public class AdminController {
      * =============================================================
      */
     @ApiOperation(value = "管理员审核拒绝资源", notes = "管理员查看审核拒绝记录")
+    @ResponseBody
     @RequestMapping( value = "/serviceR", method = RequestMethod.GET )
     public CommonResponse rejectService( @RequestParam("id") String id ){
         adminService.rejectService(admin, id);

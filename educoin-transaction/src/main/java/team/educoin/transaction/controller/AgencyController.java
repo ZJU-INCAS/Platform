@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import team.educoin.common.controller.CommonResponse;
 import team.educoin.transaction.fabric.AgencyFabricClient;
 import team.educoin.transaction.fabric.FileFabricClient;
+import team.educoin.transaction.pojo.AgencyInfo;
 import team.educoin.transaction.pojo.FileInfo;
 import team.educoin.transaction.pojo.UserInfo;
 import team.educoin.transaction.pojo.Withdraw;
@@ -87,7 +88,6 @@ public class AgencyController {
      * =============================================================
      */
     @ApiOperation(value = "机构用户查看待审核的资源列表", notes = "机构用户查看待审核的资源列表")
-    // @RequestMapping( value = "/resourcelistW", method = RequestMethod.GET )
     @RequestMapping( value = "/service/unchecked", method = RequestMethod.GET )
     public CommonResponse resourceListW(){
         List<FileInfo> files = fileService.getUnCheckedServiceListById(email);
@@ -140,7 +140,7 @@ public class AgencyController {
     @RequestMapping( value = "/service/consume/{id}", method = RequestMethod.POST )
     public CommonResponse consume( @PathVariable("id") String id ){
         CommonResponse res = new CommonResponse();
-        UserInfo agency = agencyService.getAgencyById(email);
+        AgencyInfo agency = agencyService.getAgencyById(email);
         FileInfo fileInfo = fileService.getFileInfoById(id);
         if (fileInfo.getFileReadPrice() > agency.getAccountBalance() ){
             res.setStatus(1);
@@ -177,7 +177,6 @@ public class AgencyController {
      * @return java.lang.String
      * =============================================================
      */
-    @ResponseBody
     @RequestMapping(value = "/service/delete/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value = "删除资源", notes = "根据资源ID删除资源")
     public CommonResponse deleteService(@PathVariable("id") String id) {
@@ -202,7 +201,6 @@ public class AgencyController {
      * @return java.lang.String
      * =============================================================
      */
-    @ResponseBody
     @RequestMapping(value = "/service/update/{id}", method = RequestMethod.POST)
     @ApiOperation(value = "修改资源信息", notes = "根据资源ID修改资源信息")
     public CommonResponse updateServiceInfo(@PathVariable("id") String id,
@@ -247,7 +245,6 @@ public class AgencyController {
      * @return java.lang.String
      * =============================================================
      */
-    @ResponseBody
     @RequestMapping(value = "/service/updateReadPrice/{id}", method = RequestMethod.POST)
     @ApiOperation(value = "修改资源阅读权价", notes = "根据资源ID修改资源阅读权价")
     public CommonResponse updateReadPrice(@PathVariable("id") String id,
@@ -279,7 +276,6 @@ public class AgencyController {
      * @return java.lang.String
      * =============================================================
      */
-    @ResponseBody
     @RequestMapping(value = "/service/updateOwnershipPrice/{id}", method = RequestMethod.POST)
     @ApiOperation(value = "修改资源所有权价", notes = "根据资源ID修改资源所有权价")
     public CommonResponse updateServiceOwnerShipPrice(@PathVariable("id") String id,
@@ -313,7 +309,6 @@ public class AgencyController {
      * @return java.lang.String
      * =============================================================
      */
-    @ResponseBody
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @ApiOperation(value = "上传资源", notes = "上传资源文件，提交资源基本信息")
     public CommonResponse uploadService(@RequestParam("fileTitle") String fileTitle,
@@ -435,7 +430,6 @@ public class AgencyController {
      * @return java.lang.String
      * =============================================================
      */
-    @ResponseBody
     @RequestMapping(value = "/download/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "下载资源", notes = "根据文件id下载文件")
     public CommonResponse downloadService(@PathVariable("id") String id, HttpServletRequest request, HttpServletResponse response) throws FileNotFoundException, UnsupportedEncodingException {
@@ -464,7 +458,6 @@ public class AgencyController {
 
     }
 
-    // @ResponseBody
     // @RequestMapping(value = "/testup", method = RequestMethod.POST)
     // @ApiOperation(value = "上传资源测试", notes = "上传资源测试")
     // public String uploadTest(@RequestParam MultipartFile file,HttpServletResponse response) throws IOException {
@@ -480,7 +473,6 @@ public class AgencyController {
     //     return "cha kan finder";
     // }
 
-    // @ResponseBody
     // @RequestMapping(value = "/testdown", method = RequestMethod.POST)
     // @ApiOperation(value = "下载资源测试", notes = "下载资源测试")
     // public String downloadTest(@RequestParam("name") String filename,HttpServletResponse response) throws IOException {

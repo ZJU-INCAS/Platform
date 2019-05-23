@@ -2,6 +2,7 @@ package team.educoin.transaction.fabric;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -67,4 +68,10 @@ public interface AgencyFabricClient {
      */
     @RequestMapping( value = "/CompanyBuyOnwership", method = RequestMethod.POST )
     Map<String, Object> agencyBuyOwnership(Map<String, String> values) throws Exception;
+
+    @RequestMapping( value = "/RegisterCompany", method = RequestMethod.POST )
+    Map<String, Object> registerCompany(Map<String, Object> map);
+
+    @RequestMapping( value = "/Company/{id}", method = RequestMethod.DELETE )
+    Map<String, Object> deleteAgency(@PathVariable("id") String id);
 }

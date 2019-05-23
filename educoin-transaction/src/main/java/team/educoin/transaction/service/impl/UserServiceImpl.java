@@ -208,4 +208,27 @@ public class UserServiceImpl implements UserService {
         userConsumeMapper.addRecord(map);
     }
 
+    @Override
+    public List<UserInfo> getUserList() {
+        return userInfoMapper.selectAllRecords();
+    }
+
+    @Override
+    public boolean registerUser(UserInfo userInfo) {
+        int i = userInfoMapper.addRecord(userInfo);
+        return i > 0;
+    }
+
+    @Override
+    public boolean deleteUser(String email) {
+        int i = userInfoMapper.deleteById(email);
+        return i > 0;
+    }
+
+    @Override
+    public boolean updateUserInfo(UserInfo userInfo) {
+        int i = userInfoMapper.updateRecord(userInfo);
+        return i > 0;
+    }
+
 }

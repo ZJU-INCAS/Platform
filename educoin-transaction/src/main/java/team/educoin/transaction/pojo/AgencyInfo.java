@@ -3,41 +3,48 @@ package team.educoin.transaction.pojo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel( value = "用户信息")
-public class UserInfo {
+@ApiModel( value = "机构信息" )
+public class AgencyInfo {
     private String email;
     private String password;
     @ApiModelProperty( hidden = true )
     private String fingerprint;
     @ApiModelProperty( hidden = true )
     private String iris;
+    @ApiModelProperty( hidden = true )
+    private String registrationNumber;
+    private String address;
+    private String businessScope;
+    @ApiModelProperty( hidden = true )
+    private String yycode;
+    private String type;
+    private String time;
+    private String businessTerm;
     private String qq;
     @ApiModelProperty( hidden = true )
     private String identityCard;
-    @ApiModelProperty( hidden = true )
-    private String buyerType;
+    private String legalRepresentative;
     private Integer age;
     private String sexual;
     private String educationLevel;
-    private String address;
     @ApiModelProperty( hidden = true )
     private Double accountBalance;
-    @ApiModelProperty( hidden = true )
     private String bankAccount;
 
 
-    public UserInfo() {
+    public AgencyInfo() {
     }
 
-    public UserInfo(String email, String qq, String identityCard, String buyerType, Integer age, String sexual, String educationLevel, String address, String bankAccount) {
+    public AgencyInfo(String email, String registrationNumber, String address, String businessScope, String yycode, String type, String qq, String identityCard, String legalRepresentative, String bankAccount) {
         this.email = email;
+        this.registrationNumber = registrationNumber;
+        this.address = address;
+        this.businessScope = businessScope;
+        this.yycode = yycode;
+        this.type = type;
         this.qq = qq;
         this.identityCard = identityCard;
-        this.buyerType = buyerType;
-        this.age = age;
-        this.sexual = sexual;
-        this.educationLevel = educationLevel;
-        this.address = address;
+        this.legalRepresentative = legalRepresentative;
         this.bankAccount = bankAccount;
     }
 
@@ -73,6 +80,62 @@ public class UserInfo {
         this.iris = iris;
     }
 
+    public String getRegistrationNumber() {
+        return registrationNumber;
+    }
+
+    public void setRegistrationNumber(String registrationNumber) {
+        this.registrationNumber = registrationNumber;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getBusinessScope() {
+        return businessScope;
+    }
+
+    public void setBusinessScope(String businessScope) {
+        this.businessScope = businessScope;
+    }
+
+    public String getYycode() {
+        return yycode;
+    }
+
+    public void setYycode(String yycode) {
+        this.yycode = yycode;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public String getBusinessTerm() {
+        return businessTerm;
+    }
+
+    public void setBusinessTerm(String businessTerm) {
+        this.businessTerm = businessTerm;
+    }
+
     public String getQq() {
         return qq;
     }
@@ -89,12 +152,12 @@ public class UserInfo {
         this.identityCard = identityCard;
     }
 
-    public String getBuyerType() {
-        return buyerType;
+    public String getLegalRepresentative() {
+        return legalRepresentative;
     }
 
-    public void setBuyerType(String buyerType) {
-        this.buyerType = buyerType;
+    public void setLegalRepresentative(String legalRepresentative) {
+        this.legalRepresentative = legalRepresentative;
     }
 
     public Integer getAge() {
@@ -119,14 +182,6 @@ public class UserInfo {
 
     public void setEducationLevel(String educationLevel) {
         this.educationLevel = educationLevel;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
     }
 
     public Double getAccountBalance() {

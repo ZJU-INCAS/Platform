@@ -94,4 +94,12 @@ public interface UserService {
     UserInfo getUserById(String email);
 
     void userConsumeService(String email, String serviceID, FileInfo fileInfo);
+
+    List<UserInfo> getUserList();
+
+    boolean registerUser(UserInfo userInfo);
+
+    boolean deleteUser(String email);
+
+    boolean updateUserInfo(UserInfo userInfo);
 }

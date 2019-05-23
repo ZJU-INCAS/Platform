@@ -1,9 +1,10 @@
 package team.educoin.transaction.dao;
 
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Component;
-import team.educoin.transaction.pojo.UserInfo;
+import team.educoin.transaction.pojo.AgencyInfo;
+
+import java.util.List;
 
 /**
  * @description: agency_info
@@ -13,9 +14,22 @@ import team.educoin.transaction.pojo.UserInfo;
 @Component
 public interface AgencyInfoMapper {
 
-    @Select({"select email, account_balance from agency_info where email=#{email}"})
-    UserInfo selectRecordById(String email);
+    // @Select({"select email, account_balance from agency_info where email=#{email}"})
+    @Select({"select * from agency_info where email=#{email}"})
+    AgencyInfo selectRecordById(@Param("email") String email);
 
     @Update({"update agency_info set accountBalance=#{amount} where email=#{id}"})
-    int updateBankAccountById(String id, String amount);
+    int updateBankAccountById(@Param("id") String id, @Param("amount") String amount);
+
+    @Select("select * from agency_info")
+    List<AgencyInfo> selectAllRecords();
+
+    @Insert("insert into agency_info(email,password,registrationNumber) values(#{email},#{password},#{registrationNumber})")
+    int addRecord(AgencyInfo agencyInfo);
+
+    @Delete("delete from agency_info where email = #{email}")
+    int deleteById(@Param("email") String email);
+
+    @Update("update agency_info set registrationNumber=#{registrationNumber},address=#{address},businessScope=#{businessScope},yycode=#{yycode},type=#{type},qq=#{qq},legalRepresentative=#{legalRepresentative},identityCard=#{identityCard},bankAccount=#{bankAccount} where email=#{email}")
+    int updateRecord(AgencyInfo agencyInfo);
 }

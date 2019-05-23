@@ -9,9 +9,7 @@ import team.educoin.transaction.dao.WithdrawMapper;
 import team.educoin.transaction.dto.CentralBankDto;
 import team.educoin.transaction.dto.ContractDto;
 import team.educoin.transaction.fabric.AdminFabricClient;
-import team.educoin.transaction.pojo.Recharge;
-import team.educoin.transaction.pojo.UserInfo;
-import team.educoin.transaction.pojo.Withdraw;
+import team.educoin.transaction.pojo.*;
 import team.educoin.transaction.service.AdminService;
 
 import java.util.List;
@@ -80,9 +78,9 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public UserInfo getAdminById(String email) {
-        UserInfo userInfo = adminInfoMapper.selectRecordById(email);
-        return userInfo;
+    public AdminInfo getAdminById(String email) {
+        AdminInfo adminInfo = adminInfoMapper.selectRecordById(email);
+        return adminInfo;
     }
 
     @Override
@@ -94,4 +92,22 @@ public class AdminServiceImpl implements AdminService {
     public void rejectService(String admin, String id) {
         fileInfoMapper.updateFileChecked(admin, id, 2);
     }
+
+    @Override
+    public List<AdminInfo> getAdminList() {
+        return adminInfoMapper.selectAllRecords();
+    }
+
+    @Override
+    public boolean registerRegulator(AdminInfo adminInfo) {
+        int i = adminInfoMapper.addRecord(adminInfo);
+        return i > 0;
+    }
+
+    @Override
+    public boolean deleteAdmin(String email) {
+        int i = adminInfoMapper.deleteById(email);
+        return i > 0;
+    }
+
 }

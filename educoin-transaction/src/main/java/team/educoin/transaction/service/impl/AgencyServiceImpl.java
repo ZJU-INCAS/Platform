@@ -9,6 +9,7 @@ import team.educoin.transaction.dao.FileInfoMapper;
 import team.educoin.transaction.dao.WithdrawMapper;
 import team.educoin.transaction.dto.AgencyWithdrawDto;
 import team.educoin.transaction.fabric.AgencyFabricClient;
+import team.educoin.transaction.pojo.AgencyInfo;
 import team.educoin.transaction.pojo.FileInfo;
 import team.educoin.transaction.pojo.UserInfo;
 import team.educoin.transaction.pojo.Withdraw;
@@ -99,16 +100,16 @@ public class AgencyServiceImpl implements AgencyService {
     }
 
     @Override
-    public UserInfo getAgencyById(String email) {
-        UserInfo userInfo = agencyInfoMapper.selectRecordById(email);
-        return userInfo;
+    public AgencyInfo getAgencyById(String email) {
+        AgencyInfo agencyInfo = agencyInfoMapper.selectRecordById(email);
+        return agencyInfo;
     }
 
     @Override
     @Transactional
     public void agencyBuyOwnership(String email, String serviceID, FileInfo fileInfo) {
         // 扣除机构用户余额
-        UserInfo agency = agencyInfoMapper.selectRecordById(email);
+        AgencyInfo agency = agencyInfoMapper.selectRecordById(email);
         Double amount = agency.getAccountBalance() - fileInfo.getFileReadPrice();
         agencyInfoMapper.updateBankAccountById(email,amount.toString());
         // 记录机构用户消费记录
@@ -122,4 +123,29 @@ public class AgencyServiceImpl implements AgencyService {
         // 修改资源所有权
         fileInfoMapper.updateFileOwner(serviceID,email);
     }
+
+    @Override
+    public List<AgencyInfo> getAgencyList() {
+        return agencyInfoMapper.selectAllRecords();
+    }
+
+
+    @Override
+    public boolean registerCompany(AgencyInfo agencyInfo) {
+        int i = agencyInfoMapper.addRecord(agencyInfo);
+        return i>0;
+    }
+
+    @Override
+    public boolean deleteAgency(String email) {
+        int i = agencyInfoMapper.deleteById(email);
+        return i > 0;
+    }
+
+    @Override
+    public boolean updateAgencyInfo(AgencyInfo agencyInfo) {
+        int i = agencyInfoMapper.updateRecord(agencyInfo);
+        return i > 0;
+    }
+
 }

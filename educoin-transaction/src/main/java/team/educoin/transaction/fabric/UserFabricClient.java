@@ -2,6 +2,7 @@ package team.educoin.transaction.fabric;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -77,4 +78,9 @@ public interface UserFabricClient {
     @RequestMapping( value = "/UserConsumeService", method = RequestMethod.POST )
     Map<String, Object> userConsumeService(Map<String,String> values) throws Exception;
 
+    @RequestMapping( value = "/RegisterUser", method = RequestMethod.POST )
+    Map<String, Object> registerUser(Map<String, Object> map) throws Exception;
+
+    @RequestMapping( value = "/User/{id}", method = RequestMethod.DELETE )
+    Map<String, Object> deleteUser(@PathVariable("id") String id);
 }

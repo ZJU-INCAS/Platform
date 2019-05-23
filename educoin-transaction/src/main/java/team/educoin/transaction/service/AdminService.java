@@ -2,10 +2,7 @@ package team.educoin.transaction.service;
 
 import team.educoin.transaction.dto.CentralBankDto;
 import team.educoin.transaction.dto.ContractDto;
-import team.educoin.transaction.pojo.Recharge;
-import team.educoin.transaction.pojo.Token;
-import team.educoin.transaction.pojo.UserInfo;
-import team.educoin.transaction.pojo.Withdraw;
+import team.educoin.transaction.pojo.*;
 
 import java.util.List;
 
@@ -98,7 +95,7 @@ public interface AdminService {
      */
     void rejectCompanyWithdraw(String paymentId, String admin);
 
-    UserInfo getAdminById(String admin);
+    AdminInfo getAdminById(String admin);
 
     /**
      * =============================================================
@@ -119,4 +116,10 @@ public interface AdminService {
      * =============================================================
      */
     void rejectService(String admin, String id);
+
+    List<AdminInfo> getAdminList();
+
+    boolean registerRegulator(AdminInfo adminInfo);
+
+    boolean deleteAdmin(String email);
 }

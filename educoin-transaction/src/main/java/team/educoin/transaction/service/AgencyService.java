@@ -1,6 +1,7 @@
 package team.educoin.transaction.service;
 
 import org.springframework.stereotype.Service;
+import team.educoin.transaction.pojo.AgencyInfo;
 import team.educoin.transaction.pojo.FileInfo;
 import team.educoin.transaction.pojo.UserInfo;
 import team.educoin.transaction.pojo.Withdraw;
@@ -51,7 +52,15 @@ public interface AgencyService {
      */
     List<Withdraw> getAgencyWithdrawRecords(String email, int flag);
 
-    UserInfo getAgencyById(String email);
+    AgencyInfo getAgencyById(String email);
 
     void agencyBuyOwnership(String email, String serviceID, FileInfo fileInfo);
+
+    List<AgencyInfo> getAgencyList();
+
+    boolean registerCompany(AgencyInfo agencyInfo);
+
+    boolean deleteAgency(String email);
+
+    boolean updateAgencyInfo(AgencyInfo agencyInfo);
 }
