@@ -14,11 +14,26 @@ import java.nio.file.Paths;
 public class FileUtil {
 
     public static String UPLOAD_DIR;
+    public static String DOWNLOAD_DIR;
 
     static {
         Path path = Paths.get("..","upload").toAbsolutePath().normalize();
         UPLOAD_DIR = path.toString();
         // System.out.println(UPLOAD_DIR);
+
+        try {
+            if (!Files.exists(path)){
+                Files.createDirectory(path);
+            }
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    static {
+        Path path = Paths.get("..","download").toAbsolutePath().normalize();
+        DOWNLOAD_DIR = path.toString();
+        // System.out.println(DOWNLOAD_DIR);
 
         try {
             if (!Files.exists(path)){

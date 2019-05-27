@@ -425,15 +425,15 @@ public class AgencyController {
 
     /**
      * =============================================================
-     * @desc 根据文件id下载文件
+     * @desc 根据文件id下载文件(嵌入水印)
      * @author Messi-Q
-     * @date Modified by PandaClark in 2019/5/17 6:34 PM
+     * @date Modified by Messi-Q in 2019/5/27
      * @return java.lang.String
      * =============================================================
      */
     @RequestMapping(value = "/download/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "下载资源", notes = "根据文件id下载文件")
-    public CommonResponse downloadService(@PathVariable("id") String id, HttpServletRequest request, HttpServletResponse response) throws FileNotFoundException, UnsupportedEncodingException {
+    public CommonResponse downloadService(@PathVariable("id") String id, HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException, FileNotFoundException, UnsupportedEncodingException {
 
         CommonResponse res = new CommonResponse(0, "success", "资源下载成功");
 
@@ -441,13 +441,34 @@ public class AgencyController {
         FileInfo fileInfo = fileService.getFileInfoById(id);
         String filename = fileInfo.getFileName();
 
+        //embed watermark
+        String waterMarkEmbedTool = ResourceUtils.getURL("classpath:static/watermark/image_watermark.py").getPath();
+        String fileEmbed = FileUtil.UPLOAD_DIR + "/" + filename;
+        String waterMarkInfo = email + "-" + id;
+        String fileEmbedOut = FileUtil.DOWNLOAD_DIR + "/" + filename;
 
+        // 调用python脚本
+        String commond = String.format("python %s %s %s %s", waterMarkEmbedTool, fileEmbed, waterMarkInfo, fileEmbedOut);
+        Process process = Runtime.getRuntime().exec(commond);
+        process.waitFor();
+        BufferedInputStream in = new BufferedInputStream(process.getInputStream());
+        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+        String line;
+        String result = null;
+        while ((line = br.readLine()) != null) {
+            result = line;
+        }
+        br.close();
+        in.close();
+        // System.out.println(result);
+
+        // download
         response.setContentType("application/force-download");  //设置强制下载不打开
         response.addHeader("Content-Disposition", "attachment;fileName=" + new String(filename.getBytes("UTF-8"), "iso-8859-1"));// 设置文件名
 
         try {
             // 文件下载操作
-            StreamUtils.copy(new FileInputStream(new File(FileUtil.UPLOAD_DIR) + "/" + filename), response.getOutputStream());
+            StreamUtils.copy(new FileInputStream(new File(FileUtil.DOWNLOAD_DIR) + "/" + filename), response.getOutputStream());
         } catch (Exception e){
             e.printStackTrace();
             res.setStatus(1);

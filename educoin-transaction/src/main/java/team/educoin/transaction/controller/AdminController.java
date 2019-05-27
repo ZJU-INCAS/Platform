@@ -416,6 +416,22 @@ public class AdminController {
         CommonResponse res = new CommonResponse(0, "success", "已审核拒绝");
         return res;
     }
+
+    /*
+     * =============================================================
+     * @Description 管理员提取被侵权的资源水印信息(TODO)
+     * @Author Messi-Q
+     * @Date 19:32 2019-05-27
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
+     **/
+    @ApiOperation(value = "管理员处理资源侵权", notes = "管理员提取被侵权的资源水印信息")
+    @ResponseBody
+    @RequestMapping( value = "/extracInfo/{id}", method = RequestMethod.GET )
+    public CommonResponse extractServiceInfo() {
+        CommonResponse res = new CommonResponse(0, "success", "提取成功");
+        return res;
+    }
 }
 
 
