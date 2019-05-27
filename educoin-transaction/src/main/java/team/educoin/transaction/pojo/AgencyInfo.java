@@ -1,48 +1,50 @@
 package team.educoin.transaction.pojo;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+@ApiModel( value = "机构信息" )
 public class AgencyInfo {
     private String email;
     private String password;
-    private String fringerprint;
+    @ApiModelProperty( hidden = true )
+    private String fingerprint;
+    @ApiModelProperty( hidden = true )
     private String iris;
+    @ApiModelProperty( hidden = true )
     private String registrationNumber;
     private String address;
+    private String businessScope;
+    @ApiModelProperty( hidden = true )
     private String yycode;
+    private String type;
     private String time;
-    private String bussinessTerm;
+    private String businessTerm;
     private String qq;
+    @ApiModelProperty( hidden = true )
     private String identityCard;
     private String legalRepresentative;
     private Integer age;
     private String sexual;
     private String educationLevel;
+    @ApiModelProperty( hidden = true )
     private Double accountBalance;
     private String bankAccount;
+
 
     public AgencyInfo() {
     }
 
-    public AgencyInfo(String email, String password, String fringerprint, String iris,
-                      String registrationNumber, String address, String yycode, String time,
-                      String bussinessTerm, String qq, String identityCard, String legalRepresentative,
-                      Integer age, String sexual, String educationLevel, Double accountBalance,
-                      String bankAccount) {
+    public AgencyInfo(String email, String registrationNumber, String address, String businessScope, String yycode, String type, String qq, String identityCard, String legalRepresentative, String bankAccount) {
         this.email = email;
-        this.password = password;
-        this.fringerprint = fringerprint;
-        this.iris = iris;
         this.registrationNumber = registrationNumber;
         this.address = address;
+        this.businessScope = businessScope;
         this.yycode = yycode;
-        this.time = time;
-        this.bussinessTerm = bussinessTerm;
+        this.type = type;
         this.qq = qq;
         this.identityCard = identityCard;
         this.legalRepresentative = legalRepresentative;
-        this.age = age;
-        this.sexual = sexual;
-        this.educationLevel = educationLevel;
-        this.accountBalance = accountBalance;
         this.bankAccount = bankAccount;
     }
 
@@ -62,12 +64,12 @@ public class AgencyInfo {
         this.password = password;
     }
 
-    public String getFringerprint() {
-        return fringerprint;
+    public String getFingerprint() {
+        return fingerprint;
     }
 
-    public void setFringerprint(String fringerprint) {
-        this.fringerprint = fringerprint;
+    public void setFingerprint(String fingerprint) {
+        this.fingerprint = fingerprint;
     }
 
     public String getIris() {
@@ -94,12 +96,28 @@ public class AgencyInfo {
         this.address = address;
     }
 
+    public String getBusinessScope() {
+        return businessScope;
+    }
+
+    public void setBusinessScope(String businessScope) {
+        this.businessScope = businessScope;
+    }
+
     public String getYycode() {
         return yycode;
     }
 
     public void setYycode(String yycode) {
         this.yycode = yycode;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getTime() {
@@ -110,12 +128,12 @@ public class AgencyInfo {
         this.time = time;
     }
 
-    public String getBussinessTerm() {
-        return bussinessTerm;
+    public String getBusinessTerm() {
+        return businessTerm;
     }
 
-    public void setBussinessTerm(String bussinessTerm) {
-        this.bussinessTerm = bussinessTerm;
+    public void setBusinessTerm(String businessTerm) {
+        this.businessTerm = businessTerm;
     }
 
     public String getQq() {

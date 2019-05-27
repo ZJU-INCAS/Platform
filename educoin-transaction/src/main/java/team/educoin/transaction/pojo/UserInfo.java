@@ -1,36 +1,36 @@
 package team.educoin.transaction.pojo;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
+@ApiModel( value = "用户信息")
 public class UserInfo {
-    private String email;              // 邮箱
-    private String password;           // 密码
-    private String fringerprint;       // 自然人指纹信息
-    private String iris;               // 自然人虹膜信息
-    private String qq;                 // 自然人 QQ
-    private String identityCard;       // 自然人身份证
-    private String buyerType;          // 自然人用户类型
-    private Integer age;               // 自然人年龄
-    private String sexual;             // 自然人性别
-    private String educationLevel;     // 自然人教育水平
-    private String address;            // 自然人地址
-    private Double accountBalance;     // 自然人课程币余额
-    private String bankAccount;        // 绑定银行卡号
+    private String email;
+    private String password;
+    @ApiModelProperty( hidden = true )
+    private String fingerprint;
+    @ApiModelProperty( hidden = true )
+    private String iris;
+    private String qq;
+    @ApiModelProperty( hidden = true )
+    private String identityCard;
+    @ApiModelProperty( hidden = true )
+    private String buyerType;
+    private Integer age;
+    private String sexual;
+    private String educationLevel;
+    private String address;
+    @ApiModelProperty( hidden = true )
+    private Double accountBalance;
+    @ApiModelProperty( hidden = true )
+    private String bankAccount;
 
 
     public UserInfo() {
     }
 
-    public UserInfo(String email, Double accountBalance) {
+    public UserInfo(String email, String qq, String identityCard, String buyerType, Integer age, String sexual, String educationLevel, String address, String bankAccount) {
         this.email = email;
-        this.accountBalance = accountBalance;
-    }
-
-    public UserInfo(String email, String password, String fringerprint, String iris,
-                    String qq, String identityCard, String buyerType, Integer age, String sexual,
-                    String educationLevel, String address, Double accountBalance, String bankAccount) {
-        this.email = email;
-        this.password = password;
-        this.fringerprint = fringerprint;
-        this.iris = iris;
         this.qq = qq;
         this.identityCard = identityCard;
         this.buyerType = buyerType;
@@ -38,7 +38,6 @@ public class UserInfo {
         this.sexual = sexual;
         this.educationLevel = educationLevel;
         this.address = address;
-        this.accountBalance = accountBalance;
         this.bankAccount = bankAccount;
     }
 
@@ -58,12 +57,12 @@ public class UserInfo {
         this.password = password;
     }
 
-    public String getFringerprint() {
-        return fringerprint;
+    public String getFingerprint() {
+        return fingerprint;
     }
 
-    public void setFringerprint(String fringerprint) {
-        this.fringerprint = fringerprint;
+    public void setFingerprint(String fingerprint) {
+        this.fingerprint = fingerprint;
     }
 
     public String getIris() {

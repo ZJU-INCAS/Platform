@@ -23,35 +23,8 @@ public class FileInfo {
 
     public FileInfo(){}
 
-    public FileInfo(String id, String fileOwner) {
+    public FileInfo(String id, String fileTitle, String fileImage, String fileDescription, Double fileReadPrice, Double fileOwnerShipPrice, String fileKeyWord, String fileContentType) {
         this.id = id;
-        this.fileOwner = fileOwner;
-    }
-
-    public FileInfo(String id, String fileOwner, String fileInitialProvider, String fileTitle,
-                    String fileImage, String fileDescription, Double fileReadPrice,
-                    Double fileOwnerShipPrice, String fileName, String fileKeyWord,
-                    String fileContentType, String fileFormat, String fileSize) {
-        this.id = id;
-        this.fileOwner = fileOwner;
-        this.fileInitialProvider = fileInitialProvider;
-        this.fileTitle = fileTitle;
-        this.fileImage = fileImage;
-        this.fileDescription = fileDescription;
-        this.fileReadPrice = fileReadPrice;
-        this.fileOwnerShipPrice = fileOwnerShipPrice;
-        this.fileName = fileName;
-        this.fileKeyWord = fileKeyWord;
-        this.fileContentType = fileContentType;
-        this.fileFormat = fileFormat;
-        this.fileSize = fileSize;
-    }
-
-    public FileInfo(String id, String fileOwner, String fileTitle, String fileImage,
-                    String fileDescription, Double fileReadPrice, Double fileOwnerShipPrice,
-                    String fileKeyWord, String fileContentType) {
-        this.id = id;
-        this.fileOwner = fileOwner;
         this.fileTitle = fileTitle;
         this.fileImage = fileImage;
         this.fileDescription = fileDescription;
@@ -61,11 +34,7 @@ public class FileInfo {
         this.fileContentType = fileContentType;
     }
 
-    public FileInfo(String id, String fileOwner, String fileInitialProvider,
-                    String fileTitle, String fileImage, String fileDescription,
-                    Double fileReadPrice, Double fileOwnerShipPrice, String fileName,
-                    String fileKeyWord, String fileContentType, String fileFormat, String fileSize,
-                    Integer fileChecked) {
+    public FileInfo(String id, String fileOwner, String fileInitialProvider, String fileTitle, String fileImage, String fileDescription, Double fileReadPrice, Double fileOwnerShipPrice, String fileName, String fileKeyWord, String fileContentType, String fileFormat, String fileSize, Integer fileChecked) {
         this.id = id;
         this.fileOwner = fileOwner;
         this.fileInitialProvider = fileInitialProvider;

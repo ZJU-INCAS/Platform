@@ -3,10 +3,16 @@ package team.educoin.transaction;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import org.springframework.context.annotation.ComponentScan;
 
+/**
+ * description:
+ * @author: Messi-Q
+ * @create: 2019-05-27
+ */
 @EnableFeignClients
 @EnableConfigurationProperties
 @SpringBootApplication

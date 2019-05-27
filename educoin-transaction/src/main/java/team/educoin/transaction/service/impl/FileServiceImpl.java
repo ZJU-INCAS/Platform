@@ -1,164 +1,129 @@
 package team.educoin.transaction.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import team.educoin.common.CommonResponse;
-import team.educoin.common.StatusCode;
-import team.educoin.transaction.dao.FileMapper;
-import team.educoin.transaction.fabric.FileFabricClient;
-import team.educoin.transaction.pojo.fabric.FabricFileInfo;
+import team.educoin.transaction.dao.FileInfoMapper;
 import team.educoin.transaction.pojo.FileInfo;
-import team.educoin.transaction.pojo.fabric.FabricOwnerShipPriceInfo;
-import team.educoin.transaction.pojo.fabric.FabricReadPriceInfo;
 import team.educoin.transaction.service.FileService;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * @description:
+ * @author: Messi-Q
+ * @create: 2019-05-27
+ */
 @Service
 public class FileServiceImpl implements FileService {
 
     @Autowired
-    private FileMapper fileMapper;
+    private FileInfoMapper fileInfoMapper;
 
-    @Autowired
-    private FileFabricClient fileFabricClient;
-
-    //测试获取fabric service
     @Override
-    public Map<String, Object> getFileInfo() {
-        Map<String, Object> fileInfoMap = new HashMap<>();
-        fileInfoMap.put("fabricFileInfo", fileFabricClient.getFile());
-        return fileInfoMap;
+    public FileInfo getFileInfoById(String id) {
+        FileInfo file = fileInfoMapper.getRecordById(id);
+        return file;
     }
 
-    //注册service到fabric
+    /**
+     * 管理员查看所有资源列表，不管是否被审核
+     * @return
+     */
     @Override
-    @Transactional
-    public Object registerService(FileInfo fileInfo) {
-        FabricFileInfo fabricFileInfo = new FabricFileInfo("org.education.RegisterService",
-                fileInfo.getId(), fileInfo.getFileTitle(), fileInfo.getFileReadPrice(),
-                fileInfo.getFileOwnerShipPrice(), fileInfo.getFileOwner());
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = JSONObject.parseObject((fileFabricClient.registerService(fabricFileInfo)));
-        } catch (Exception e) {
-            return new CommonResponse(StatusCode.FABRICERROR, e.toString());
-        }
-
-        return new CommonResponse(StatusCode.SUCCESS, "注册资源成功", fileInfo);
+    public List<FileInfo> getServiceList() {
+        List<FileInfo> list = fileInfoMapper.selectAll();
+        return list;
     }
 
-    //删除fabric中的service
-    public int deleteService(String id) {
-        return fileFabricClient.deleteService(id);
+    /**
+     * 管理员查看待审核列表
+     * @return
+     */
+    @Override
+    public List<FileInfo> getUnCheckedServiceList() {
+        List<FileInfo> list = fileInfoMapper.getRecordsByFlag(0);
+        return list;
     }
 
-    //修改fabric中的service
-    @Transactional
-    public Object updateService(FileInfo fileInfo) {
-        FabricFileInfo fabricFileInfo = new FabricFileInfo("org.education.Service",
-                fileInfo.getId(), fileInfo.getFileTitle(), fileInfo.getFileReadPrice(),
-                fileInfo.getFileOwnerShipPrice(), fileInfo.getFileOwner());
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = JSONObject.parseObject((fileFabricClient.updateService(fileInfo.getId(), fabricFileInfo)));
-        } catch (Exception e) {
-            return new CommonResponse(StatusCode.FABRICERROR, e.toString());
-        }
-        return new CommonResponse(StatusCode.SUCCESS, "修改资源成功", fileInfo);
+    /**
+     * 管理员查看通过审核的资源列表
+     * 普通用户只能查看通过审核的资源列表
+     * @return
+     */
+    @Override
+    public List<FileInfo> getCheckedServiceList() {
+        List<FileInfo> list = fileInfoMapper.getRecordsByFlag(1);
+        return list;
     }
 
-    //注册service到mysql
+    /**
+     * 审核拒绝的资源列表
+     * @return
+     */
     @Override
-    public int registService(FileInfo fileInfo) {
-        return fileMapper.registService(fileInfo);
+    public List<FileInfo> getRejectServiceList() {
+        List<FileInfo> list = fileInfoMapper.getRecordsByFlag(2);
+        return list;
     }
 
-    //根据id获取某个文件信息
-    @Override
-    public List<FileInfo> queryFileById(String id) {
-        return fileMapper.queryFileById(id);
+    /**
+     * 机构用户查看待审核的资源列表
+     * @param id
+     * @return
+     */
+    public List<FileInfo> getUnCheckedServiceListById(String id){
+        List<FileInfo> list = fileInfoMapper.getRecordsByIdAndFlag(id, 0);
+        return list;
     }
 
-    //获取所有未被审查的资源
-    @Override
-    public List<FileInfo> queryAllUnCheckedFile() {
-        return fileMapper.queryAllUnCheckedFile();
+    /**
+     * 机构用户查看已审核通过的资源列表
+     * @param id
+     * @return
+     */
+    public List<FileInfo> getCheckedServiceListById(String id){
+        List<FileInfo> list = fileInfoMapper.getRecordsByIdAndFlag(id, 1);
+        return list;
     }
 
-    //获取所有已经审查的资源
-    @Override
-    public List<FileInfo> queryAllCheckedFile() {
-        return fileMapper.queryAllCheckedFile();
+    /**
+     * 机构用户查看已审核拒绝的资源列表
+     * @param id
+     * @return
+     */
+    public List<FileInfo> getRejectServiceListById(String id){
+        List<FileInfo> list = fileInfoMapper.getRecordsByIdAndFlag(id, 2);
+        return list;
     }
 
-    //查询用户列表
     @Override
-    public List<FileInfo> queryAllFile() {
-        return fileMapper.queryAllFile();
+    public boolean deleteService(String id) {
+        int res = fileInfoMapper.deleteRecordById(id);
+        return res > 0;
     }
 
-    //审核资源信息(通过)
     @Override
-    public int checkFileInfo(String id) {
-        return fileMapper.checkFileInfo(id);
+    public boolean updateFileReadPrice(String id, Double fileReadPrice) {
+        int i = fileInfoMapper.updateFileReadPrice(id, fileReadPrice);
+        return i > 0;
     }
 
-    //审核资源信息(拒绝)
     @Override
-    public int rejectFileInfo(String id) {return fileMapper.rejectFileInfo(id);}
-
-    //删除资源
-    @Override
-    public int deleteFile(String id) { return fileMapper.deleteFile(id); }
-
-    //修改资源信息
-    @Override
-    public int updateFileInfo(FileInfo fileInfo){ return fileMapper.updateFileInfo(fileInfo); }
-
-    //修改资源阅读权价
-    @Override
-    @Transactional
-    public int updateServiceReadPrice(FileInfo fileInfo) {
-        FabricReadPriceInfo fabricReadPriceInfo = new FabricReadPriceInfo("org.education.UpdateServicereadPrice",
-                fileInfo.getId(), fileInfo.getFileReadPrice());
-        int res = 0;
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = JSONObject.parseObject((fileFabricClient.updateServiceReadPrice(fabricReadPriceInfo)));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if (jsonObject != null) {
-            res = fileMapper.updateFileReadPrice(fileInfo);
-        }
-
-        return res;
+    public boolean updateFileOwnershipPrice(String id, Double fileOwnerShipPrice) {
+        int i = fileInfoMapper.updateFileOwnerShipPrice(id, fileOwnerShipPrice);
+        return i > 0;
     }
 
-    //修改资源所有权价
     @Override
-    @Transactional
-    public int updateServiceOwnerShipPrice(FileInfo fileInfo) {
-        FabricOwnerShipPriceInfo fabricOwnerShipPriceInfo = new FabricOwnerShipPriceInfo("org.education.UpdateServiceownershipPrice",
-                fileInfo.getId(), fileInfo.getFileOwnerShipPrice());
-        int res = 0;
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = JSONObject.parseObject((fileFabricClient.updateServiceOwnershipPrice(fabricOwnerShipPriceInfo)));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        if (jsonObject != null) {
-            res = fileMapper.updateFileOwnerShipPrice(fileInfo);
-        }
-
-        return res;
+    public boolean updateFileInfo(FileInfo fileInfo) {
+        int i = fileInfoMapper.updateFileInfo(fileInfo);
+        return i > 0;
     }
+
+    @Override
+    public boolean registerService(FileInfo fileInfo) {
+        int i = fileInfoMapper.addRecord(fileInfo);
+        return i > 0;
+    }
+
 }
