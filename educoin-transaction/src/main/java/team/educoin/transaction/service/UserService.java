@@ -102,4 +102,6 @@ public interface UserService {
     boolean deleteUser(String email);
 
     boolean updateUserInfo(UserInfo userInfo);
+
+    List<String> getUserConsumeServiceIds(String email);
 }

@@ -28,7 +28,7 @@ public interface FileInfoMapper {
     @Select({"select ", SELECT_FIELDS, "from ", TABLE_NAME, "where fileChecked=#{flag}"})
     List<FileInfo> getRecordsByFlag(@Param("flag") int flag);
 
-    @Select({"select ", SELECT_FIELDS, "from ", TABLE_NAME, "where fileOwner=#{email} and if_checked=#{flag}"})
+    @Select({"select ", SELECT_FIELDS, "from ", TABLE_NAME, "where fileOwner=#{email} and fileChecked=#{flag}"})
     List<FileInfo> getRecordsByIdAndFlag(@Param("email") String email, @Param("flag") int flag);
 
     @Update({"update ", TABLE_NAME," set fileOwner=#{fileOwner} where id=#{id}"})

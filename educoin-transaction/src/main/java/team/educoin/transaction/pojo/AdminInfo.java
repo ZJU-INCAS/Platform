@@ -10,7 +10,7 @@ public class AdminInfo {
     private String email;
     private String password;
     @ApiModelProperty( hidden = true )
-    private String fringerprint;
+    private String fingerprint;
     @ApiModelProperty( hidden = true )
     private String iris;
     @ApiModelProperty( hidden = true )
@@ -32,12 +32,12 @@ public class AdminInfo {
         this.email = email;
 
     }
-    public AdminInfo(String email, String password, String fringerprint, String iris,
+    public AdminInfo(String email, String password, String fingerprint, String iris,
                      Double accountBalance, String bankAccount) {
 
         this.email = email;
         this.password = password;
-        this.fringerprint = fringerprint;
+        this.fingerprint = fingerprint;
         this.iris = iris;
         this.accountBalance = accountBalance;
         this.bankAccount = bankAccount;
@@ -61,12 +61,12 @@ public class AdminInfo {
         this.password = password;
     }
 
-    public String getFringerprint() {
-        return fringerprint;
+    public String getFingerprint() {
+        return fingerprint;
     }
 
-    public void setFringerprint(String fringerprint) {
-        this.fringerprint = fringerprint;
+    public void setFingerprint(String fingerprint) {
+        this.fingerprint = fingerprint;
     }
 
     public String getIris() {

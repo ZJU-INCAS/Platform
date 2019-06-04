@@ -16,6 +16,7 @@ import team.educoin.transaction.service.FileService;
 import team.educoin.transaction.service.UserService;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,22 @@ public class UserController {
         return res;
     }
 
+
+    /**
+     * =============================================================
+     * @author PandaClark
+     * @date 2019/6/4 3:40 PM
+     * @param
+     * @return
+     * =============================================================
+     */
+    @ApiOperation(value = "获取当前登录用户信息")
+    @RequestMapping( value = "/detail", method = RequestMethod.GET )
+    public CommonResponse getUserInfo(){
+        UserInfo userInfo = userService.getUserById(email);
+        CommonResponse res = new CommonResponse(0, "success", userInfo);
+        return res;
+    }
 
     /**
      * =============================================================
@@ -174,6 +191,7 @@ public class UserController {
         return res;
     }
 
+
     /**
      * =============================================================
      * @desc 查询可购买资源列表
@@ -184,9 +202,34 @@ public class UserController {
      * =============================================================
      */
     @ApiOperation(value = "查询可购买资源列表", notes = "查询可购买资源列表")
-    @RequestMapping( value = "/myresourcelist", method = RequestMethod.GET )
+    @RequestMapping( value = "/resourcelist", method = RequestMethod.GET )
     public CommonResponse resourceList(){
         List<FileInfo> files = fileService.getCheckedServiceList();
+        CommonResponse res = new CommonResponse(0, "success", files);
+        return res;
+    }
+
+
+    /**
+     * =============================================================
+     * @desc 查询已购买资源列表
+     * @author PandaClark
+     * @date 2019/6/4 11:24 AM
+     * @param
+     * @return
+     * =============================================================
+     */
+    @ApiOperation(value = "查询已购买资源列表", notes = "查询已购买资源列表")
+    @RequestMapping( value = "/myresourcelist", method = RequestMethod.GET )
+    public CommonResponse myResourceList(){
+
+        List<String> resourcesIds = userService.getUserConsumeServiceIds(email);
+        List<FileInfo> files = new ArrayList<>();
+
+        for (String id : resourcesIds) {
+            FileInfo fileInfo = fileService.getFileInfoById(id);
+            files.add(fileInfo);
+        }
         CommonResponse res = new CommonResponse(0, "success", files);
         return res;
     }

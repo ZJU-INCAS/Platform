@@ -32,7 +32,7 @@ public interface AdminService {
      * @return ContractDto
      * =============================================================
      */
-    ContractDto getContractInfo();
+    List<ContractDto> getContractInfo();
 
     /**
      * =============================================================

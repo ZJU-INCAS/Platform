@@ -15,7 +15,6 @@ import team.educoin.transaction.fabric.AgencyFabricClient;
 import team.educoin.transaction.fabric.FileFabricClient;
 import team.educoin.transaction.pojo.AgencyInfo;
 import team.educoin.transaction.pojo.FileInfo;
-import team.educoin.transaction.pojo.UserInfo;
 import team.educoin.transaction.pojo.Withdraw;
 import team.educoin.transaction.service.AgencyService;
 import team.educoin.transaction.service.FileService;
@@ -51,6 +50,24 @@ public class AgencyController {
     private AgencyFabricClient agencyFabricClient;
     @Autowired
     private FileFabricClient fileFabricClient;
+
+
+    /**
+     * =============================================================
+     * @author PandaClark
+     * @date 2019/6/4 3:40 PM
+     * @param
+     * @return
+     * =============================================================
+     */
+    @ApiOperation(value = "获取当前登录用户信息")
+    @RequestMapping( value = "/detail", method = RequestMethod.GET )
+    public CommonResponse getUserInfo(){
+        AgencyInfo agencyInfo = agencyService.getAgencyById(email);
+        CommonResponse res = new CommonResponse(0, "success", agencyInfo);
+        return res;
+    }
+
 
     @ApiOperation(value = "获取所有审核通过的提现记录")
     @RequestMapping( value = "/withdrawList", method = RequestMethod.GET )

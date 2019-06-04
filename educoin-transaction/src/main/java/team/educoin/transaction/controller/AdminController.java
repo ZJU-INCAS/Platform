@@ -10,6 +10,7 @@ import team.educoin.transaction.dto.ContractDto;
 import team.educoin.transaction.fabric.AdminFabricClient;
 import team.educoin.transaction.fabric.AgencyFabricClient;
 import team.educoin.transaction.fabric.FileFabricClient;
+import team.educoin.transaction.pojo.AdminInfo;
 import team.educoin.transaction.pojo.FileInfo;
 import team.educoin.transaction.pojo.Recharge;
 import team.educoin.transaction.pojo.Withdraw;
@@ -51,6 +52,22 @@ public class AdminController {
 
     String admin = "clark@zju.incas";
 
+
+    /**
+     * =============================================================
+     * @author PandaClark
+     * @date 2019/6/4 3:40 PM
+     * @param
+     * @return
+     * =============================================================
+     */
+    @ApiOperation(value = "获取当前登录用户信息")
+    @RequestMapping( value = "/detail", method = RequestMethod.GET )
+    public CommonResponse getUserInfo(){
+        AdminInfo adminInfo = adminService.getAdminById(admin);
+        CommonResponse res = new CommonResponse(0, "success", adminInfo);
+        return res;
+    }
 
     /**
      * =============================================================
@@ -286,10 +303,10 @@ public class AdminController {
     public CommonResponse contract(){
         CommonResponse res = new CommonResponse();
 
-        ContractDto info = adminService.getContractInfo();
+        List<ContractDto> infos = adminService.getContractInfo();
         res.setStatus(0);
         res.setMessage("success");
-        res.setData(info);
+        res.setData(infos);
         return res;
     }
 

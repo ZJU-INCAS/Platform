@@ -40,9 +40,9 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public ContractDto getContractInfo() {
+    public List<ContractDto> getContractInfo() {
         List<ContractDto> contractInfos = adminFabricClient.getContractInfo();
-        return contractInfos.get(0);
+        return contractInfos;
     }
 
     @Override
