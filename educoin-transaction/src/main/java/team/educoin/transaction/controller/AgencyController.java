@@ -40,7 +40,6 @@ import java.util.Map;
 @Api(value = "Agency API 接口", tags = "agency", description = "agency API 接口")
 public class AgencyController {
 
-    private String email = "ZjuEducation@email.com";
 
     @Autowired
     private AgencyService agencyService;
@@ -226,7 +225,8 @@ public class AgencyController {
      */
     @RequestMapping(value = "/service/update/{id}", method = RequestMethod.POST)
     @ApiOperation(value = "修改资源信息", notes = "根据资源ID修改资源信息")
-    public CommonResponse updateServiceInfo(@PathVariable("id") String id,
+    public CommonResponse updateServiceInfo(HttpServletRequest request,
+                                            @PathVariable("id") String id,
                                             @RequestParam("fileTitle") String fileTitle,
                                             @RequestParam("fileImage") String fileImage,
                                             @RequestParam("fileDescription") String fileDescription,
@@ -236,6 +236,7 @@ public class AgencyController {
                                             @RequestParam("fileContentType") String fileContentType) {
 
         CommonResponse res = null;
+        String email = (String) request.getAttribute("email");
         try {
             Map<String, Object> map = new HashMap<>();
             map.put("$class","org.education.Service");

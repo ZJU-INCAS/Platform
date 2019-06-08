@@ -21,7 +21,7 @@ public class JWTUtil {
 
     public static final String SECRET = "INCASblockchain";
 
-    public static final Long EXPIRE = 5 * 60 * 1000L;
+    public static final Long EXPIRE = 30 * 24 * 60 * 60 * 1000L;
 
     public static String createToken(String userId, String userType) throws Exception {
         // header Map

@@ -36,9 +36,6 @@ public class UserController {
     private UserFabricClient userFabricClient;
 
 
-
-    // private String email = "test1@qq.com";
-
     /**
      * 测试服务器IP 和 数据库 是否能通
      */
