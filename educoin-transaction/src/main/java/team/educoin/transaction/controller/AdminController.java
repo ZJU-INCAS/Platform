@@ -19,6 +19,7 @@ import team.educoin.transaction.service.AgencyService;
 import team.educoin.transaction.service.FileService;
 import team.educoin.transaction.service.UserService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,8 +51,6 @@ public class AdminController {
     @Autowired
     private FileFabricClient fileFabricClient;
 
-    String admin = "clark@zju.incas";
-
 
     /**
      * =============================================================
@@ -63,8 +62,9 @@ public class AdminController {
      */
     @ApiOperation(value = "获取当前登录用户信息")
     @RequestMapping( value = "/detail", method = RequestMethod.GET )
-    public CommonResponse getUserInfo(){
-        AdminInfo adminInfo = adminService.getAdminById(admin);
+    public CommonResponse getUserInfo(HttpServletRequest request){
+        String email = (String) request.getAttribute("email");
+        AdminInfo adminInfo = adminService.getAdminById(email);
         CommonResponse res = new CommonResponse(0, "success", adminInfo);
         return res;
     }
@@ -116,8 +116,8 @@ public class AdminController {
     @ApiOperation(value = "管理员同意用户充值")
     @ResponseBody
     @RequestMapping( value = "/rechargeY", method = RequestMethod.POST )
-    public CommonResponse acceptUserRecharge( @RequestParam("rechargeId") String rechargeId ){
-
+    public CommonResponse acceptUserRecharge(HttpServletRequest request, @RequestParam("rechargeId") String rechargeId ){
+        String email = (String) request.getAttribute("email");
         CommonResponse res = new CommonResponse();
         // 先默认失败
         res.setStatus(1);
@@ -137,7 +137,7 @@ public class AdminController {
             Map<String, String> result = adminFabricClient.CheckUserRechargeFabric(rechargeInfo);
             System.out.println(result);
             // 修改 mysql 字段
-            adminService.acceptUserRecharge(record.getPaymentId(), admin);
+            adminService.acceptUserRecharge(record.getPaymentId(), email);
             res.setStatus(0);
             res.setMessage("success");
             res.setData("已审核通过");
@@ -157,8 +157,8 @@ public class AdminController {
     @ApiOperation(value = "管理员拒绝用户充值")
     @ResponseBody
     @RequestMapping( value = "/rechargeR", method = RequestMethod.POST )
-    public CommonResponse rejectUserRecharge( @RequestParam("rechargeId") String rechargeId ){
-
+    public CommonResponse rejectUserRecharge(HttpServletRequest request, @RequestParam("rechargeId") String rechargeId ){
+        String email = (String) request.getAttribute("email");
         CommonResponse res = new CommonResponse();
         // 先默认失败
         res.setStatus(1);
@@ -177,7 +177,7 @@ public class AdminController {
             Map<String, String> result = adminFabricClient.RejectUserRechargeFabric(rechargeInfo);
             System.out.println(result);
             // 修改 mysql 字段
-            adminService.rejectUserRecharge(record.getPaymentId(), admin);
+            adminService.rejectUserRecharge(record.getPaymentId(), email);
             res.setStatus(0);
             res.setMessage("success");
             res.setData("已审核拒绝");
@@ -198,8 +198,8 @@ public class AdminController {
     @ApiOperation(value = "管理员同意机构用户提现")
     @ResponseBody
     @RequestMapping( value = "/withdrawY", method = RequestMethod.POST )
-    public CommonResponse acceptCompanyWithdraw( @RequestParam("withdrawId") String withdrawId){
-
+    public CommonResponse acceptCompanyWithdraw(HttpServletRequest request, @RequestParam("withdrawId") String withdrawId){
+        String email = (String) request.getAttribute("email");
         CommonResponse res = new CommonResponse();
         // 先默认失败
         res.setStatus(1);
@@ -219,7 +219,7 @@ public class AdminController {
             Map<String, String> result = agencyFabricClient.CheckAgencyWithdrawFabric(rechargeInfo);
             System.out.println(result);
             // 修改 mysql 字段
-            adminService.acceptCompanyWithdraw(record.getPaymentId(), admin);
+            adminService.acceptCompanyWithdraw(record.getPaymentId(), email);
             res.setStatus(0);
             res.setMessage("success");
             res.setData("已审核通过");
@@ -240,8 +240,8 @@ public class AdminController {
     @ApiOperation(value = "管理员拒绝机构用户提现")
     @ResponseBody
     @RequestMapping( value = "/withdrawR", method = RequestMethod.POST )
-    public CommonResponse rejectCompanyWithdraw( @RequestParam("withdrawId") String withdrawId){
-
+    public CommonResponse rejectCompanyWithdraw(HttpServletRequest request, @RequestParam("withdrawId") String withdrawId){
+        String email = (String) request.getAttribute("email");
         CommonResponse res = new CommonResponse();
         // 先默认失败
         res.setStatus(1);
@@ -260,7 +260,7 @@ public class AdminController {
             Map<String, Object> result = agencyFabricClient.RejectAgencyWithdrawFabric(rechargeInfo);
             System.out.println(result);
             // 修改 mysql 字段
-            adminService.rejectCompanyWithdraw(record.getPaymentId(), admin);
+            adminService.rejectCompanyWithdraw(record.getPaymentId(), email);
             res.setStatus(0);
             res.setMessage("success");
             res.setData("已审核拒绝");
@@ -391,9 +391,10 @@ public class AdminController {
     @ApiOperation(value = "管理员审核通过资源", notes = "管理员查看审核拒绝记录")
     @ResponseBody
     @RequestMapping( value = "/serviceY", method = RequestMethod.GET )
-    public CommonResponse checkService( @RequestParam("id") String id ){
+    public CommonResponse checkService(HttpServletRequest request, @RequestParam("id") String id ){
 
         CommonResponse res = null;
+        String email = (String) request.getAttribute("email");
 
         try {
             FileInfo fileInfo = fileService.getFileInfoById(id);
@@ -407,7 +408,7 @@ public class AdminController {
             map.put("company", fileInfo.getFileInitialProvider());
 
             fileFabricClient.registerService(map);
-            adminService.acceptService(admin, id);
+            adminService.acceptService(email, id);
             res = new CommonResponse(0, "success", "注册新资源");
         } catch (Exception e){
             e.printStackTrace();
@@ -428,8 +429,9 @@ public class AdminController {
     @ApiOperation(value = "管理员审核拒绝资源", notes = "管理员查看审核拒绝记录")
     @ResponseBody
     @RequestMapping( value = "/serviceR", method = RequestMethod.GET )
-    public CommonResponse rejectService( @RequestParam("id") String id ){
-        adminService.rejectService(admin, id);
+    public CommonResponse rejectService( HttpServletRequest request,@RequestParam("id") String id ){
+        String email = (String) request.getAttribute("email");
+        adminService.rejectService(email, id);
         CommonResponse res = new CommonResponse(0, "success", "已审核拒绝");
         return res;
     }

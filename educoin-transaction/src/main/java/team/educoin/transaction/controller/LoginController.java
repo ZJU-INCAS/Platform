@@ -14,6 +14,7 @@ import team.educoin.transaction.pojo.UserInfo;
 import team.educoin.transaction.service.AdminService;
 import team.educoin.transaction.service.AgencyService;
 import team.educoin.transaction.service.UserService;
+import team.educoin.transaction.util.JWTUtil;
 import team.educoin.transaction.util.UUIDutil;
 
 import java.util.HashMap;
@@ -119,6 +120,13 @@ public class LoginController {
             return res;
         }
         res = new CommonResponse(0,"success","登录成功");
+        try {
+            String token = JWTUtil.createToken(user.getEmail(), "user");
+            res.setData(token);
+        } catch (Exception e) {
+            e.printStackTrace();
+            res.setData("token生成失败!"+e.getMessage());
+        }
         return res;
     }
 

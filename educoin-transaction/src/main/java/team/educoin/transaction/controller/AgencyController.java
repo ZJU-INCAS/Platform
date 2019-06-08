@@ -62,7 +62,8 @@ public class AgencyController {
      */
     @ApiOperation(value = "获取当前登录用户信息")
     @RequestMapping( value = "/detail", method = RequestMethod.GET )
-    public CommonResponse getUserInfo(){
+    public CommonResponse getUserInfo(HttpServletRequest request){
+        String email = (String) request.getAttribute("email");
         AgencyInfo agencyInfo = agencyService.getAgencyById(email);
         CommonResponse res = new CommonResponse(0, "success", agencyInfo);
         return res;
@@ -71,7 +72,8 @@ public class AgencyController {
 
     @ApiOperation(value = "获取所有审核通过的提现记录")
     @RequestMapping( value = "/withdrawList", method = RequestMethod.GET )
-    public CommonResponse checkedWithdrawRecords(){
+    public CommonResponse checkedWithdrawRecords(HttpServletRequest request){
+        String email = (String) request.getAttribute("email");
         List<Withdraw> records = agencyService.getAgencyWithdrawRecords(email, 0);
         CommonResponse res = new CommonResponse(0, "success", records);
         return res;
@@ -79,10 +81,10 @@ public class AgencyController {
 
     @ApiOperation(value = "机构用户提现")
     @RequestMapping( value = "/withdraw", method = RequestMethod.POST )
-    public CommonResponse withdraw(@RequestParam("amount") double amount) {
+    public CommonResponse withdraw(HttpServletRequest request, @RequestParam("amount") double amount) {
         CommonResponse res = new CommonResponse();
 
-        // email 应当从 session 中拿，此处只是测试
+        String email = (String) request.getAttribute("email");
         boolean success = agencyService.companyWithdraw(email, amount);
         if (success){
             res.setStatus(0);
@@ -106,7 +108,8 @@ public class AgencyController {
      */
     @ApiOperation(value = "机构用户查看待审核的资源列表", notes = "机构用户查看待审核的资源列表")
     @RequestMapping( value = "/service/unchecked", method = RequestMethod.GET )
-    public CommonResponse resourceListW(){
+    public CommonResponse resourceListW(HttpServletRequest request){
+        String email = (String) request.getAttribute("email");
         List<FileInfo> files = fileService.getUnCheckedServiceListById(email);
         CommonResponse res = new CommonResponse(0, "success", files);
         return res;
@@ -122,7 +125,8 @@ public class AgencyController {
      */
     @ApiOperation(value = "机构用户查看已审核通过的资源列表", notes = "机构用户查看已审核通过的资源列表")
     @RequestMapping( value = "/service/checked", method = RequestMethod.GET )
-    public CommonResponse resourceListY(){
+    public CommonResponse resourceListY(HttpServletRequest request){
+        String email = (String) request.getAttribute("email");
         List<FileInfo> files = fileService.getCheckedServiceListById(email);
         CommonResponse res = new CommonResponse(0, "success", files);
         return res;
@@ -138,7 +142,8 @@ public class AgencyController {
      */
     @ApiOperation(value = "机构用户查看已审核拒绝的资源列表", notes = "机构用户查看已审核拒绝的资源列表")
     @RequestMapping( value = "/service/reject", method = RequestMethod.GET )
-    public CommonResponse resourceListR(){
+    public CommonResponse resourceListR(HttpServletRequest request){
+        String email = (String) request.getAttribute("email");
         List<FileInfo> files = fileService.getRejectServiceListById(email);
         CommonResponse res = new CommonResponse(0, "success", files);
         return res;
@@ -155,8 +160,9 @@ public class AgencyController {
      */
     @ApiOperation(value = "机构用户购买所有权")
     @RequestMapping( value = "/service/consume/{id}", method = RequestMethod.POST )
-    public CommonResponse consume( @PathVariable("id") String id ){
+    public CommonResponse consume(HttpServletRequest request, @PathVariable("id") String id ){
         CommonResponse res = new CommonResponse();
+        String email = (String) request.getAttribute("email");
         AgencyInfo agency = agencyService.getAgencyById(email);
         FileInfo fileInfo = fileService.getFileInfoById(id);
         if (fileInfo.getFileReadPrice() > agency.getAccountBalance() ){
@@ -475,20 +481,6 @@ public class AgencyController {
 
     }
 
-    // @RequestMapping(value = "/testup", method = RequestMethod.POST)
-    // @ApiOperation(value = "上传资源测试", notes = "上传资源测试")
-    // public String uploadTest(@RequestParam MultipartFile file,HttpServletResponse response) throws IOException {
-    //
-    //     // Files.copy(file.getInputStream(),new File("").toPath(), StandardCopyOption.REPLACE_EXISTING);
-    //     // StreamUtils.copy(new FileInputStream(new File("")),response.getOutputStream());
-    //
-    //     // int dotPos = file.getOriginalFilename().lastIndexOf(".");
-    //     // String fileName = file.getOriginalFilename().substring(dotPos + 1).toLowerCase();
-    //     String filename = file.getOriginalFilename();
-    //     Files.copy(file.getInputStream(), Paths.get(FileUtil.UPLOAD_DIR,filename), StandardCopyOption.REPLACE_EXISTING);
-    //
-    //     return "cha kan finder";
-    // }
 
     // @RequestMapping(value = "/testdown", method = RequestMethod.POST)
     // @ApiOperation(value = "下载资源测试", notes = "下载资源测试")

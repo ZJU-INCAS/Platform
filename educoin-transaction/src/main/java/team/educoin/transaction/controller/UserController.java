@@ -1,6 +1,7 @@
 package team.educoin.transaction.controller;
 
 import io.swagger.annotations.*;
+import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +37,7 @@ public class UserController {
 
 
 
-    private String email = "test1@qq.com";
+    // private String email = "test1@qq.com";
 
     /**
      * 测试服务器IP 和 数据库 是否能通
@@ -61,7 +62,8 @@ public class UserController {
      */
     @ApiOperation(value = "获取当前登录用户信息")
     @RequestMapping( value = "/detail", method = RequestMethod.GET )
-    public CommonResponse getUserInfo(){
+    public CommonResponse getUserInfo(HttpServletRequest request){
+        String email = (String) request.getAttribute("email");
         UserInfo userInfo = userService.getUserById(email);
         CommonResponse res = new CommonResponse(0, "success", userInfo);
         return res;
@@ -77,9 +79,8 @@ public class UserController {
      */
     @ApiOperation(value = "获取所有审核通过的充值记录")
     @RequestMapping( value = "/getRechargesY", method = RequestMethod.GET )
-    public CommonResponse getRechargesY(){
-        // email 应当从 session 中拿，此处只是测试
-        String email = "test1@qq.com";
+    public CommonResponse getRechargesY(HttpServletRequest request){
+        String email = (String) request.getAttribute("email");
         List<Recharge> recharges = userService.getUserRechargeRecords(email, 0);
         CommonResponse res = new CommonResponse(0, "success", recharges);
         return res;
@@ -92,11 +93,10 @@ public class UserController {
      */
     @ApiOperation(value = "用户充值", notes = "用户充值接口")
     @RequestMapping( value = "/recharge", method = RequestMethod.POST )
-    public CommonResponse recharge(@RequestParam("balance") double balance) {
+    public CommonResponse recharge(HttpServletRequest request, @RequestParam("balance") double balance) {
         CommonResponse res = new CommonResponse();
 
-        // email 应当从 session 中拿，此处只是测试
-        String email = "test1@qq.com";
+        String email = (String) request.getAttribute("email");
         boolean success = userService.userRecharge(email, balance);
         if (success){
             res.setStatus(0);
@@ -121,10 +121,9 @@ public class UserController {
      */
     @ApiOperation(value = "获取所有转账记录")
     @RequestMapping( value = "/transferList", method = RequestMethod.GET )
-    public CommonResponse getTransferRecords(){
+    public CommonResponse getTransferRecords(HttpServletRequest request){
         CommonResponse res = new CommonResponse();
-        // email 应当从 session 中拿，此处只是测试
-        String email = "test1@qq.com";
+        String email = (String) request.getAttribute("email");
         List<Token> transfers = userService.getUserTransferRecords(email);
         res.setStatus(0);
         res.setMessage("success");
@@ -140,11 +139,10 @@ public class UserController {
      */
     @ApiOperation(value = "普通用户向普通用户转账", notes = "普通用户向普通用户转账接口")
     @RequestMapping( value = "/transferu2u", method = RequestMethod.POST )
-    public CommonResponse transferU2U(@RequestBody TokenTransferDto transferDto){
+    public CommonResponse transferU2U(HttpServletRequest request, @RequestBody TokenTransferDto transferDto){
         CommonResponse res = new CommonResponse();
 
-        // email 应当从 session 中拿，此处只是测试
-        String email = "test1@qq.com";
+        String email = (String) request.getAttribute("email");
 
         transferDto.setFromuser(email);
 
@@ -170,11 +168,10 @@ public class UserController {
      */
     @ApiOperation(value = "普通用户向机构用户转账", notes = "普通用户向机构用户转账接口")
     @RequestMapping( value = "/transferu2c", method = RequestMethod.POST )
-    public CommonResponse transferU2C(@RequestBody TokenTransferDto transferDto){
+    public CommonResponse transferU2C(HttpServletRequest request, @RequestBody TokenTransferDto transferDto){
         CommonResponse res = new CommonResponse();
 
-        // email 应当从 session 中拿，此处只是测试
-        String email = "test1@qq.com";
+        String email = (String) request.getAttribute("email");
 
         transferDto.setFromuser(email);
 
@@ -221,8 +218,9 @@ public class UserController {
      */
     @ApiOperation(value = "查询已购买资源列表", notes = "查询已购买资源列表")
     @RequestMapping( value = "/myresourcelist", method = RequestMethod.GET )
-    public CommonResponse myResourceList(){
+    public CommonResponse myResourceList(HttpServletRequest request){
 
+        String email = (String) request.getAttribute("email");
         List<String> resourcesIds = userService.getUserConsumeServiceIds(email);
         List<FileInfo> files = new ArrayList<>();
 
@@ -246,8 +244,9 @@ public class UserController {
      */
     @ApiOperation(value = "普通用户购买阅读权")
     @RequestMapping( value = "/consume", method = RequestMethod.POST )
-    public CommonResponse consume( @RequestParam("serviceID") String serviceID ){
+    public CommonResponse consume(HttpServletRequest request, @RequestParam("serviceID") String serviceID ){
         CommonResponse res = new CommonResponse();
+        String email = (String) request.getAttribute("email");
         UserInfo user = userService.getUserById(email);
         FileInfo fileInfo = fileService.getFileInfoById(serviceID);
         if (fileInfo.getFileReadPrice() > user.getAccountBalance() ){
@@ -293,5 +292,16 @@ public class UserController {
         }
 
         return response;
+    }
+
+    // 测试加入 jwt 验证后，通过拦截器是否能拿到用户ID
+    @RequestMapping( value = "/jwt", method = RequestMethod.GET)
+    public String jwtTest(HttpServletRequest request){
+
+        String email = (String) request.getAttribute("email");
+
+        System.out.println("email:" + email);
+
+        return email;
     }
 }
