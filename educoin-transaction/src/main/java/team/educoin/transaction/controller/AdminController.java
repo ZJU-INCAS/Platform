@@ -3,6 +3,7 @@ package team.educoin.transaction.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
 import team.educoin.common.controller.CommonResponse;
 import team.educoin.transaction.dto.CentralBankDto;
@@ -10,6 +11,7 @@ import team.educoin.transaction.dto.ContractDto;
 import team.educoin.transaction.fabric.AdminFabricClient;
 import team.educoin.transaction.fabric.AgencyFabricClient;
 import team.educoin.transaction.fabric.FileFabricClient;
+import team.educoin.transaction.pojo.AdminInfo;
 import team.educoin.transaction.pojo.FileInfo;
 import team.educoin.transaction.pojo.Recharge;
 import team.educoin.transaction.pojo.Withdraw;
@@ -17,7 +19,10 @@ import team.educoin.transaction.service.AdminService;
 import team.educoin.transaction.service.AgencyService;
 import team.educoin.transaction.service.FileService;
 import team.educoin.transaction.service.UserService;
+import team.educoin.transaction.util.FileUtil;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,13 +54,28 @@ public class AdminController {
     @Autowired
     private FileFabricClient fileFabricClient;
 
-    String admin = "clark@zju.incas";
 
+    /**
+     * =============================================================
+     * @author PandaClark
+     * @date 2019/6/4 3:40 PM
+     * @param
+     * @return
+     * =============================================================
+     */
+    @ApiOperation(value = "获取当前登录用户信息")
+    @RequestMapping( value = "/detail", method = RequestMethod.GET )
+    public CommonResponse getUserInfo(HttpServletRequest request){
+        String email = (String) request.getAttribute("email");
+        AdminInfo adminInfo = adminService.getAdminById(email);
+        CommonResponse res = new CommonResponse(0, "success", adminInfo);
+        return res;
+    }
 
     /**
      * =============================================================
      * @desc 管理员获取所有待审核用户充值列表
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/13 5:40 PM
      * @return CommonResponse
      * =============================================================
@@ -72,7 +92,7 @@ public class AdminController {
     /**
      * =============================================================
      * @desc 管理员获取所有待审核机构提现列表
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/13 5:53 PM
      * @return CommonResponse
      * =============================================================
@@ -90,7 +110,7 @@ public class AdminController {
     /**
      * =============================================================
      * @desc 同意用户充值
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/12 5:11 PM
      * @param rechargeId 充值记录ID
      * @return CommonResponse
@@ -99,9 +119,10 @@ public class AdminController {
     @ApiOperation(value = "管理员同意用户充值")
     @ResponseBody
     @RequestMapping( value = "/rechargeY", method = RequestMethod.POST )
-    public CommonResponse acceptUserRecharge( @RequestParam("rechargeId") String rechargeId ){
+    public CommonResponse acceptUserRecharge(HttpServletRequest request, @RequestParam("rechargeId") String rechargeId ){
 
         CommonResponse res = new CommonResponse();
+        String email = (String) request.getAttribute("email");
         // 先默认失败
         res.setStatus(1);
         res.setMessage("failed");
@@ -120,7 +141,7 @@ public class AdminController {
             Map<String, String> result = adminFabricClient.CheckUserRechargeFabric(rechargeInfo);
             System.out.println(result);
             // 修改 mysql 字段
-            adminService.acceptUserRecharge(record.getPaymentId(), admin);
+            adminService.acceptUserRecharge(record.getPaymentId(), email);
             res.setStatus(0);
             res.setMessage("success");
             res.setData("已审核通过");
@@ -131,7 +152,7 @@ public class AdminController {
     /**
      * =============================================================
      * @desc 拒绝用户充值
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/12 5:17 PM
      * @param rechargeId 充值记录ID
      * @return CommonResponse
@@ -140,9 +161,10 @@ public class AdminController {
     @ApiOperation(value = "管理员拒绝用户充值")
     @ResponseBody
     @RequestMapping( value = "/rechargeR", method = RequestMethod.POST )
-    public CommonResponse rejectUserRecharge( @RequestParam("rechargeId") String rechargeId ){
+    public CommonResponse rejectUserRecharge(HttpServletRequest request, @RequestParam("rechargeId") String rechargeId ){
 
         CommonResponse res = new CommonResponse();
+        String email = (String) request.getAttribute("email");
         // 先默认失败
         res.setStatus(1);
         res.setMessage("failed");
@@ -160,7 +182,7 @@ public class AdminController {
             Map<String, String> result = adminFabricClient.RejectUserRechargeFabric(rechargeInfo);
             System.out.println(result);
             // 修改 mysql 字段
-            adminService.rejectUserRecharge(record.getPaymentId(), admin);
+            adminService.rejectUserRecharge(record.getPaymentId(), email);
             res.setStatus(0);
             res.setMessage("success");
             res.setData("已审核拒绝");
@@ -172,7 +194,7 @@ public class AdminController {
     /**
      * =============================================================
      * @desc 同意机构用户提现
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/12 5:17 PM
      * @param withdrawId 提现记录的 payment_id
      * @return team.educoin.common.controller.CommonResponse
@@ -181,9 +203,10 @@ public class AdminController {
     @ApiOperation(value = "管理员同意机构用户提现")
     @ResponseBody
     @RequestMapping( value = "/withdrawY", method = RequestMethod.POST )
-    public CommonResponse acceptCompanyWithdraw( @RequestParam("withdrawId") String withdrawId){
+    public CommonResponse acceptCompanyWithdraw(HttpServletRequest request, @RequestParam("withdrawId") String withdrawId){
 
         CommonResponse res = new CommonResponse();
+        String email = (String) request.getAttribute("email");
         // 先默认失败
         res.setStatus(1);
         res.setMessage("failed");
@@ -202,7 +225,7 @@ public class AdminController {
             Map<String, String> result = agencyFabricClient.CheckAgencyWithdrawFabric(rechargeInfo);
             System.out.println(result);
             // 修改 mysql 字段
-            adminService.acceptCompanyWithdraw(record.getPaymentId(), admin);
+            adminService.acceptCompanyWithdraw(record.getPaymentId(), email);
             res.setStatus(0);
             res.setMessage("success");
             res.setData("已审核通过");
@@ -214,7 +237,7 @@ public class AdminController {
     /**
      * =============================================================
      * @desc 拒绝机构用户提现
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/12 5:18 PM
      * @param withdrawId 提现记录的 payment_id
      * @return team.educoin.common.controller.CommonResponse
@@ -223,9 +246,10 @@ public class AdminController {
     @ApiOperation(value = "管理员拒绝机构用户提现")
     @ResponseBody
     @RequestMapping( value = "/withdrawR", method = RequestMethod.POST )
-    public CommonResponse rejectCompanyWithdraw( @RequestParam("withdrawId") String withdrawId){
+    public CommonResponse rejectCompanyWithdraw(HttpServletRequest request, @RequestParam("withdrawId") String withdrawId){
 
         CommonResponse res = new CommonResponse();
+        String email = (String) request.getAttribute("email");
         // 先默认失败
         res.setStatus(1);
         res.setMessage("failed");
@@ -243,7 +267,7 @@ public class AdminController {
             Map<String, Object> result = agencyFabricClient.RejectAgencyWithdrawFabric(rechargeInfo);
             System.out.println(result);
             // 修改 mysql 字段
-            adminService.rejectCompanyWithdraw(record.getPaymentId(), admin);
+            adminService.rejectCompanyWithdraw(record.getPaymentId(), email);
             res.setStatus(0);
             res.setMessage("success");
             res.setData("已审核拒绝");
@@ -255,7 +279,7 @@ public class AdminController {
     /**
      * =============================================================
      * @desc 查看中央账户
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/12 5:26 PM
      * =============================================================
      */
@@ -276,7 +300,7 @@ public class AdminController {
     /**
      * =============================================================
      * @desc 查看权益分配合约
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/12 5:27 PM
      * =============================================================
      */
@@ -297,7 +321,7 @@ public class AdminController {
     /**
      * =============================================================
      * @desc 查看所有资源列表
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/16 1:53 PM
      * @return team.educoin.common.controller.CommonResponse
      * =============================================================
@@ -314,7 +338,7 @@ public class AdminController {
     /**
      * =============================================================
      * @desc 管理员查看待审核列表
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/16 1:53 PM
      * @return team.educoin.common.controller.CommonResponse
      * =============================================================
@@ -331,7 +355,7 @@ public class AdminController {
     /**
      * =============================================================
      * @desc 管理员查看审核通过记录
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/16 1:53 PM
      * @return team.educoin.common.controller.CommonResponse
      * =============================================================
@@ -348,7 +372,7 @@ public class AdminController {
     /**
      * =============================================================
      * @desc 管理员查看审核拒绝记录
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/16 1:53 PM
      * @return team.educoin.common.controller.CommonResponse
      * =============================================================
@@ -366,7 +390,7 @@ public class AdminController {
     /**
      * =============================================================
      * @desc 管理员审核通过资源
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/16 10:16 PM
      * @return CommonResponse
      * =============================================================
@@ -374,9 +398,10 @@ public class AdminController {
     @ApiOperation(value = "管理员审核通过资源", notes = "管理员查看审核拒绝记录")
     @ResponseBody
     @RequestMapping( value = "/serviceY", method = RequestMethod.GET )
-    public CommonResponse checkService( @RequestParam("id") String id ){
+    public CommonResponse checkService(HttpServletRequest request, @RequestParam("id") String id ){
 
         CommonResponse res = null;
+        String email = (String) request.getAttribute("email");
 
         try {
             FileInfo fileInfo = fileService.getFileInfoById(id);
@@ -390,7 +415,7 @@ public class AdminController {
             map.put("company", fileInfo.getFileInitialProvider());
 
             fileFabricClient.registerService(map);
-            adminService.acceptService(admin, id);
+            adminService.acceptService(email, id);
             res = new CommonResponse(0, "success", "注册新资源");
         } catch (Exception e){
             e.printStackTrace();
@@ -403,7 +428,7 @@ public class AdminController {
     /**
      * =============================================================
      * @desc 管理员审核拒绝资源
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/16 10:16 PM
      * @return CommonResponse
      * =============================================================
@@ -411,15 +436,16 @@ public class AdminController {
     @ApiOperation(value = "管理员审核拒绝资源", notes = "管理员查看审核拒绝记录")
     @ResponseBody
     @RequestMapping( value = "/serviceR", method = RequestMethod.GET )
-    public CommonResponse rejectService( @RequestParam("id") String id ){
-        adminService.rejectService(admin, id);
+    public CommonResponse rejectService(HttpServletRequest request, @RequestParam("id") String id ){
+        String email = (String) request.getAttribute("email");
+        adminService.rejectService(email, id);
         CommonResponse res = new CommonResponse(0, "success", "已审核拒绝");
         return res;
     }
 
     /*
      * =============================================================
-     * @Description 管理员提取被侵权的资源水印信息(TODO)
+     * @Description 管理员提取被侵权的资源水印信息
      * @Author Messi-Q
      * @Date 19:32 2019-05-27
      * @return team.educoin.common.controller.CommonResponse
@@ -427,9 +453,40 @@ public class AdminController {
      **/
     @ApiOperation(value = "管理员处理资源侵权", notes = "管理员提取被侵权的资源水印信息")
     @ResponseBody
-    @RequestMapping( value = "/extracInfo/{id}", method = RequestMethod.GET )
-    public CommonResponse extractServiceInfo() {
+    @RequestMapping( value = "/validateWatermarkInfo/{id}", method = RequestMethod.GET )
+    public CommonResponse extractServiceInfo(@PathVariable("id") String id) throws FileNotFoundException, IOException, InterruptedException {
         CommonResponse res = new CommonResponse(0, "success", "提取成功");
+
+        // 逻辑：验证的时候：当前资源所有者email+当前资源使用者email+资源id
+        // 将当前所有者和使用者的email统一置为当前使用者email，若验证成功，则未侵权；若验证不成功，则侵权
+        // 如果已知当前侵权嫌疑人是谁，则直接验证
+
+        String email = "qian";  // 当前侵权嫌疑人email, 将该email和所有者email设为一致进行校验
+
+        // 根据文件id获取文件名
+        FileInfo fileInfo = fileService.getFileInfoById(id);
+        String filename = fileInfo.getFileName();
+
+        //validate watermark
+        String waterMarkEmbedTool = ResourceUtils.getURL("classpath:static/watermark/image_watermark_extract.py").getPath();
+        String waterMarkValidateInfo = email + "-" + email + "-" + id;
+        String fileInfirnged = FileUtil.DOWNLOAD_DIR + "/" + filename;
+
+        // 调用python脚本
+        String commond = String.format("python %s %s %s", waterMarkEmbedTool, waterMarkValidateInfo, fileInfirnged);
+        Process process = Runtime.getRuntime().exec(commond);
+        process.waitFor();
+        BufferedInputStream in = new BufferedInputStream(process.getInputStream());
+        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+        String line;
+        String result = null;
+        while ((line = br.readLine()) != null) {
+            result = line;
+        }
+        br.close();
+        in.close();
+        System.out.println(result);  // 打印验证结果
+
         return res;
     }
 }

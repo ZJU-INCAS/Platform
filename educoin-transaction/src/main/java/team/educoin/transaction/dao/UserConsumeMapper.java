@@ -1,8 +1,11 @@
 package team.educoin.transaction.dao;
 
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,4 +22,7 @@ public interface UserConsumeMapper {
 
     @Insert({"insert into ", TABLE_NAME, "(",INSERT_FIELDS,") values (#{email},#{service_id},#{file_title},#{file_readPrice},#{file_name})"})
     int addRecord(Map<String, Object> map);
+
+    @Select({"select service_id from ", TABLE_NAME, "where email=#{email}"})
+    List<String> getServiceIdsByEmail(@Param("email") String email);
 }

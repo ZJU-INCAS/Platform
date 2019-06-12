@@ -229,4 +229,10 @@ public class UserServiceImpl implements UserService {
         return i > 0;
     }
 
+    @Override
+    public List<String> getUserConsumeServiceIds(String email) {
+        List<String> ids = userConsumeMapper.getServiceIdsByEmail(email);
+        return ids;
+    }
+
 }

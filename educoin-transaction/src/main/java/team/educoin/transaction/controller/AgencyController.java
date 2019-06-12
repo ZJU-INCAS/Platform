@@ -42,8 +42,6 @@ import java.util.Map;
 @Api(value = "Agency API 接口", tags = "agency", description = "agency API 接口")
 public class AgencyController {
 
-    private String email = "ZjuEducation@email.com";
-
     @Autowired
     private AgencyService agencyService;
     @Autowired
@@ -53,9 +51,27 @@ public class AgencyController {
     @Autowired
     private FileFabricClient fileFabricClient;
 
+    /**
+     * =============================================================
+     * @author PandaClark
+     * @date 2019/6/4 3:40 PM
+     * @param
+     * @return
+     * =============================================================
+     */
+    @ApiOperation(value = "获取当前登录用户信息")
+    @RequestMapping( value = "/detail", method = RequestMethod.GET )
+    public CommonResponse getUserInfo(HttpServletRequest request){
+        String email = (String) request.getAttribute("email");
+        AgencyInfo agencyInfo = agencyService.getAgencyById(email);
+        CommonResponse res = new CommonResponse(0, "success", agencyInfo);
+        return res;
+    }
+
     @ApiOperation(value = "获取所有审核通过的提现记录")
     @RequestMapping( value = "/withdrawList", method = RequestMethod.GET )
-    public CommonResponse checkedWithdrawRecords(){
+    public CommonResponse checkedWithdrawRecords(HttpServletRequest request){
+        String email = (String) request.getAttribute("email");
         List<Withdraw> records = agencyService.getAgencyWithdrawRecords(email, 0);
         CommonResponse res = new CommonResponse(0, "success", records);
         return res;
@@ -63,8 +79,9 @@ public class AgencyController {
 
     @ApiOperation(value = "机构用户提现")
     @RequestMapping( value = "/withdraw", method = RequestMethod.POST )
-    public CommonResponse withdraw(@RequestParam("amount") double amount) {
+    public CommonResponse withdraw(HttpServletRequest request, @RequestParam("amount") double amount) {
         CommonResponse res = new CommonResponse();
+        String email = (String) request.getAttribute("email");
 
         // email 应当从 session 中拿，此处只是测试
         boolean success = agencyService.companyWithdraw(email, amount);
@@ -90,7 +107,8 @@ public class AgencyController {
      */
     @ApiOperation(value = "机构用户查看待审核的资源列表", notes = "机构用户查看待审核的资源列表")
     @RequestMapping( value = "/service/unchecked", method = RequestMethod.GET )
-    public CommonResponse resourceListW(){
+    public CommonResponse resourceListW(HttpServletRequest request){
+        String email = (String) request.getAttribute("email");
         List<FileInfo> files = fileService.getUnCheckedServiceListById(email);
         CommonResponse res = new CommonResponse(0, "success", files);
         return res;
@@ -106,7 +124,8 @@ public class AgencyController {
      */
     @ApiOperation(value = "机构用户查看已审核通过的资源列表", notes = "机构用户查看已审核通过的资源列表")
     @RequestMapping( value = "/service/checked", method = RequestMethod.GET )
-    public CommonResponse resourceListY(){
+    public CommonResponse resourceListY(HttpServletRequest request){
+        String email = (String) request.getAttribute("email");
         List<FileInfo> files = fileService.getCheckedServiceListById(email);
         CommonResponse res = new CommonResponse(0, "success", files);
         return res;
@@ -122,7 +141,8 @@ public class AgencyController {
      */
     @ApiOperation(value = "机构用户查看已审核拒绝的资源列表", notes = "机构用户查看已审核拒绝的资源列表")
     @RequestMapping( value = "/service/reject", method = RequestMethod.GET )
-    public CommonResponse resourceListR(){
+    public CommonResponse resourceListR(HttpServletRequest request){
+        String email = (String) request.getAttribute("email");
         List<FileInfo> files = fileService.getRejectServiceListById(email);
         CommonResponse res = new CommonResponse(0, "success", files);
         return res;
@@ -139,8 +159,9 @@ public class AgencyController {
      */
     @ApiOperation(value = "机构用户购买所有权")
     @RequestMapping( value = "/service/consume/{id}", method = RequestMethod.POST )
-    public CommonResponse consume( @PathVariable("id") String id ){
+    public CommonResponse consume(HttpServletRequest request, @PathVariable("id") String id ){
         CommonResponse res = new CommonResponse();
+        String email = (String) request.getAttribute("email");
         AgencyInfo agency = agencyService.getAgencyById(email);
         FileInfo fileInfo = fileService.getFileInfoById(id);
         if (fileInfo.getFileReadPrice() > agency.getAccountBalance() ){
@@ -204,7 +225,8 @@ public class AgencyController {
      */
     @RequestMapping(value = "/service/update/{id}", method = RequestMethod.POST)
     @ApiOperation(value = "修改资源信息", notes = "根据资源ID修改资源信息")
-    public CommonResponse updateServiceInfo(@PathVariable("id") String id,
+    public CommonResponse updateServiceInfo(HttpServletRequest request,
+                                            @PathVariable("id") String id,
                                             @RequestParam("fileTitle") String fileTitle,
                                             @RequestParam("fileImage") String fileImage,
                                             @RequestParam("fileDescription") String fileDescription,
@@ -214,6 +236,7 @@ public class AgencyController {
                                             @RequestParam("fileContentType") String fileContentType) {
 
         CommonResponse res = null;
+        String email = (String) request.getAttribute("email");
         try {
             Map<String, Object> map = new HashMap<>();
             map.put("$class","org.education.Service");
@@ -330,7 +353,6 @@ public class AgencyController {
             res = new CommonResponse(1,"failed","请补全资源信息再提交");
         }
 
-
         // 获取文件相关信息
         // 获取文件的MD5码
         String fileMD5 = DigestUtils.md5DigestAsHex(file.getBytes());
@@ -340,10 +362,8 @@ public class AgencyController {
         // 获取文件ID，随机产生
         String fileId = UUIDutil.getUUID();
 
-
         // 文件上传操作
         Files.copy(file.getInputStream(), Paths.get(FileUtil.UPLOAD_DIR,fileName), StandardCopyOption.REPLACE_EXISTING);
-
 
         // 资源注册操作
         FileInfo fileInfo = new FileInfo(fileId, fileInitialProvider, fileInitialProvider, fileTitle, fileImage,
@@ -436,15 +456,19 @@ public class AgencyController {
     public CommonResponse downloadService(@PathVariable("id") String id, HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException, FileNotFoundException, UnsupportedEncodingException {
 
         CommonResponse res = new CommonResponse(0, "success", "资源下载成功");
+        String email2 = (String) request.getAttribute("email");  // 当前资源使用者的email
 
         // 根据文件id获取文件名
         FileInfo fileInfo = fileService.getFileInfoById(id);
         String filename = fileInfo.getFileName();
 
+        // 根据文件id获取该文件的所有者email
+        String email1 = fileInfo.getId();  // 当前资源所有者的email
+
         //embed watermark
         String waterMarkEmbedTool = ResourceUtils.getURL("classpath:static/watermark/image_watermark.py").getPath();
         String fileEmbed = FileUtil.UPLOAD_DIR + "/" + filename;
-        String waterMarkInfo = email + "-" + id;
+        String waterMarkInfo = email1 + "-" + email2 + "-" + id;  // 当前资源所有者email+当前资源下载者email+资源id
         String fileEmbedOut = FileUtil.DOWNLOAD_DIR + "/" + filename;
 
         // 调用python脚本
@@ -460,7 +484,7 @@ public class AgencyController {
         }
         br.close();
         in.close();
-        // System.out.println(result);
+        System.out.println(result);
 
         // download
         response.setContentType("application/force-download");  //设置强制下载不打开
