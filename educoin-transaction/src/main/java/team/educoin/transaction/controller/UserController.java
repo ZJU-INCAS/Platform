@@ -48,7 +48,7 @@ public class UserController {
 
     /**
      * =============================================================
-     * @author PandaClark
+     * @author Messi-q
      * @date 2019/6/4 3:40 PM
      * @param
      * @return
@@ -65,7 +65,7 @@ public class UserController {
 
     /**
      * =============================================================
-     * @author PandaClark
+     * @author Messi-q
      * @date 2019/5/12 12:20 PM
      * @param []
      * @return CommonResponse
@@ -81,7 +81,7 @@ public class UserController {
     }
 
     /**
-     * @author PandaClark
+     * @author Messi-q
      * @desc 普通用户充值
      * @param balance 充值金额
      */
@@ -107,7 +107,7 @@ public class UserController {
 
     /**
      * =============================================================
-     * @author PandaClark
+     * @author Messi-q
      * @date 2019/5/12 1:20 PM
      * @param []
      * @return team.educoin.common.controller.CommonResponse
@@ -126,7 +126,7 @@ public class UserController {
     }
 
     /**
-     * @author PandaClark
+     * @author Messi-q
      * @desc 普通用户向普通用户转账
      * @param transferDto 将转账信息存储到 transferDto 对象中
      * @return
@@ -155,7 +155,7 @@ public class UserController {
 
 
     /**
-     * @author PandaClark
+     * @author Messi-q
      * @desc 普通用户向机构用户转账
      * @param transferDto 将转账信息存储到 transferDto 对象中
      * @return
@@ -185,7 +185,7 @@ public class UserController {
     /**
      * =============================================================
      * @desc 查询可购买资源列表
-     * @author PandaClark
+     * @author Messi-q
      * @date 2019/5/16 12:39 PM
      * @param
      * @return
@@ -202,7 +202,7 @@ public class UserController {
     /**
      * =============================================================
      * @desc 查询已购买资源列表
-     * @author PandaClark
+     * @author Messi-q
      * @date 2019/6/4 11:24 AM
      * @param
      * @return
@@ -229,7 +229,7 @@ public class UserController {
     /**
      * =============================================================
      * @desc 普通用户购买阅读权
-     * @author PandaClark
+     * @author Messi-q
      * @date 2019/5/15 7:11 PM
      * @param
      * @return team.educoin.common.controller.CommonResponse

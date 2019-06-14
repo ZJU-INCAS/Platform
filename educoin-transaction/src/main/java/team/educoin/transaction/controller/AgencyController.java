@@ -54,11 +54,11 @@ public class AgencyController {
 
     /**
      * =============================================================
-     *
      * @param
-     * @return =============================================================
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/6/4 3:40 PM
+     * @return
+     * =============================================================
      */
     @ApiOperation(value = "获取当前登录用户信息")
     @RequestMapping(value = "/detail", method = RequestMethod.GET)
@@ -99,11 +99,12 @@ public class AgencyController {
     }
 
     /**
-     * @return team.educoin.common.controller.CommonResponse
      * =============================================================
      * @desc 机构用户查看待审核的资源列表
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/16 1:53 PM
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
      */
     @ApiOperation(value = "机构用户查看待审核的资源列表", notes = "机构用户查看待审核的资源列表")
     @RequestMapping(value = "/service/unchecked", method = RequestMethod.GET)
@@ -115,11 +116,12 @@ public class AgencyController {
     }
 
     /**
-     * @return team.educoin.common.controller.CommonResponse
      * =============================================================
      * @desc 机构用户查看已审核通过的资源列表
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/16 1:53 PM
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
      */
     @ApiOperation(value = "机构用户查看已审核通过的资源列表", notes = "机构用户查看已审核通过的资源列表")
     @RequestMapping(value = "/service/checked", method = RequestMethod.GET)
@@ -131,11 +133,12 @@ public class AgencyController {
     }
 
     /**
-     * @return team.educoin.common.controller.CommonResponse
      * =============================================================
      * @desc 机构用户查看已审核拒绝的资源列表
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/16 1:53 PM
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
      */
     @ApiOperation(value = "机构用户查看已审核拒绝的资源列表", notes = "机构用户查看已审核拒绝的资源列表")
     @RequestMapping(value = "/service/reject", method = RequestMethod.GET)
@@ -151,7 +154,7 @@ public class AgencyController {
      * @return team.educoin.common.controller.CommonResponse
      * =============================================================
      * @desc 机构用户购买所有权
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/15 7:11 PM
      */
     @ApiOperation(value = "机构用户购买所有权")
@@ -192,7 +195,7 @@ public class AgencyController {
      * @return java.lang.String
      * =============================================================
      * @desc 删除资源
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/17 11:46 AM
      */
     @RequestMapping(value = "/service/delete/{id}", method = RequestMethod.DELETE)
@@ -212,11 +215,12 @@ public class AgencyController {
 
 
     /**
-     * @return java.lang.String
      * =============================================================
      * @desc 修改资源信息
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/17 12:44 PM
+     * @return java.lang.String
+     * =============================================================
      */
     @RequestMapping(value = "/service/update/{id}", method = RequestMethod.POST)
     @ApiOperation(value = "修改资源信息", notes = "根据资源ID修改资源信息")
@@ -260,7 +264,7 @@ public class AgencyController {
      * @return java.lang.String
      * =============================================================
      * @desc 修改资源阅读权价格
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/17 12:09 PM
      */
     @RequestMapping(value = "/service/updateReadPrice/{id}", method = RequestMethod.POST)
@@ -290,7 +294,7 @@ public class AgencyController {
      * @return java.lang.String
      * =============================================================
      * @desc 修改资源所有权价格
-     * @author PandaClark
+     * @author Messi-Q
      * @date 2019/5/17 12:31 PM
      */
     @RequestMapping(value = "/service/updateOwnershipPrice/{id}", method = RequestMethod.POST)

@@ -58,11 +58,11 @@ public class AdminController {
 
     /**
      * =============================================================
-     *
      * @param
-     * @return =============================================================
-     * @author PandaClark
+     * @author Messi-q
      * @date 2019/6/4 3:40 PM
+     * @return
+     * =============================================================
      */
     @ApiOperation(value = "获取当前登录用户信息")
     @RequestMapping(value = "/detail", method = RequestMethod.GET)
@@ -75,12 +75,11 @@ public class AdminController {
 
     /**
      * =============================================================
-     *
-     * @return CommonResponse
-     * =============================================================
      * @desc 管理员获取所有待审核用户充值列表
      * @author Messi-Q
      * @date 2019/5/13 5:40 PM
+     * @return CommonResponse
+     * =============================================================
      */
     @ApiOperation(value = "管理员获取所有未审核用户充值记录")
     @ResponseBody
@@ -93,12 +92,11 @@ public class AdminController {
 
     /**
      * =============================================================
-     *
-     * @return CommonResponse
-     * =============================================================
      * @desc 管理员获取所有待审核机构提现列表
      * @author Messi-Q
      * @date 2019/5/13 5:53 PM
+     * @return CommonResponse
+     * =============================================================
      */
     @ApiOperation(value = "管理员获取所有未审核机构提现记录")
     @ResponseBody
@@ -112,13 +110,12 @@ public class AdminController {
 
     /**
      * =============================================================
-     *
      * @param rechargeId 充值记录ID
-     * @return CommonResponse
-     * =============================================================
      * @desc 同意用户充值
      * @author Messi-Q
      * @date 2019/5/12 5:11 PM
+     * @return CommonResponse
+     * =============================================================
      */
     @ApiOperation(value = "管理员同意用户充值")
     @ResponseBody
@@ -155,13 +152,12 @@ public class AdminController {
 
     /**
      * =============================================================
-     *
      * @param rechargeId 充值记录ID
-     * @return CommonResponse
-     * =============================================================
      * @desc 拒绝用户充值
      * @author Messi-Q
      * @date 2019/5/12 5:17 PM
+     * @return CommonResponse
+     * =============================================================
      */
     @ApiOperation(value = "管理员拒绝用户充值")
     @ResponseBody
@@ -198,13 +194,12 @@ public class AdminController {
 
     /**
      * =============================================================
-     *
      * @param withdrawId 提现记录的 payment_id
-     * @return team.educoin.common.controller.CommonResponse
-     * =============================================================
      * @desc 同意机构用户提现
      * @author Messi-Q
      * @date 2019/5/12 5:17 PM
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
      */
     @ApiOperation(value = "管理员同意机构用户提现")
     @ResponseBody
@@ -242,13 +237,12 @@ public class AdminController {
 
     /**
      * =============================================================
-     *
      * @param withdrawId 提现记录的 payment_id
-     * @return team.educoin.common.controller.CommonResponse
-     * =============================================================
-     * @desc 拒绝机构用户提现
+       * @desc 拒绝机构用户提现
      * @author Messi-Q
      * @date 2019/5/12 5:18 PM
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
      */
     @ApiOperation(value = "管理员拒绝机构用户提现")
     @ResponseBody
@@ -285,7 +279,6 @@ public class AdminController {
 
     /**
      * =============================================================
-     *
      * @desc 查看中央账户
      * @author Messi-Q
      * @date 2019/5/12 5:26 PM
@@ -307,7 +300,6 @@ public class AdminController {
 
     /**
      * =============================================================
-     *
      * @desc 查看权益分配合约
      * @author Messi-Q
      * @date 2019/5/12 5:27 PM
@@ -329,12 +321,11 @@ public class AdminController {
 
     /**
      * =============================================================
-     *
-     * @return team.educoin.common.controller.CommonResponse
-     * =============================================================
      * @desc 查看所有资源列表
      * @author Messi-Q
      * @date 2019/5/16 1:53 PM
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
      */
     @ApiOperation(value = "查看所有资源列表", notes = "查看所有资源列表")
     @ResponseBody
@@ -347,12 +338,11 @@ public class AdminController {
 
     /**
      * =============================================================
-     *
-     * @return team.educoin.common.controller.CommonResponse
-     * =============================================================
      * @desc 管理员查看待审核列表
      * @author Messi-Q
      * @date 2019/5/16 1:53 PM
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
      */
     @ApiOperation(value = "管理员查看待审核列表", notes = "管理员查看待审核列表")
     @ResponseBody
@@ -365,12 +355,11 @@ public class AdminController {
 
     /**
      * =============================================================
-     *
-     * @return team.educoin.common.controller.CommonResponse
-     * =============================================================
      * @desc 管理员查看审核通过记录
      * @author Messi-Q
      * @date 2019/5/16 1:53 PM
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
      */
     @ApiOperation(value = "管理员查看审核通过记录", notes = "管理员查看审核通过记录")
     @ResponseBody
@@ -383,12 +372,11 @@ public class AdminController {
 
     /**
      * =============================================================
-     *
-     * @return team.educoin.common.controller.CommonResponse
-     * =============================================================
      * @desc 管理员查看审核拒绝记录
      * @author Messi-Q
      * @date 2019/5/16 1:53 PM
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
      */
     @ApiOperation(value = "管理员查看审核拒绝记录", notes = "管理员查看审核拒绝记录")
     @ResponseBody
@@ -402,12 +390,11 @@ public class AdminController {
 
     /**
      * =============================================================
-     *
-     * @return CommonResponse
-     * =============================================================
      * @desc 管理员审核通过资源
      * @author Messi-Q
      * @date 2019/5/16 10:16 PM
+     * @return CommonResponse
+     * =============================================================
      */
     @ApiOperation(value = "管理员审核通过资源", notes = "管理员查看审核拒绝记录")
     @ResponseBody
@@ -441,12 +428,11 @@ public class AdminController {
 
     /**
      * =============================================================
-     *
-     * @return CommonResponse
-     * =============================================================
      * @desc 管理员审核拒绝资源
      * @author Messi-Q
      * @date 2019/5/16 10:16 PM
+     * @return CommonResponse
+     * =============================================================
      */
     @ApiOperation(value = "管理员审核拒绝资源", notes = "管理员查看审核拒绝记录")
     @ResponseBody
