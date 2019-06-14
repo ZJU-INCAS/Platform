@@ -27,6 +27,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,15 +54,15 @@ public class AgencyController {
 
     /**
      * =============================================================
+     *
+     * @param
+     * @return =============================================================
      * @author PandaClark
      * @date 2019/6/4 3:40 PM
-     * @param
-     * @return
-     * =============================================================
      */
     @ApiOperation(value = "获取当前登录用户信息")
-    @RequestMapping( value = "/detail", method = RequestMethod.GET )
-    public CommonResponse getUserInfo(HttpServletRequest request){
+    @RequestMapping(value = "/detail", method = RequestMethod.GET)
+    public CommonResponse getUserInfo(HttpServletRequest request) {
         String email = (String) request.getAttribute("email");
         AgencyInfo agencyInfo = agencyService.getAgencyById(email);
         CommonResponse res = new CommonResponse(0, "success", agencyInfo);
@@ -69,8 +70,8 @@ public class AgencyController {
     }
 
     @ApiOperation(value = "获取所有审核通过的提现记录")
-    @RequestMapping( value = "/withdrawList", method = RequestMethod.GET )
-    public CommonResponse checkedWithdrawRecords(HttpServletRequest request){
+    @RequestMapping(value = "/withdrawList", method = RequestMethod.GET)
+    public CommonResponse checkedWithdrawRecords(HttpServletRequest request) {
         String email = (String) request.getAttribute("email");
         List<Withdraw> records = agencyService.getAgencyWithdrawRecords(email, 0);
         CommonResponse res = new CommonResponse(0, "success", records);
@@ -78,14 +79,14 @@ public class AgencyController {
     }
 
     @ApiOperation(value = "机构用户提现")
-    @RequestMapping( value = "/withdraw", method = RequestMethod.POST )
+    @RequestMapping(value = "/withdraw", method = RequestMethod.POST)
     public CommonResponse withdraw(HttpServletRequest request, @RequestParam("amount") double amount) {
         CommonResponse res = new CommonResponse();
         String email = (String) request.getAttribute("email");
 
         // email 应当从 session 中拿，此处只是测试
         boolean success = agencyService.companyWithdraw(email, amount);
-        if (success){
+        if (success) {
             res.setStatus(0);
             res.setMessage("success");
             res.setData("提现成功");
@@ -99,15 +100,16 @@ public class AgencyController {
 
     /**
      * =============================================================
+     *
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
      * @desc 机构用户查看待审核的资源列表
      * @author PandaClark
      * @date 2019/5/16 1:53 PM
-     * @return team.educoin.common.controller.CommonResponse
-     * =============================================================
      */
     @ApiOperation(value = "机构用户查看待审核的资源列表", notes = "机构用户查看待审核的资源列表")
-    @RequestMapping( value = "/service/unchecked", method = RequestMethod.GET )
-    public CommonResponse resourceListW(HttpServletRequest request){
+    @RequestMapping(value = "/service/unchecked", method = RequestMethod.GET)
+    public CommonResponse resourceListW(HttpServletRequest request) {
         String email = (String) request.getAttribute("email");
         List<FileInfo> files = fileService.getUnCheckedServiceListById(email);
         CommonResponse res = new CommonResponse(0, "success", files);
@@ -116,15 +118,16 @@ public class AgencyController {
 
     /**
      * =============================================================
+     *
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
      * @desc 机构用户查看已审核通过的资源列表
      * @author PandaClark
      * @date 2019/5/16 1:53 PM
-     * @return team.educoin.common.controller.CommonResponse
-     * =============================================================
      */
     @ApiOperation(value = "机构用户查看已审核通过的资源列表", notes = "机构用户查看已审核通过的资源列表")
-    @RequestMapping( value = "/service/checked", method = RequestMethod.GET )
-    public CommonResponse resourceListY(HttpServletRequest request){
+    @RequestMapping(value = "/service/checked", method = RequestMethod.GET)
+    public CommonResponse resourceListY(HttpServletRequest request) {
         String email = (String) request.getAttribute("email");
         List<FileInfo> files = fileService.getCheckedServiceListById(email);
         CommonResponse res = new CommonResponse(0, "success", files);
@@ -133,15 +136,16 @@ public class AgencyController {
 
     /**
      * =============================================================
+     *
+     * @return team.educoin.common.controller.CommonResponse
+     * =============================================================
      * @desc 机构用户查看已审核拒绝的资源列表
      * @author PandaClark
      * @date 2019/5/16 1:53 PM
-     * @return team.educoin.common.controller.CommonResponse
-     * =============================================================
      */
     @ApiOperation(value = "机构用户查看已审核拒绝的资源列表", notes = "机构用户查看已审核拒绝的资源列表")
-    @RequestMapping( value = "/service/reject", method = RequestMethod.GET )
-    public CommonResponse resourceListR(HttpServletRequest request){
+    @RequestMapping(value = "/service/reject", method = RequestMethod.GET)
+    public CommonResponse resourceListR(HttpServletRequest request) {
         String email = (String) request.getAttribute("email");
         List<FileInfo> files = fileService.getRejectServiceListById(email);
         CommonResponse res = new CommonResponse(0, "success", files);
@@ -150,32 +154,33 @@ public class AgencyController {
 
     /**
      * =============================================================
-     * @desc 机构用户购买所有权
-     * @author PandaClark
-     * @date 2019/5/15 7:11 PM
+     *
      * @param
      * @return team.educoin.common.controller.CommonResponse
      * =============================================================
+     * @desc 机构用户购买所有权
+     * @author PandaClark
+     * @date 2019/5/15 7:11 PM
      */
     @ApiOperation(value = "机构用户购买所有权")
-    @RequestMapping( value = "/service/consume/{id}", method = RequestMethod.POST )
-    public CommonResponse consume(HttpServletRequest request, @PathVariable("id") String id ){
+    @RequestMapping(value = "/service/consume/{id}", method = RequestMethod.POST)
+    public CommonResponse consume(HttpServletRequest request, @PathVariable("id") String id) {
         CommonResponse res = new CommonResponse();
         String email = (String) request.getAttribute("email");
         AgencyInfo agency = agencyService.getAgencyById(email);
         FileInfo fileInfo = fileService.getFileInfoById(id);
-        if (fileInfo.getFileReadPrice() > agency.getAccountBalance() ){
+        if (fileInfo.getFileReadPrice() > agency.getAccountBalance()) {
             res.setStatus(1);
             res.setMessage("failed");
             res.setData("余额不足");
         } else {
             Map<String, String> map = new HashMap<>();
-            map.put("$class","org.education.CompanyBuyOnwership");
-            map.put("serviceID",id);
-            map.put("company",email);
+            map.put("$class", "org.education.CompanyBuyOnwership");
+            map.put("serviceID", id);
+            map.put("company", email);
             try {
                 Map<String, Object> map1 = agencyFabricClient.agencyBuyOwnership(map);
-                agencyService.agencyBuyOwnership(email,id,fileInfo);
+                agencyService.agencyBuyOwnership(email, id, fileInfo);
                 res.setStatus(0);
                 res.setMessage("success");
                 res.setData(map1);
@@ -192,12 +197,13 @@ public class AgencyController {
 
     /**
      * =============================================================
-     * @desc  删除资源
-     * @author PandaClark
-     * @date 2019/5/17 11:46 AM
+     *
      * @param id 资源ID
      * @return java.lang.String
      * =============================================================
+     * @desc 删除资源
+     * @author PandaClark
+     * @date 2019/5/17 11:46 AM
      */
     @RequestMapping(value = "/service/delete/{id}", method = RequestMethod.DELETE)
     @ApiOperation(value = "删除资源", notes = "根据资源ID删除资源")
@@ -207,7 +213,7 @@ public class AgencyController {
             fileFabricClient.deleteService(id);
             fileService.deleteService(id);
             res = new CommonResponse(0, "success", "删除成功");
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             res = new CommonResponse(1, "failed", e.getMessage());
         }
@@ -217,11 +223,12 @@ public class AgencyController {
 
     /**
      * =============================================================
+     *
+     * @return java.lang.String
+     * =============================================================
      * @desc 修改资源信息
      * @author PandaClark
      * @date 2019/5/17 12:44 PM
-     * @return java.lang.String
-     * =============================================================
      */
     @RequestMapping(value = "/service/update/{id}", method = RequestMethod.POST)
     @ApiOperation(value = "修改资源信息", notes = "根据资源ID修改资源信息")
@@ -239,12 +246,12 @@ public class AgencyController {
         String email = (String) request.getAttribute("email");
         try {
             Map<String, Object> map = new HashMap<>();
-            map.put("$class","org.education.Service");
-            map.put("serviceID",id);
-            map.put("serviceName",fileTitle);
-            map.put("readPrice",fileReadPrice);
-            map.put("ownershipPrice",fileOwnerShipPrice);
-            map.put("company",email);
+            map.put("$class", "org.education.Service");
+            map.put("serviceID", id);
+            map.put("serviceName", fileTitle);
+            map.put("readPrice", fileReadPrice);
+            map.put("ownershipPrice", fileOwnerShipPrice);
+            map.put("company", email);
 
             fileFabricClient.updateService(id, map);
 
@@ -252,7 +259,7 @@ public class AgencyController {
             fileService.updateFileInfo(fileInfo);
 
             res = new CommonResponse(0, "success", "修改资源信息成功");
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             res = new CommonResponse(1, "failed", e.getMessage());
         }
@@ -263,11 +270,12 @@ public class AgencyController {
 
     /**
      * =============================================================
+     *
+     * @return java.lang.String
+     * =============================================================
      * @desc 修改资源阅读权价格
      * @author PandaClark
      * @date 2019/5/17 12:09 PM
-     * @return java.lang.String
-     * =============================================================
      */
     @RequestMapping(value = "/service/updateReadPrice/{id}", method = RequestMethod.POST)
     @ApiOperation(value = "修改资源阅读权价", notes = "根据资源ID修改资源阅读权价")
@@ -277,14 +285,14 @@ public class AgencyController {
         CommonResponse res = null;
         try {
             Map<String, Object> map = new HashMap<>();
-            map.put("$class","org.education.UpdateServicereadPrice");
-            map.put("serviceID",id);
-            map.put("readPrice",fileReadPrice);
+            map.put("$class", "org.education.UpdateServicereadPrice");
+            map.put("serviceID", id);
+            map.put("readPrice", fileReadPrice);
 
             fileFabricClient.updateServiceReadPrice(map);
-            fileService.updateFileReadPrice(id,fileReadPrice);
+            fileService.updateFileReadPrice(id, fileReadPrice);
             res = new CommonResponse(0, "success", "修改资源阅读权价格成功");
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             res = new CommonResponse(1, "failed", e.getMessage());
         }
@@ -293,29 +301,30 @@ public class AgencyController {
 
 
     /**
+     * =============================================================
+     *
+     * @return java.lang.String
      * =============================================================
      * @desc 修改资源所有权价格
      * @author PandaClark
      * @date 2019/5/17 12:31 PM
-     * @return java.lang.String
-     * =============================================================
      */
     @RequestMapping(value = "/service/updateOwnershipPrice/{id}", method = RequestMethod.POST)
     @ApiOperation(value = "修改资源所有权价", notes = "根据资源ID修改资源所有权价")
     public CommonResponse updateServiceOwnerShipPrice(@PathVariable("id") String id,
-                                              @RequestParam("fileOwnerShipPrice") Double fileOwnerShipPrice) {
+                                                      @RequestParam("fileOwnerShipPrice") Double fileOwnerShipPrice) {
 
         CommonResponse res = null;
         try {
             Map<String, Object> map = new HashMap<>();
-            map.put("$class","org.education.UpdateServiceownershipPrice");
-            map.put("serviceID",id);
-            map.put("ownershipPrice",fileOwnerShipPrice);
+            map.put("$class", "org.education.UpdateServiceownershipPrice");
+            map.put("serviceID", id);
+            map.put("ownershipPrice", fileOwnerShipPrice);
 
             fileFabricClient.updateServiceOwnershipPrice(map);
-            fileService.updateFileOwnershipPrice(id,fileOwnerShipPrice);
+            fileService.updateFileOwnershipPrice(id, fileOwnerShipPrice);
             res = new CommonResponse(0, "success", "修改资源所有权价格成功");
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             res = new CommonResponse(1, "failed", e.getMessage());
         }
@@ -324,14 +333,14 @@ public class AgencyController {
     }
 
 
-
     /**
+     * =============================================================
+     *
+     * @return java.lang.String
      * =============================================================
      * @desc 注册新资源
      * @author Messi-Q
      * @date Modified by PandaClark in 2019/5/17 6:34 PM
-     * @return java.lang.String
-     * =============================================================
      */
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @ApiOperation(value = "上传资源", notes = "上传资源文件，提交资源基本信息")
@@ -348,9 +357,8 @@ public class AgencyController {
         CommonResponse res = null;
 
         if (file.getSize() == 0 || StringUtils.isEmpty(fileTitle) || StringUtils.isEmpty(fileImage) || StringUtils.isEmpty(fileDescription) || StringUtils.isEmpty(fileReadPrice)
-                || StringUtils.isEmpty(fileOwnerShipPrice) || StringUtils.isEmpty(fileKeyWord) || StringUtils.isEmpty(fileContentType) || StringUtils.isEmpty(fileInitialProvider))
-        {
-            res = new CommonResponse(1,"failed","请补全资源信息再提交");
+                || StringUtils.isEmpty(fileOwnerShipPrice) || StringUtils.isEmpty(fileKeyWord) || StringUtils.isEmpty(fileContentType) || StringUtils.isEmpty(fileInitialProvider)) {
+            res = new CommonResponse(1, "failed", "请补全资源信息再提交");
         }
 
         // 获取文件相关信息
@@ -358,17 +366,17 @@ public class AgencyController {
         String fileMD5 = DigestUtils.md5DigestAsHex(file.getBytes());
         // 获取文件的后缀名
         String fileName = file.getOriginalFilename();
-        String type = fileName.substring(fileName.lastIndexOf("."));
+        String type = fileName.substring(fileName.lastIndexOf(".") + 1);
         // 获取文件ID，随机产生
         String fileId = UUIDutil.getUUID();
 
         // 文件上传操作
-        Files.copy(file.getInputStream(), Paths.get(FileUtil.UPLOAD_DIR,fileName), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(file.getInputStream(), Paths.get(FileUtil.UPLOAD_DIR, fileName), StandardCopyOption.REPLACE_EXISTING);
 
         // 资源注册操作
         FileInfo fileInfo = new FileInfo(fileId, fileInitialProvider, fileInitialProvider, fileTitle, fileImage,
                 fileDescription, fileReadPrice, fileOwnerShipPrice, fileName, fileKeyWord, fileContentType,
-                type, FileUtil.getFormatSize(file.getSize()),0);
+                type, FileUtil.getFormatSize(file.getSize()), 0);
 
         try {
             // 机构用户上传资源时，信息不上链，基本信息只存在数据库里，只有审核通过的资源才上链
@@ -383,7 +391,7 @@ public class AgencyController {
             // fileFabricClient.registerService(map);
             fileService.registerService(fileInfo);
             res = new CommonResponse(0, "success", "注册新资源成功");
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             res = new CommonResponse(1, "failed", e.getMessage());
         }
@@ -393,20 +401,20 @@ public class AgencyController {
     }
 
 
-
     /**
+     * =============================================================
+     *
+     * @return java.lang.String
      * =============================================================
      * @desc 批量上传资源文件
      * @author Messi-Q
      * @date Modified by PandaClark in 2019/5/17 6:34 PM
-     * @return java.lang.String
-     * =============================================================
      */
     @RequestMapping(value = "/uploadBatch", method = RequestMethod.POST)
     @ApiOperation(value = "批量上传资源", notes = "批量上传资源文件")
     public CommonResponse uploadBatch(HttpServletRequest request) throws IOException {
 
-        CommonResponse res = new CommonResponse(0,"success","批量上传资源文件成功");
+        CommonResponse res = new CommonResponse(0, "success", "批量上传资源文件成功");
         String errMsg = "";
 
         List<MultipartFile> files = ((MultipartHttpServletRequest) request).getFiles("file");
@@ -436,7 +444,7 @@ public class AgencyController {
                 errMsg += "第 " + i + " 个文件上传失败因为文件为空";
             }
         }
-        if ( !StringUtils.isEmpty(errMsg) ){
+        if (!StringUtils.isEmpty(errMsg)) {
             res.setData(errMsg);
         }
         return res;
@@ -445,18 +453,18 @@ public class AgencyController {
 
     /**
      * =============================================================
+     *
+     * @return java.lang.String
+     * =============================================================
      * @desc 根据文件id下载文件(嵌入水印)
      * @author Messi-Q
      * @date Modified by Messi-Q in 2019/5/27
-     * @return java.lang.String
-     * =============================================================
      */
     @RequestMapping(value = "/download/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "下载资源", notes = "根据文件id下载文件")
     public CommonResponse downloadService(@PathVariable("id") String id, HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException, FileNotFoundException, UnsupportedEncodingException {
 
         CommonResponse res = new CommonResponse(0, "success", "资源下载成功");
-        String email2 = (String) request.getAttribute("email");  // 当前资源使用者的email
 
         // 根据文件id获取文件名
         FileInfo fileInfo = fileService.getFileInfoById(id);
@@ -464,27 +472,68 @@ public class AgencyController {
 
         // 根据文件id获取该文件的所有者email
         String email1 = fileInfo.getId();  // 当前资源所有者的email
+        String email2 = (String) request.getAttribute("email");  // 当前资源使用者的email
 
-        //embed watermark
-        String waterMarkEmbedTool = ResourceUtils.getURL("classpath:static/watermark/image_watermark.py").getPath();
-        String fileEmbed = FileUtil.UPLOAD_DIR + "/" + filename;
-        String waterMarkInfo = email1 + "-" + email2 + "-" + id;  // 当前资源所有者email+当前资源下载者email+资源id
-        String fileEmbedOut = FileUtil.DOWNLOAD_DIR + "/" + filename;
+        // 获取文件类型(后缀名)
+        String[] allowImageTypes = new String[]{"jpg", "jpeg", "png", "bmp", "gif"};
+        String type = filename.substring(filename.lastIndexOf(".") + 1);
+        boolean imageContain = Arrays.asList(allowImageTypes).contains(type);
 
-        // 调用python脚本
-        String commond = String.format("python %s %s %s %s", waterMarkEmbedTool, fileEmbed, waterMarkInfo, fileEmbedOut);
-        Process process = Runtime.getRuntime().exec(commond);
-        process.waitFor();
-        BufferedInputStream in = new BufferedInputStream(process.getInputStream());
-        BufferedReader br = new BufferedReader(new InputStreamReader(in));
-        String line;
-        String result = null;
-        while ((line = br.readLine()) != null) {
-            result = line;
+        // 初始化参数
+        String waterMarkEmbedTool = "";
+        String fileEmbed = "";
+        String waterMarkInfo = "";
+        String fileEmbedOut = "";
+        String tmpFile = "";  // PDF水印使用
+
+        // 调用image水印
+        if (imageContain) {
+            //embed watermark
+            waterMarkEmbedTool = ResourceUtils.getURL("classpath:static/watermark/image_watermark_embed.py").getPath();
+            fileEmbed = FileUtil.UPLOAD_DIR + "/" + filename;
+            waterMarkInfo = email1 + "-" + email2 + "-" + id;  // 当前资源所有者email+当前资源下载者email+资源id
+            fileEmbedOut = FileUtil.DOWNLOAD_DIR + "/" + filename;
+
+            // 调用python脚本
+            String commond = String.format("python %s %s %s %s", waterMarkEmbedTool, fileEmbed, waterMarkInfo, fileEmbedOut);
+            Process process = Runtime.getRuntime().exec(commond);
+            process.waitFor();
+            BufferedInputStream in = new BufferedInputStream(process.getInputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String line;
+            String result = null;
+            while ((line = br.readLine()) != null) {
+                result = line;
+            }
+            br.close();
+            in.close();
+            System.out.println(result);  // 打印嵌入水印结果
+        } else if (type.equals("pdf")) { // 调用pdf水印
+            //embed watermark
+            waterMarkEmbedTool = ResourceUtils.getURL("classpath:static/watermark/pdf_watermark_embed.py").getPath();
+            fileEmbed = FileUtil.UPLOAD_DIR + "/" + filename;
+            tmpFile = ResourceUtils.getURL("classpath:static/watermark/tmp.pdf").getPath();
+            waterMarkInfo = email1 + "-" + email2 + "-" + id;  // 当前资源所有者email+当前资源下载者email+资源id
+            fileEmbedOut = FileUtil.DOWNLOAD_DIR + "/" + filename;
+
+            // 调用python脚本
+            String commond = String.format("python %s %s %s %s %s", waterMarkEmbedTool, tmpFile, fileEmbed, waterMarkInfo, fileEmbedOut);
+            Process process = Runtime.getRuntime().exec(commond);
+            process.waitFor();
+            BufferedInputStream in = new BufferedInputStream(process.getInputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String line;
+            String result = null;
+            while ((line = br.readLine()) != null) {
+                result = line;
+            }
+            br.close();
+            in.close();
+            System.out.println(result);  // 打印嵌入水印结果
+
+        } else {
+            System.out.println("水印暂时只支持图片和PDF文档！");
         }
-        br.close();
-        in.close();
-        System.out.println(result);
 
         // download
         response.setContentType("application/force-download");  //设置强制下载不打开
@@ -493,7 +542,7 @@ public class AgencyController {
         try {
             // 文件下载操作
             StreamUtils.copy(new FileInputStream(new File(FileUtil.DOWNLOAD_DIR) + "/" + filename), response.getOutputStream());
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             res.setStatus(1);
             res.setMessage("failed");
