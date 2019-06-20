@@ -17,6 +17,14 @@ public class JWTAuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
+        // System.out.println("method:"+request.getMethod());
+
+        // 放行非简单请求的预检，预检会发送一个 OPTIONS 请求，该请求会携带 token 请求头，
+        // 但并不会携带 token 的具体字段，即token=NULL，预检不通过导致正式请求无法发送
+        if (request.getMethod().equals("OPTIONS")){
+            return true;
+        }
+
         String token = request.getHeader("token");
         String uri = request.getRequestURI();
 

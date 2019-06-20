@@ -2,6 +2,7 @@ package team.educoin.transaction.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import team.educoin.common.controller.CommonResponse;
@@ -16,7 +17,10 @@ import team.educoin.transaction.service.AgencyService;
 import team.educoin.transaction.service.UserService;
 import team.educoin.transaction.util.JWTUtil;
 import team.educoin.transaction.util.UUIDutil;
+import team.educoin.transaction.util.VerifyUtil;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -145,6 +149,13 @@ public class LoginController {
             return res;
         }
         res = new CommonResponse(0,"success","登录成功");
+        try {
+            String token = JWTUtil.createToken(agency.getEmail(), "agency");
+            res.setData(token);
+        } catch (Exception e) {
+            e.printStackTrace();
+            res.setData("token生成失败!"+e.getMessage());
+        }
         return res;
     }
 
@@ -162,6 +173,13 @@ public class LoginController {
             return res;
         }
         res = new CommonResponse(0,"success","登录成功");
+        try {
+            String token = JWTUtil.createToken(admin.getEmail(), "admin");
+            res.setData(token);
+        } catch (Exception e) {
+            e.printStackTrace();
+            res.setData("token生成失败!"+e.getMessage());
+        }
         return res;
     }
 
@@ -295,5 +313,51 @@ public class LoginController {
             res = new CommonResponse(1,"failed",e.getMessage());
         }
         return res;
+    }
+
+    @ApiOperation(value = "虹膜登录")
+    @RequestMapping( value = "/login/iris", method = RequestMethod.POST )
+    public String isis() {
+
+        boolean res = VerifyUtil.verifyFingerprint("panda", "monkey");
+
+        return "res:" + res;
+    }
+
+
+    @ApiOperation(value = "指纹登录")
+    // @RequestMapping( value = "/login/finpr", method = {RequestMethod.POST, RequestMethod.GET} )
+    @RequestMapping( value = "/login/finpr", method = RequestMethod.POST )
+    public String fingerprint(@RequestParam("email") String email, @RequestParam("type") String userType) throws Exception {
+
+        boolean isEmailExist = false;
+
+        System.out.println("email: "+email);
+        System.out.println("type: "+userType);
+
+        // 判断用户类型，同时查询是否存在该用户，用户类型需要写入到 token 中
+        switch (userType) {
+            case "user":
+                UserInfo userById = userService.getUserById(email);
+                if (userById != null) isEmailExist = true;
+                break;
+            case "agency":
+                AgencyInfo agencyInfo = agencyService.getAgencyById(email);
+                if (agencyInfo != null) isEmailExist = true;
+                break;
+            case "admin":
+                AdminInfo adminInfo = adminService.getAdminById(email);
+                if (adminInfo != null) isEmailExist = true;
+                break;
+        }
+
+        if (!isEmailExist){
+            return "用户不存在！";
+        }
+        String token = JWTUtil.createToken(email, userType);
+
+        System.out.println("fingerprint login token: " + token);
+
+        return token;
     }
 }

@@ -10,10 +10,7 @@ import team.educoin.transaction.dto.ContractDto;
 import team.educoin.transaction.fabric.AdminFabricClient;
 import team.educoin.transaction.fabric.AgencyFabricClient;
 import team.educoin.transaction.fabric.FileFabricClient;
-import team.educoin.transaction.pojo.AdminInfo;
-import team.educoin.transaction.pojo.FileInfo;
-import team.educoin.transaction.pojo.Recharge;
-import team.educoin.transaction.pojo.Withdraw;
+import team.educoin.transaction.pojo.*;
 import team.educoin.transaction.service.AdminService;
 import team.educoin.transaction.service.AgencyService;
 import team.educoin.transaction.service.FileService;
@@ -435,6 +432,12 @@ public class AdminController {
         CommonResponse res = new CommonResponse(0, "success", "已审核拒绝");
         return res;
     }
+
+    public void test(){
+        UserInfo userInfo = new UserInfo();
+        HashMap<Object, Object> map = new HashMap<>();
+    }
+
 }
 
 

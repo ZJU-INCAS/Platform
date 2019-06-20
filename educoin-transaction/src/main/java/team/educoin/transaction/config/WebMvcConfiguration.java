@@ -22,6 +22,10 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("*")
+                // 请求头放行 content-type 否则登录报403
+                // .allowedHeaders("token")
+                // .allowedHeaders("token","content-type")
+                .allowedHeaders("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowCredentials(true)
                 .maxAge(3600);
