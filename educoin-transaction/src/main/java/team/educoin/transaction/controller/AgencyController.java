@@ -21,6 +21,7 @@ import team.educoin.transaction.service.FileService;
 import team.educoin.transaction.util.FileUtil;
 import team.educoin.transaction.util.MyBeanMapUtil;
 import team.educoin.transaction.util.UUIDutil;
+import team.educoin.transaction.util.WatermarkUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -466,6 +467,7 @@ public class AgencyController {
      * @return java.lang.String
      * =============================================================
      */
+    // 原来的下载函数：只包括文件下载，不包括打水印
     // @RequestMapping(value = "/download/{id}", method = RequestMethod.GET)
     // @ApiOperation(value = "下载资源", notes = "根据文件id下载文件")
     // public CommonResponse downloadService(@PathVariable("id") String id, HttpServletRequest request, HttpServletResponse response) throws FileNotFoundException, UnsupportedEncodingException {
@@ -493,94 +495,40 @@ public class AgencyController {
     //     return res;
     //
     // }
-
+    /**
+     * =============================================================
+     * @desc
+     * @author Messi-Q ; Modified by PandaClark
+     * @date 2019/6/24 3:11 PM
+     * @param id, request, response
+     * @return CommonResponse
+     * =============================================================
+     */
     @RequestMapping(value = "/download/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "下载资源", notes = "根据文件id下载文件")
-    public CommonResponse downloadService(@PathVariable("id") String id, HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException, FileNotFoundException, UnsupportedEncodingException {
+    public CommonResponse downloadService(@PathVariable("id") String id, HttpServletRequest request, HttpServletResponse response){
 
-        CommonResponse res = new CommonResponse(0, "success", "资源下载成功");
+        CommonResponse res;
 
         // 根据文件id获取文件名
         FileInfo fileInfo = fileService.getFileInfoById(id);
         String filename = fileInfo.getFileName();
 
         // 根据文件id获取该文件的所有者email
-        String email1 = fileInfo.getId();  // 当前资源所有者的email
-        String email2 = (String) request.getAttribute("email");  // 当前资源使用者的email
-
-        // 获取文件类型(后缀名)
-        String[] allowImageTypes = new String[]{"jpg", "jpeg", "png", "bmp", "gif"};
-        String type = filename.substring(filename.lastIndexOf(".") + 1);
-        boolean imageContain = Arrays.asList(allowImageTypes).contains(type);
-
-        // 初始化参数
-        String waterMarkEmbedTool = "";
-        String fileEmbed = "";
-        String waterMarkInfo = "";
-        String fileEmbedOut = "";
-        String tmpFile = "";  // PDF水印使用
-
-        // 调用image水印
-        if (imageContain) {
-            //embed watermark
-            waterMarkEmbedTool = ResourceUtils.getURL("classpath:static/watermark/image_watermark_embed.py").getPath();
-            fileEmbed = FileUtil.UPLOAD_DIR + "/" + filename;
-            waterMarkInfo = email1 + "-" + email2 + "-" + id;  // 当前资源所有者email+当前资源下载者email+资源id
-            fileEmbedOut = FileUtil.DOWNLOAD_DIR + "/" + filename;
-
-            // 调用python脚本
-            String commond = String.format("python %s %s %s %s", waterMarkEmbedTool, fileEmbed, waterMarkInfo, fileEmbedOut);
-            Process process = Runtime.getRuntime().exec(commond);
-            process.waitFor();
-            BufferedInputStream in = new BufferedInputStream(process.getInputStream());
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String line;
-            String result = null;
-            while ((line = br.readLine()) != null) {
-                result = line;
-            }
-            br.close();
-            in.close();
-            System.out.println(result);  // 打印嵌入水印结果
-        } else if (type.equals("pdf")) { // 调用pdf水印
-            //embed watermark
-            waterMarkEmbedTool = ResourceUtils.getURL("classpath:static/watermark/pdf_watermark_embed.py").getPath();
-            fileEmbed = FileUtil.UPLOAD_DIR + "/" + filename;
-            tmpFile = ResourceUtils.getURL("classpath:static/watermark/tmp.pdf").getPath();
-            waterMarkInfo = email1 + "-" + email2 + "-" + id;  // 当前资源所有者email+当前资源下载者email+资源id
-            fileEmbedOut = FileUtil.DOWNLOAD_DIR + "/" + filename;
-
-            // 调用python脚本
-            String commond = String.format("python %s %s %s %s %s", waterMarkEmbedTool, tmpFile, fileEmbed, waterMarkInfo, fileEmbedOut);
-            Process process = Runtime.getRuntime().exec(commond);
-            process.waitFor();
-            BufferedInputStream in = new BufferedInputStream(process.getInputStream());
-            BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            String line;
-            String result = null;
-            while ((line = br.readLine()) != null) {
-                result = line;
-            }
-            br.close();
-            in.close();
-            System.out.println(result);  // 打印嵌入水印结果
-
-        } else {
-            System.out.println("水印暂时只支持图片和PDF文档！");
-        }
-
-        // download
-        response.setContentType("application/force-download");  //设置强制下载不打开
-        response.addHeader("Content-Disposition", "attachment;fileName=" + new String(filename.getBytes("UTF-8"), "iso-8859-1"));// 设置文件名
+        String owner = fileInfo.getId();  // 当前资源所有者的email
+        String buyer = (String) request.getAttribute("email");  // 当前资源使用者的email
 
         try {
+            WatermarkUtil.embedWatermark(filename, owner, buyer);
+            // 资源下载开始
+            response.setContentType("application/force-download");  //设置强制下载不打开
+            response.addHeader("Content-Disposition", "attachment;fileName=" + new String(filename.getBytes("UTF-8"), "iso-8859-1"));// 设置文件名
             // 文件下载操作
             StreamUtils.copy(new FileInputStream(new File(FileUtil.DOWNLOAD_DIR) + "/" + filename), response.getOutputStream());
+            res = new CommonResponse(0, "success", "资源下载成功");
         } catch (Exception e) {
             e.printStackTrace();
-            res.setStatus(1);
-            res.setMessage("failed");
-            res.setData(e.getMessage());
+            res = new CommonResponse(1, "failed", e.getMessage());
         }
 
         return res;
