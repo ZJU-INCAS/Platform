@@ -3,6 +3,7 @@ package team.educoin.transaction.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
 import team.educoin.common.controller.CommonResponse;
 import team.educoin.transaction.dto.CentralBankDto;
@@ -15,8 +16,15 @@ import team.educoin.transaction.service.AdminService;
 import team.educoin.transaction.service.AgencyService;
 import team.educoin.transaction.service.FileService;
 import team.educoin.transaction.service.UserService;
+import team.educoin.transaction.util.FileUtil;
+import team.educoin.transaction.util.MyBeanMapUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,9 +68,19 @@ public class AdminController {
     @ApiOperation(value = "获取当前登录用户信息")
     @RequestMapping( value = "/detail", method = RequestMethod.GET )
     public CommonResponse getUserInfo(HttpServletRequest request){
+        CommonResponse res;
         String email = (String) request.getAttribute("email");
         AdminInfo adminInfo = adminService.getAdminById(email);
-        CommonResponse res = new CommonResponse(0, "success", adminInfo);
+        Map<String, Object> map = null;
+        try {
+            map = MyBeanMapUtil.BeanToMap(adminInfo);
+            map.remove("fingerprint");
+            map.remove("iris");
+            res = new CommonResponse(0, "success", map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            res = new CommonResponse(1, "failed", e.getMessage());
+        }
         return res;
     }
 
@@ -436,6 +454,77 @@ public class AdminController {
     public void test(){
         UserInfo userInfo = new UserInfo();
         HashMap<Object, Object> map = new HashMap<>();
+    }
+
+
+    /*
+     * =============================================================
+     * @Description 管理员提取被侵权资源的水印信息(图片和pdf)
+     * @Messi-q
+     * @Date 00:35 2019-06-14
+     * @Param []
+     * @return CommonResponse
+     * =============================================================
+     **/
+    @ApiOperation(value = "管理员处理资源侵权", notes = "管理员提取资源中的水印信息")
+    @ResponseBody
+    @RequestMapping(value = "/extractWatermarkInfo/{id}", method = RequestMethod.GET)
+    public CommonResponse extractWatermarkInfo(@PathVariable("id") String id) throws IOException, InterruptedException {
+        CommonResponse res = new CommonResponse(0, "success", "提取成功");
+
+        // 根据文件id获取文件名
+        FileInfo fileInfo = fileService.getFileInfoById(id);
+        String filename = fileInfo.getFileName();
+
+        // 获取文件类型(后缀名)
+        String[] allowImageTypes = new String[]{"jpg", "jpeg", "png", "bmp", "gif"};
+        String type = filename.substring(filename.lastIndexOf(".") + 1);
+        boolean imageContain = Arrays.asList(allowImageTypes).contains(type);
+
+        // 提取image水印
+        if (imageContain) {
+            //extrac imgae watermarkInfo
+            String waterMarkEmbedTool = ResourceUtils.getURL("classpath:static/watermark/image_watermark_extract.py").getPath();
+            String fileInfirnged = FileUtil.DOWNLOAD_DIR + "/" + filename;
+
+            // 调用python脚本
+            String commond = String.format("python %s %s", waterMarkEmbedTool, fileInfirnged);
+            Process process = Runtime.getRuntime().exec(commond);
+            process.waitFor();
+            BufferedInputStream in = new BufferedInputStream(process.getInputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String line;
+            String result = null;
+            while ((line = br.readLine()) != null) {
+                result = line;
+            }
+            br.close();
+            in.close();
+            System.out.println(result);  // 打印水印信息
+        } else if (type.equals("pdf")) {
+            //extract image watermarkInfo
+            String waterMarkEmbedTool = ResourceUtils.getURL("classpath:static/watermark/pdf_watermark_extract.py").getPath();
+            String fileInfirnged = FileUtil.DOWNLOAD_DIR + "/" + filename;
+
+            // 调用python脚本
+            String commond = String.format("python %s %s", waterMarkEmbedTool, fileInfirnged);
+            Process process = Runtime.getRuntime().exec(commond);
+            process.waitFor();
+            BufferedInputStream in = new BufferedInputStream(process.getInputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String line;
+            String result = null;
+            while ((line = br.readLine()) != null) {
+                result = line;
+            }
+            br.close();
+            in.close();
+            System.out.println(result);  // 打印水印信息
+        } else {
+            System.out.println("水印暂时只支持图片和PDF文档！");
+        }
+
+        return res;
     }
 
 }

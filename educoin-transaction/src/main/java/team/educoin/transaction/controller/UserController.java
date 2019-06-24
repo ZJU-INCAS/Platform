@@ -15,6 +15,7 @@ import team.educoin.transaction.pojo.Token;
 import team.educoin.transaction.pojo.UserInfo;
 import team.educoin.transaction.service.FileService;
 import team.educoin.transaction.service.UserService;
+import team.educoin.transaction.util.MyBeanMapUtil;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -60,9 +61,19 @@ public class UserController {
     @ApiOperation(value = "获取当前登录用户信息")
     @RequestMapping( value = "/detail", method = RequestMethod.GET )
     public CommonResponse getUserInfo(HttpServletRequest request){
+        CommonResponse res;
         String email = (String) request.getAttribute("email");
         UserInfo userInfo = userService.getUserById(email);
-        CommonResponse res = new CommonResponse(0, "success", userInfo);
+        Map<String, Object> map = null;
+        try {
+            map = MyBeanMapUtil.BeanToMap(userInfo);
+            map.remove("fingerprint");
+            map.remove("iris");
+            res = new CommonResponse(0, "success", map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            res = new CommonResponse(1, "failed", e.getMessage());
+        }
         return res;
     }
 

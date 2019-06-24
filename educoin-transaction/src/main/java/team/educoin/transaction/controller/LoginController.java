@@ -360,4 +360,13 @@ public class LoginController {
 
         return token;
     }
+
+
+    @RequestMapping( value = "/login/frp", method = RequestMethod.GET )
+    public String testFrp() {
+
+
+        return "<h3 style='color:pink;text-align:center;margin-top:300px'>hello, 你看到这段文字说明你已经成功通过内网穿透访问到我的应用<br/>现在开始开发和测试吧！</h3>";
+    }
+
 }

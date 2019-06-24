@@ -19,12 +19,14 @@ import team.educoin.transaction.pojo.Withdraw;
 import team.educoin.transaction.service.AgencyService;
 import team.educoin.transaction.service.FileService;
 import team.educoin.transaction.util.FileUtil;
+import team.educoin.transaction.util.MyBeanMapUtil;
 import team.educoin.transaction.util.UUIDutil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.file.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,9 +64,19 @@ public class AgencyController {
     @ApiOperation(value = "获取当前登录用户信息")
     @RequestMapping( value = "/detail", method = RequestMethod.GET )
     public CommonResponse getUserInfo(HttpServletRequest request){
+        CommonResponse res;
         String email = (String) request.getAttribute("email");
         AgencyInfo agencyInfo = agencyService.getAgencyById(email);
-        CommonResponse res = new CommonResponse(0, "success", agencyInfo);
+        Map<String, Object> map = null;
+        try {
+            map = MyBeanMapUtil.BeanToMap(agencyInfo);
+            map.remove("fingerprint");
+            map.remove("iris");
+            res = new CommonResponse(0, "success", map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            res = new CommonResponse(1, "failed", e.getMessage());
+        }
         return res;
     }
 
@@ -454,9 +466,37 @@ public class AgencyController {
      * @return java.lang.String
      * =============================================================
      */
+    // @RequestMapping(value = "/download/{id}", method = RequestMethod.GET)
+    // @ApiOperation(value = "下载资源", notes = "根据文件id下载文件")
+    // public CommonResponse downloadService(@PathVariable("id") String id, HttpServletRequest request, HttpServletResponse response) throws FileNotFoundException, UnsupportedEncodingException {
+    //
+    //     CommonResponse res = new CommonResponse(0, "success", "资源下载成功");
+    //
+    //     // 根据文件id获取文件名
+    //     FileInfo fileInfo = fileService.getFileInfoById(id);
+    //     String filename = fileInfo.getFileName();
+    //
+    //
+    //     response.setContentType("application/force-download");  //设置强制下载不打开
+    //     response.addHeader("Content-Disposition", "attachment;fileName=" + new String(filename.getBytes("UTF-8"), "iso-8859-1"));// 设置文件名
+    //
+    //     try {
+    //         // 文件下载操作
+    //         StreamUtils.copy(new FileInputStream(new File(FileUtil.UPLOAD_DIR) + "/" + filename), response.getOutputStream());
+    //     } catch (Exception e){
+    //         e.printStackTrace();
+    //         res.setStatus(1);
+    //         res.setMessage("failed");
+    //         res.setData(e.getMessage());
+    //     }
+    //
+    //     return res;
+    //
+    // }
+
     @RequestMapping(value = "/download/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "下载资源", notes = "根据文件id下载文件")
-    public CommonResponse downloadService(@PathVariable("id") String id, HttpServletRequest request, HttpServletResponse response) throws FileNotFoundException, UnsupportedEncodingException {
+    public CommonResponse downloadService(@PathVariable("id") String id, HttpServletRequest request, HttpServletResponse response) throws IOException, InterruptedException, FileNotFoundException, UnsupportedEncodingException {
 
         CommonResponse res = new CommonResponse(0, "success", "资源下载成功");
 
@@ -464,14 +504,79 @@ public class AgencyController {
         FileInfo fileInfo = fileService.getFileInfoById(id);
         String filename = fileInfo.getFileName();
 
+        // 根据文件id获取该文件的所有者email
+        String email1 = fileInfo.getId();  // 当前资源所有者的email
+        String email2 = (String) request.getAttribute("email");  // 当前资源使用者的email
 
+        // 获取文件类型(后缀名)
+        String[] allowImageTypes = new String[]{"jpg", "jpeg", "png", "bmp", "gif"};
+        String type = filename.substring(filename.lastIndexOf(".") + 1);
+        boolean imageContain = Arrays.asList(allowImageTypes).contains(type);
+
+        // 初始化参数
+        String waterMarkEmbedTool = "";
+        String fileEmbed = "";
+        String waterMarkInfo = "";
+        String fileEmbedOut = "";
+        String tmpFile = "";  // PDF水印使用
+
+        // 调用image水印
+        if (imageContain) {
+            //embed watermark
+            waterMarkEmbedTool = ResourceUtils.getURL("classpath:static/watermark/image_watermark_embed.py").getPath();
+            fileEmbed = FileUtil.UPLOAD_DIR + "/" + filename;
+            waterMarkInfo = email1 + "-" + email2 + "-" + id;  // 当前资源所有者email+当前资源下载者email+资源id
+            fileEmbedOut = FileUtil.DOWNLOAD_DIR + "/" + filename;
+
+            // 调用python脚本
+            String commond = String.format("python %s %s %s %s", waterMarkEmbedTool, fileEmbed, waterMarkInfo, fileEmbedOut);
+            Process process = Runtime.getRuntime().exec(commond);
+            process.waitFor();
+            BufferedInputStream in = new BufferedInputStream(process.getInputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String line;
+            String result = null;
+            while ((line = br.readLine()) != null) {
+                result = line;
+            }
+            br.close();
+            in.close();
+            System.out.println(result);  // 打印嵌入水印结果
+        } else if (type.equals("pdf")) { // 调用pdf水印
+            //embed watermark
+            waterMarkEmbedTool = ResourceUtils.getURL("classpath:static/watermark/pdf_watermark_embed.py").getPath();
+            fileEmbed = FileUtil.UPLOAD_DIR + "/" + filename;
+            tmpFile = ResourceUtils.getURL("classpath:static/watermark/tmp.pdf").getPath();
+            waterMarkInfo = email1 + "-" + email2 + "-" + id;  // 当前资源所有者email+当前资源下载者email+资源id
+            fileEmbedOut = FileUtil.DOWNLOAD_DIR + "/" + filename;
+
+            // 调用python脚本
+            String commond = String.format("python %s %s %s %s %s", waterMarkEmbedTool, tmpFile, fileEmbed, waterMarkInfo, fileEmbedOut);
+            Process process = Runtime.getRuntime().exec(commond);
+            process.waitFor();
+            BufferedInputStream in = new BufferedInputStream(process.getInputStream());
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String line;
+            String result = null;
+            while ((line = br.readLine()) != null) {
+                result = line;
+            }
+            br.close();
+            in.close();
+            System.out.println(result);  // 打印嵌入水印结果
+
+        } else {
+            System.out.println("水印暂时只支持图片和PDF文档！");
+        }
+
+        // download
         response.setContentType("application/force-download");  //设置强制下载不打开
         response.addHeader("Content-Disposition", "attachment;fileName=" + new String(filename.getBytes("UTF-8"), "iso-8859-1"));// 设置文件名
 
         try {
             // 文件下载操作
-            StreamUtils.copy(new FileInputStream(new File(FileUtil.UPLOAD_DIR) + "/" + filename), response.getOutputStream());
-        } catch (Exception e){
+            StreamUtils.copy(new FileInputStream(new File(FileUtil.DOWNLOAD_DIR) + "/" + filename), response.getOutputStream());
+        } catch (Exception e) {
             e.printStackTrace();
             res.setStatus(1);
             res.setMessage("failed");
@@ -481,22 +586,5 @@ public class AgencyController {
         return res;
 
     }
-
-
-    // @RequestMapping(value = "/testdown", method = RequestMethod.POST)
-    // @ApiOperation(value = "下载资源测试", notes = "下载资源测试")
-    // public String downloadTest(@RequestParam("name") String filename,HttpServletResponse response) throws IOException {
-    //
-    //     response.setContentType("application/force-download");  //设置强制下载不打开
-    //     response.addHeader("Content-Disposition", "attachment;fileName=" + new String(filename.getBytes("UTF-8"), "iso-8859-1"));// 设置文件名
-    //
-    //     try {
-    //         StreamUtils.copy(new FileInputStream(new File(FileUtil.UPLOAD_DIR) + "/" + filename), response.getOutputStream());
-    //     } catch (Exception e){
-    //         e.printStackTrace();
-    //     }
-    //
-    //     return "下载";
-    // }
 
 }
