@@ -519,6 +519,7 @@ public class AgencyController {
         String buyer = (String) request.getAttribute("email");  // 当前资源使用者的email
 
         try {
+            // 嵌入水印
             WatermarkUtil.embedWatermark(filename, owner, buyer);
             // 资源下载开始
             response.setContentType("application/force-download");  //设置强制下载不打开

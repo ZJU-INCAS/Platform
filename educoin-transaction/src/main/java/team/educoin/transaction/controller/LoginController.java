@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
 import team.educoin.common.controller.CommonResponse;
 import team.educoin.transaction.fabric.AdminFabricClient;
@@ -20,7 +21,9 @@ import team.educoin.transaction.util.UUIDutil;
 import team.educoin.transaction.util.VerifyUtil;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -317,16 +320,44 @@ public class LoginController {
 
     @ApiOperation(value = "虹膜登录")
     @RequestMapping( value = "/login/iris", method = RequestMethod.POST )
-    public String isis() {
+    public String isis(@RequestParam("email") String email, @RequestParam("type") String userType) throws Exception {
+        // 之前讨论的方案，校验部分放在服务端由 jni 来调用
+        // 后由于功能耦合度太高无法拆分换了其他方案
+        // boolean res = VerifyUtil.verifyFingerprint("panda", "monkey");
 
-        boolean res = VerifyUtil.verifyFingerprint("panda", "monkey");
+        boolean isEmailExist = false;
 
-        return "res:" + res;
+        System.out.println("email: "+email);
+        System.out.println("type: "+userType);
+
+        // 判断用户类型，同时查询是否存在该用户，用户类型需要写入到 token 中
+        switch (userType) {
+            case "user":
+                UserInfo userById = userService.getUserById(email);
+                if (userById != null) isEmailExist = true;
+                break;
+            case "agency":
+                AgencyInfo agencyInfo = agencyService.getAgencyById(email);
+                if (agencyInfo != null) isEmailExist = true;
+                break;
+            case "admin":
+                AdminInfo adminInfo = adminService.getAdminById(email);
+                if (adminInfo != null) isEmailExist = true;
+                break;
+        }
+
+        if (!isEmailExist){
+            return "用户不存在！";
+        }
+        String token = JWTUtil.createToken(email, userType);
+
+        System.out.println("iris login token: " + token);
+
+        return token;
     }
 
 
     @ApiOperation(value = "指纹登录")
-    // @RequestMapping( value = "/login/finpr", method = {RequestMethod.POST, RequestMethod.GET} )
     @RequestMapping( value = "/login/finpr", method = RequestMethod.POST )
     public String fingerprint(@RequestParam("email") String email, @RequestParam("type") String userType) throws Exception {
 
@@ -362,11 +393,34 @@ public class LoginController {
     }
 
 
-    @RequestMapping( value = "/login/frp", method = RequestMethod.GET )
-    public String testFrp() {
-
-
+    @RequestMapping( value = "/login/frp", method = {RequestMethod.GET, RequestMethod.POST} )
+    public String testFrp(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        System.out.println("uri:"+uri);
         return "<h3 style='color:pink;text-align:center;margin-top:300px'>hello, 你看到这段文字说明你已经成功通过内网穿透访问到我的应用<br/>现在开始开发和测试吧！</h3>";
+    }
+
+
+    @RequestMapping( value = "/login/test", method = RequestMethod.GET )
+    public String test() throws FileNotFoundException {
+
+        String classpath = ResourceUtils.getURL("classpath").getPath();
+        System.out.println("classpath: "+classpath);
+
+        String resources = ResourceUtils.getURL("resources").getPath();
+        System.out.println("resources: "+resources);
+
+        String watermark = ResourceUtils.getURL("resources/watermark").getPath();
+        System.out.println("watermark: "+watermark);
+
+        String pos = ResourceUtils.getURL("resources/watermark/pdf_watermark_embed.py").getPath();
+        System.out.println("pos: "+pos);
+
+        // String pos = ResourceUtils.getURL("classpath:static/watermark/pdf_watermark_embed.py").getPath();
+        // System.out.println("path: "+pos);
+
+        return "";
+
     }
 
 }

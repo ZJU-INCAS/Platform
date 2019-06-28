@@ -478,6 +478,7 @@ public class AdminController {
         String filename = fileInfo.getFileName();
 
         try {
+            // 获得水印
             String watermark = WatermarkUtil.extractWatermark(filename);
             res = new CommonResponse(0, "success", "watermark:" + watermark);
         } catch (Exception e) {
