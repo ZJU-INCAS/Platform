@@ -465,6 +465,7 @@ public class AgencyController {
         String waterMarkEmbedTool = "";
         String fileEmbed = "";
         String waterMarkInfo = "";
+        String outFileName = "";  // 作为分割文件名使用
         String fileEmbedOut = "";
         String tmpFile = "";  // PDF水印使用
 
@@ -474,7 +475,8 @@ public class AgencyController {
             waterMarkEmbedTool = ResourceUtils.getURL("classpath:static/watermark/image_watermark_embed.py").getPath();
             fileEmbed = FileUtil.UPLOAD_DIR + "/" + filename;
             waterMarkInfo = email1 + "-" + email2 + "-" + id;  // 当前资源所有者email+当前资源下载者email+资源id
-            fileEmbedOut = FileUtil.DOWNLOAD_DIR + "/" + filename;
+            outFileName = filename.substring(0, filename.lastIndexOf("."));  // 获取不带后缀名的文件名
+            fileEmbedOut = FileUtil.DOWNLOAD_DIR + "/" + outFileName + ".png";  // 统一保存为png格式的图片, 水印提取暂时真支持png
 
             // 调用python脚本
             String commond = String.format("python %s %s %s %s", waterMarkEmbedTool, fileEmbed, waterMarkInfo, fileEmbedOut);
@@ -494,7 +496,7 @@ public class AgencyController {
             //embed watermark
             waterMarkEmbedTool = ResourceUtils.getURL("classpath:static/watermark/pdf_watermark_embed.py").getPath();
             fileEmbed = FileUtil.UPLOAD_DIR + "/" + filename;
-            tmpFile = ResourceUtils.getURL("classpath:static/watermark/tmp.pdf").getPath();
+            tmpFile = ResourceUtils.getURL("classpath:static/watermark/tmp.pdf").getPath();  // 中介
             waterMarkInfo = email1 + "-" + email2 + "-" + id;  // 当前资源所有者email+当前资源下载者email+资源id
             fileEmbedOut = FileUtil.DOWNLOAD_DIR + "/" + filename;
 
@@ -517,13 +519,16 @@ public class AgencyController {
             System.out.println("水印暂时只支持图片和PDF文档！");
         }
 
+        // 获取嵌入水印后的文件名，从download文件夹下获取
+        String fileDownload = fileEmbedOut.substring(fileEmbedOut.lastIndexOf("/") + 1);
+
         // download
         response.setContentType("application/force-download");  //设置强制下载不打开
-        response.addHeader("Content-Disposition", "attachment;fileName=" + new String(filename.getBytes("UTF-8"), "iso-8859-1"));// 设置文件名
+        response.addHeader("Content-Disposition", "attachment;fileName=" + new String(fileDownload.getBytes("UTF-8"), "iso-8859-1"));// 设置文件名
 
         try {
             // 文件下载操作
-            StreamUtils.copy(new FileInputStream(new File(FileUtil.DOWNLOAD_DIR) + "/" + filename), response.getOutputStream());
+            StreamUtils.copy(new FileInputStream(new File(FileUtil.DOWNLOAD_DIR) + "/" + fileDownload), response.getOutputStream());
         } catch (Exception e) {
             e.printStackTrace();
             res.setStatus(1);

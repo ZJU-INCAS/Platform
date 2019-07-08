@@ -519,7 +519,8 @@ public class AdminController {
         if (imageContain) {
             //extrac imgae watermarkInfo
             String waterMarkEmbedTool = ResourceUtils.getURL("classpath:static/watermark/image_watermark_extract.py").getPath();
-            String fileInfirnged = FileUtil.DOWNLOAD_DIR + "/" + filename;
+            String outFile = filename.substring(0, filename.lastIndexOf("."));  // 获取不带后缀名的文件名
+            String fileInfirnged = FileUtil.DOWNLOAD_DIR + "/" + outFile + ".png";  // 获取需要提取水印的文件路径
 
             // 调用python脚本
             String commond = String.format("python %s %s", waterMarkEmbedTool, fileInfirnged);
