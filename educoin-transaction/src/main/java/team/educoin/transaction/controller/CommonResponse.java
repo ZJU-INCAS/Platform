@@ -1,4 +1,4 @@
-package team.educoin.common.controller;
+package team.educoin.transaction.controller;
 
 /**
  * description:

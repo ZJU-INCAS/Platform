@@ -50,7 +50,7 @@ public interface AdminFabricClient {
      * =============================================================
      */
     @RequestMapping( value = "/RejectUserRecharge", method = RequestMethod.POST )
-    Map<String,String> RejectUserRechargeFabric(@RequestBody Map<String,String> rechargeInfo);
+    Map<String,Object> RejectUserRechargeFabric(@RequestBody Map<String,String> rechargeInfo);
 
 
     @RequestMapping( value = "/RegisterRegulator", method = RequestMethod.POST )

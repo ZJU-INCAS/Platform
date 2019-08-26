@@ -15,8 +15,8 @@ import java.util.List;
 public interface FileInfoMapper {
 
     String TABLE_NAME = "file_info";
-    String INSERT_FIELDS = "id,fileOwner,fileInitialProvider,fileTitle,fileImage,fileDescription,fileReadPrice,fileOwnerShipPrice,fileName,fileKeyWord,fileContentType,fileFormat,fileSize,fileChecked";
-    String SELECT_FIELDS = INSERT_FIELDS;
+    String INSERT_FIELDS = "id,fileOwner,fileInitialProvider,fileTitle,fileImage,fileDescription,fileReadPrice,fileOwnerShipPrice,fileName,fileKeyWord,fileContentType,fileFormat,fileSize,adminEmail,fileChecked";
+    String SELECT_FIELDS = INSERT_FIELDS + ", create_time";
 
     // 选出所有资源信息
     @Select({"select ", SELECT_FIELDS, "from ", TABLE_NAME})
@@ -53,7 +53,7 @@ public interface FileInfoMapper {
             "fileContentType=#{fileContentType} where id=#{id}"})
     int updateFileInfo(FileInfo fileInfo);
 
-    @Insert({"insert into ", TABLE_NAME, "(",INSERT_FIELDS,") values (#{id},#{fileOwner},#{fileInitialProvider},#{fileTitle},#{fileImage},#{fileDescription},#{fileReadPrice},#{fileOwnerShipPrice},#{fileName},#{fileKeyWord},#{fileContentType},#{fileFormat},#{fileSize},#{fileChecked})"})
+    @Insert({"insert into ", TABLE_NAME, "(",INSERT_FIELDS,") values (#{id},#{fileOwner},#{fileInitialProvider},#{fileTitle},#{fileImage},#{fileDescription},#{fileReadPrice},#{fileOwnerShipPrice},#{fileName},#{fileKeyWord},#{fileContentType},#{fileFormat},#{fileSize},#{adminEmail},#{fileChecked})"})
     int addRecord(FileInfo fileInfo);
 
 }

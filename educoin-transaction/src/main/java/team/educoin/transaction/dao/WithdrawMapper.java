@@ -10,7 +10,7 @@ import team.educoin.transaction.pojo.Withdraw;
 import java.util.List;
 
 /**
- * @description: 操作 company_withdraw 表的接口
+ * @description: 操作 agency_withdraw 表的接口
  * @author: PandaClark
  * @create: 2019-05-13
  */
@@ -20,7 +20,7 @@ public interface WithdrawMapper {
     String TABLE_NAME = "agency_withdraw";
     String INSERT_FIELDS = "email, admin_email, payment_id, payment_method, if_checked, withdraw_amount, " +
             "check_time, update_time";
-    String SELECT_FIELDS = "id, " + INSERT_FIELDS;
+    String SELECT_FIELDS = "id, " + INSERT_FIELDS + ", create_time";
 
 
     @Insert({"insert into ", TABLE_NAME, "(", INSERT_FIELDS,

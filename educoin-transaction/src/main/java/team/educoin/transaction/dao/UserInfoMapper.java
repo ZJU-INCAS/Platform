@@ -7,9 +7,7 @@ import team.educoin.transaction.pojo.UserInfo;
 import java.util.List;
 
 /**
- * description:
- *
- * @author: chenzhou04
+ * description: user_info
  * @create: 2019-04-16
  */
 @Component

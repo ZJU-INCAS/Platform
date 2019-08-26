@@ -12,11 +12,11 @@
     <artifactId>educoin-transaction</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>team.educoin</groupId>
-            <artifactId>educoin-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>team.educoin</groupId>-->
+            <!--<artifactId>educoin-common</artifactId>-->
+            <!--<version>${project.version}</version>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>

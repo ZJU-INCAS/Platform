@@ -3,6 +3,8 @@ package team.educoin.transaction.pojo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.Date;
+
 @ApiModel("资源文件实体")
 public class FileInfo {
     @ApiModelProperty(value = "资源文件id")
@@ -19,7 +21,9 @@ public class FileInfo {
     private String fileContentType;
     private String fileFormat;
     private String fileSize;
+    private String adminEmail;
     private Integer fileChecked;
+    private Date createTime;
 
     public FileInfo(){}
 
@@ -155,11 +159,27 @@ public class FileInfo {
         this.fileSize = fileSize;
     }
 
+    public String getAdminEmail() {
+        return adminEmail;
+    }
+
+    public void setAdminEmail(String adminEmail) {
+        this.adminEmail = adminEmail;
+    }
+
     public Integer getFileChecked() {
         return fileChecked;
     }
 
     public void setFileChecked(Integer fileChecked) {
         this.fileChecked = fileChecked;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 }

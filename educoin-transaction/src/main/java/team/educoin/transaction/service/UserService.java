@@ -52,7 +52,7 @@ public interface UserService {
      * @param balance 充值金额
      * ===================================================================
      */
-    boolean userRecharge(String email, double balance);
+    boolean userRecharge(String email, double balance, String payment);
 
     /**
      * =============================================================
@@ -93,7 +93,7 @@ public interface UserService {
      */
     UserInfo getUserById(String email);
 
-    void userConsumeService(String email, String serviceID, FileInfo fileInfo);
+    void userConsumeService(String email, String serviceID, FileInfo fileInfo, String transactionId);
 
     List<UserInfo> getUserList();
 

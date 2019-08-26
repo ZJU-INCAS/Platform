@@ -4,17 +4,11 @@ import com.alibaba.druid.sql.ast.statement.SQLForeignKeyImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import team.educoin.transaction.dao.RechargeMapper;
-import team.educoin.transaction.dao.TokenMapper;
-import team.educoin.transaction.dao.UserConsumeMapper;
-import team.educoin.transaction.dao.UserInfoMapper;
+import team.educoin.transaction.dao.*;
 import team.educoin.transaction.dto.TokenTransferDto;
 import team.educoin.transaction.dto.UserRechargeDto;
 import team.educoin.transaction.fabric.UserFabricClient;
-import team.educoin.transaction.pojo.FileInfo;
-import team.educoin.transaction.pojo.Recharge;
-import team.educoin.transaction.pojo.Token;
-import team.educoin.transaction.pojo.UserInfo;
+import team.educoin.transaction.pojo.*;
 import team.educoin.transaction.service.UserService;
 
 import java.util.HashMap;
@@ -36,6 +30,8 @@ public class UserServiceImpl implements UserService {
     private UserFabricClient userFabricClient;
     @Autowired
     private UserInfoMapper userInfoMapper;
+    @Autowired
+    private AgencyInfoMapper agencyInfoMapper;
     @Autowired
     private RechargeMapper rechargeMapper;
     @Autowired
@@ -92,7 +88,7 @@ public class UserServiceImpl implements UserService {
      * ===================================================================
      */
     @Override
-    public boolean userRecharge(String email, double balance) {
+    public boolean userRecharge(String email, double balance, String payment) {
         // 0. 请求第三方支付，返回第三方支付id，暂时用 UUID 代替
         String paymentID = getUUID();
 
@@ -109,7 +105,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // 2. 将记录写入 mysql
-        Recharge recharge = new Recharge(email, paymentID, "alipay",balance);
+        Recharge recharge = new Recharge(email, paymentID, payment,balance);
         int insert = rechargeMapper.addRecharge(recharge);
         return insert > 0;
     }
@@ -140,6 +136,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean tokenTransferU2U(TokenTransferDto dto) {
 
+        // 先判断余额是否充足
+        String from = dto.getFromuser();
+        String to = dto.getTo();
+        UserInfo fromUser = userInfoMapper.selectRecordById(from);
+        UserInfo toUser = userInfoMapper.selectRecordById(to);
+        if (dto.getTransferNum() > fromUser.getAccountBalance()){
+            return false;
+        }
+
         dto.setClassName("org.education.TokenTransferU_U");
         dto.setTransferID(getUUID());
 
@@ -154,6 +159,10 @@ public class UserServiceImpl implements UserService {
         // 2. 将记录写入 mysql
         Token token = new Token(dto.getTransferID(), dto.getFromuser(), dto.getTo(), 0, dto.getTransferNum());
         int insert = tokenMapper.addTransfer(token);
+        // 3. 扣除转出用户余额，增加转入用户余额
+        // 注：用 String.valueOf() 转为 String 时，会变成科学计数法，所以要先变成包装类，再调用 toString，让它自己去做变换
+        userInfoMapper.updateBankAccountById(from, ((Double)(fromUser.getAccountBalance() - dto.getTransferNum())).toString());
+        userInfoMapper.updateBankAccountById(to, ((Double)(toUser.getAccountBalance() + dto.getTransferNum())).toString());
         return insert > 0;
     }
 
@@ -168,13 +177,23 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public boolean tokenTransferU2C(TokenTransferDto dto) {
+
+        // 先判断余额是否充足
+        String from = dto.getFromuser();
+        String to = dto.getTo();
+        UserInfo fromUser = userInfoMapper.selectRecordById(from);
+        AgencyInfo toAgency = agencyInfoMapper.selectRecordById(to);
+        if (dto.getTransferNum() > fromUser.getAccountBalance()){
+            return false;
+        }
+
         dto.setClassName("org.education.TokenTransferU_C");
         dto.setTransferID(getUUID());
 
         // 1. 向 fabric 发 post 请求
         try {
             // 能接收到返回值说明 fabric 200 OK
-            TokenTransferDto responseDto = userFabricClient.tokenTransferU_UFabric(dto);
+            TokenTransferDto responseDto = userFabricClient.tokenTransferU_CFabric(dto);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -182,6 +201,10 @@ public class UserServiceImpl implements UserService {
         // 2. 将记录写入 mysql
         Token token = new Token(dto.getTransferID(), dto.getFromuser(), dto.getTo(), 1, dto.getTransferNum());
         int insert = tokenMapper.addTransfer(token);
+        // 3. 扣除转出用户余额，增加转入用户余额
+        // 注：用 String.valueOf() 转为 String 时，会变成科学计数法，所以要先变成包装类，再调用 toString，让它自己去做变换
+        userInfoMapper.updateBankAccountById(from, ((Double)(fromUser.getAccountBalance() - dto.getTransferNum())).toString());
+        agencyInfoMapper.updateBankAccountById(to, ((Double)(toAgency.getAccountBalance() + dto.getTransferNum())).toString());
         return insert > 0;
     }
 
@@ -193,7 +216,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void userConsumeService(String email, String serviceID, FileInfo fileInfo) {
+    public void userConsumeService(String email, String serviceID, FileInfo fileInfo, String transactionId) {
         // 扣除用户余额
         UserInfo user = userInfoMapper.selectRecordById(email);
         Double amount = user.getAccountBalance() - fileInfo.getFileReadPrice();
@@ -205,6 +228,7 @@ public class UserServiceImpl implements UserService {
         map.put("file_title",fileInfo.getFileTitle());
         map.put("file_readPrice",fileInfo.getFileReadPrice());
         map.put("file_name",fileInfo.getFileName());
+        map.put("transaction_id",transactionId);
         userConsumeMapper.addRecord(map);
     }
 

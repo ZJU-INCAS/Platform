@@ -10,8 +10,6 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>educoin-transaction</module>
-        <module>educoin-common</module>
-        <module>educoin-regulation</module>
     </modules>
 
     <parent>

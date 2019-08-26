@@ -9,7 +9,7 @@ import team.educoin.transaction.pojo.Recharge;
 
 import java.util.List;
 /**
- * @description: 操作 recharge_apply 表的接口
+ * @description: 操作 user_recharge 表的接口
  * @author: PandaClark
  * @create: 2019-04-28
  */
@@ -19,7 +19,7 @@ public interface RechargeMapper {
     String TABLE_NAME = "user_recharge";
     String INSERT_FIELDS = "email, admin_email, payment_id, payment_method, if_checked, recharge_amount, " +
             "check_time, update_time";
-    String SELECT_FIELDS = "id, " + INSERT_FIELDS;
+    String SELECT_FIELDS = "id, " + INSERT_FIELDS + ", create_time";
 
 
     @Insert({"insert into ", TABLE_NAME, "(", INSERT_FIELDS,

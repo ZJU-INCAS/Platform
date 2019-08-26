@@ -1,11 +1,11 @@
 package team.educoin.transaction.controller;
 
 import io.swagger.annotations.*;
-import org.apache.catalina.servlet4preview.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import team.educoin.common.controller.CommonResponse;
+import team.educoin.transaction.controller.CommonResponse;
 import team.educoin.transaction.dto.TokenTransferDto;
 import team.educoin.transaction.fabric.FileFabricClient;
 import team.educoin.transaction.fabric.UserFabricClient;
@@ -89,7 +89,7 @@ public class UserController {
     @RequestMapping( value = "/getRechargesY", method = RequestMethod.GET )
     public CommonResponse getRechargesY(HttpServletRequest request){
         String email = (String) request.getAttribute("email");
-        List<Recharge> recharges = userService.getUserRechargeRecords(email, 0);
+        List<Recharge> recharges = userService.getUserRechargeRecords(email, 1);
         CommonResponse res = new CommonResponse(0, "success", recharges);
         return res;
     }
@@ -101,11 +101,11 @@ public class UserController {
      */
     @ApiOperation(value = "用户充值", notes = "用户充值接口")
     @RequestMapping( value = "/recharge", method = RequestMethod.POST )
-    public CommonResponse recharge(HttpServletRequest request, @RequestParam("balance") double balance) {
+    public CommonResponse recharge(HttpServletRequest request, @RequestParam("balance") double balance, @RequestParam("payment") String payment) {
         CommonResponse res = new CommonResponse();
 
         String email = (String) request.getAttribute("email");
-        boolean success = userService.userRecharge(email, balance);
+        boolean success = userService.userRecharge(email, balance, payment);
         if (success){
             res.setStatus(0);
             res.setMessage("success");
@@ -268,7 +268,7 @@ public class UserController {
             map.put("user",email);
             try {
                 Map<String, Object> map1 = userFabricClient.userConsumeService(map);
-                userService.userConsumeService(email,serviceID,fileInfo);
+                userService.userConsumeService(email,serviceID,fileInfo,map1.get("transactionId").toString());
                 res.setStatus(0);
                 res.setMessage("success");
                 res.setData(map1);

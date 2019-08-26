@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
-import team.educoin.common.controller.CommonResponse;
+import team.educoin.transaction.controller.CommonResponse;
 import team.educoin.transaction.dto.CentralBankDto;
 import team.educoin.transaction.dto.ContractDto;
 import team.educoin.transaction.fabric.AdminFabricClient;
@@ -21,11 +21,6 @@ import team.educoin.transaction.util.MyBeanMapUtil;
 import team.educoin.transaction.util.WatermarkUtil;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -141,14 +136,15 @@ public class AdminController {
         // mysql 查出相关记录信息
         Recharge record = userService.getRechargeRecordById(rechargeId);
         if ( record == null){
-            res.setData("没有改充值记录");
+            res.setData("没有该充值记录");
         } else if ( record.getIfChecked() != 0 ){
             res.setMessage("该记录已被审核过了！请勿重复审核");
         } else {
             Map<String, String> rechargeInfo = new HashMap<>();
             rechargeInfo.put("$class","org.education.CheckUserRecharge");
             rechargeInfo.put("rechargeID",record.getPaymentId());
-            rechargeInfo.put("paymentid",record.getPaymentMethod());
+            // rechargeInfo.put("paymentid",record.getPaymentMethod());
+            rechargeInfo.put("paymentid",record.getPaymentId());
             // fabric 发 post
             Map<String, String> result = adminFabricClient.CheckUserRechargeFabric(rechargeInfo);
             System.out.println(result);
@@ -189,8 +185,10 @@ public class AdminController {
             Map<String, String> rechargeInfo = new HashMap<>();
             rechargeInfo.put("$class","org.education.RejectUserRecharge");
             rechargeInfo.put("rechargeID",record.getPaymentId());
+            // 不需要这一句
+            // rechargeInfo.put("paymentid",record.getPaymentId());
             // fabric 发 post
-            Map<String, String> result = adminFabricClient.RejectUserRechargeFabric(rechargeInfo);
+            Map<String, Object> result = adminFabricClient.RejectUserRechargeFabric(rechargeInfo);
             System.out.println(result);
             // 修改 mysql 字段
             adminService.rejectUserRecharge(record.getPaymentId(), email);
@@ -404,7 +402,7 @@ public class AdminController {
      * @return CommonResponse
      * =============================================================
      */
-    @ApiOperation(value = "管理员审核通过资源", notes = "管理员查看审核拒绝记录")
+    @ApiOperation(value = "管理员审核通过资源", notes = "管理员审核通过资源")
     @ResponseBody
     @RequestMapping( value = "/serviceY", method = RequestMethod.GET )
     public CommonResponse checkService(HttpServletRequest request, @RequestParam("id") String id ){
@@ -442,7 +440,7 @@ public class AdminController {
      * @return CommonResponse
      * =============================================================
      */
-    @ApiOperation(value = "管理员审核拒绝资源", notes = "管理员查看审核拒绝记录")
+    @ApiOperation(value = "管理员审核拒绝资源", notes = "管理员审核拒绝资源")
     @ResponseBody
     @RequestMapping( value = "/serviceR", method = RequestMethod.GET )
     public CommonResponse rejectService( HttpServletRequest request,@RequestParam("id") String id ){

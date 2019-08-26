@@ -54,7 +54,7 @@ public interface AgencyService {
 
     AgencyInfo getAgencyById(String email);
 
-    void agencyBuyOwnership(String email, String serviceID, FileInfo fileInfo);
+    void agencyBuyOwnership(String email, String serviceID, FileInfo fileInfo, String transactionId);
 
     List<AgencyInfo> getAgencyList();
 
@@ -63,4 +63,6 @@ public interface AgencyService {
     boolean deleteAgency(String email);
 
     boolean updateAgencyInfo(AgencyInfo agencyInfo);
+
+    List<String> getAgencyConsumeServiceIds(String email);
 }

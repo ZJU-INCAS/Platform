@@ -17,10 +17,10 @@ import java.util.Map;
 public interface UserConsumeMapper {
 
     String TABLE_NAME = "user_consume";
-    String INSERT_FIELDS = "email, service_id, file_title, file_readPrice, file_name";
+    String INSERT_FIELDS = "email, service_id, transaction_id, file_title, file_readPrice, file_name";
     String SELECT_FIELDS = "id, " + INSERT_FIELDS + ", create_time, update_time";
 
-    @Insert({"insert into ", TABLE_NAME, "(",INSERT_FIELDS,") values (#{email},#{service_id},#{file_title},#{file_readPrice},#{file_name})"})
+    @Insert({"insert into ", TABLE_NAME, "(",INSERT_FIELDS,") values (#{email},#{service_id},#{transaction_id},#{file_title},#{file_readPrice},#{file_name})"})
     int addRecord(Map<String,Object> map);
 
 

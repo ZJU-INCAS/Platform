@@ -1,5 +1,6 @@
 package team.educoin.transaction.pojo;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**

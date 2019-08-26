@@ -1,8 +1,11 @@
 package team.educoin.transaction.dao;
 
 import org.apache.ibatis.annotations.Insert;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,9 +17,13 @@ import java.util.Map;
 public interface AgencyConsumeMapper {
 
     String TABLE_NAME = "agency_consume";
-    String INSERT_FIELDS = "email, service_id, file_title, file_ownerPrice, file_name";
+    String INSERT_FIELDS = "email, service_id, file_title, file_ownerPrice, file_name, transaction_id";
     String SELECT_FIELDS = "id, " + INSERT_FIELDS + ", create_time, update_time";
 
-    @Insert({"insert into ", TABLE_NAME, "(",INSERT_FIELDS,") values (#{email},#{service_id},#{file_title},#{file_ownerPrice},#{file_name})"})
+    @Insert({"insert into ", TABLE_NAME, "(",INSERT_FIELDS,") values (#{email},#{service_id},#{file_title},#{file_ownerPrice},#{file_name},#{transaction_id})"})
     int addRecord(Map<String,Object> map);
+
+
+    @Select({"select service_id from ", TABLE_NAME, "where email=#{email}"})
+    List<String> getServiceIdsByEmail(@Param("email") String email);
 }

@@ -10,7 +10,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-import team.educoin.common.controller.CommonResponse;
+import team.educoin.transaction.controller.CommonResponse;
 import team.educoin.transaction.fabric.AgencyFabricClient;
 import team.educoin.transaction.fabric.FileFabricClient;
 import team.educoin.transaction.pojo.AgencyInfo;
@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.nio.file.*;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,12 +81,54 @@ public class AgencyController {
         return res;
     }
 
+    /**
+     * =============================================================
+     * @desc 查询已购买资源列表
+     * @author PandaClark
+     * @date 2019/6/4 11:24 AM
+     * @param
+     * @return
+     * =============================================================
+     */
+    @ApiOperation(value = "查询已购买阅读权资源列表", notes = "查询已购买阅读权资源列表")
+    @RequestMapping( value = "/myresourcelist", method = RequestMethod.GET )
+    public CommonResponse myResourceList(HttpServletRequest request){
+
+        String email = (String) request.getAttribute("email");
+        List<String> resourcesIds = agencyService.getAgencyConsumeServiceIds(email);
+        List<FileInfo> files = new ArrayList<>();
+
+        for (String id : resourcesIds) {
+            FileInfo fileInfo = fileService.getFileInfoById(id);
+            files.add(fileInfo);
+        }
+        CommonResponse res = new CommonResponse(0, "success", files);
+        return res;
+    }
+
+    /**
+     * =============================================================
+     * @desc 查询可购买资源列表
+     * @author PandaClark
+     * @date 2019/5/16 12:39 PM
+     * @param
+     * @return
+     * =============================================================
+     */
+    @ApiOperation(value = "查询可购买资源列表", notes = "查询可购买资源列表")
+    @RequestMapping( value = "/resourcelist", method = RequestMethod.GET )
+    public CommonResponse resourceList(){
+        List<FileInfo> files = fileService.getCheckedServiceList();
+        CommonResponse res = new CommonResponse(0, "success", files);
+        return res;
+    }
+
 
     @ApiOperation(value = "获取所有审核通过的提现记录")
     @RequestMapping( value = "/withdrawList", method = RequestMethod.GET )
     public CommonResponse checkedWithdrawRecords(HttpServletRequest request){
         String email = (String) request.getAttribute("email");
-        List<Withdraw> records = agencyService.getAgencyWithdrawRecords(email, 0);
+        List<Withdraw> records = agencyService.getAgencyWithdrawRecords(email, 1);
         CommonResponse res = new CommonResponse(0, "success", records);
         return res;
     }
@@ -188,7 +230,7 @@ public class AgencyController {
             map.put("company",email);
             try {
                 Map<String, Object> map1 = agencyFabricClient.agencyBuyOwnership(map);
-                agencyService.agencyBuyOwnership(email,id,fileInfo);
+                agencyService.agencyBuyOwnership(email,id,fileInfo,map1.get("transactionId").toString());
                 res.setStatus(0);
                 res.setMessage("success");
                 res.setData(map1);
@@ -348,7 +390,8 @@ public class AgencyController {
      */
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @ApiOperation(value = "上传资源", notes = "上传资源文件，提交资源基本信息")
-    public CommonResponse uploadService(@RequestParam("fileTitle") String fileTitle,
+    public CommonResponse uploadService(HttpServletRequest request,
+                                        @RequestParam("fileTitle") String fileTitle,
                                         @RequestParam("fileImage") String fileImage,
                                         @RequestParam("fileDescription") String fileDescription,
                                         @RequestParam("fileReadPrice") Double fileReadPrice,
@@ -358,6 +401,7 @@ public class AgencyController {
                                         @RequestParam("fileInitialProvider") String fileInitialProvider,
                                         @RequestParam MultipartFile file) throws IOException {
 
+        String email = (String) request.getAttribute("email");
         CommonResponse res = null;
 
         if (file.getSize() == 0 || StringUtils.isEmpty(fileTitle) || StringUtils.isEmpty(fileImage) || StringUtils.isEmpty(fileDescription) || StringUtils.isEmpty(fileReadPrice)
@@ -382,12 +426,12 @@ public class AgencyController {
 
 
         // 资源注册操作
-        FileInfo fileInfo = new FileInfo(fileId, fileInitialProvider, fileInitialProvider, fileTitle, fileImage,
+        FileInfo fileInfo = new FileInfo(fileId, email, fileInitialProvider, fileTitle, fileImage,
                 fileDescription, fileReadPrice, fileOwnerShipPrice, fileName, fileKeyWord, fileContentType,
                 type, FileUtil.getFormatSize(file.getSize()),0);
 
         try {
-            // 机构用户上传资源时，信息不上链，基本信息只存在数据库里，只有审核通过的资源才上链
+            // 机构用户上传资源时，信息不上链，基本信息只存在数据库里，只有审核通过的资源才上链 ### 但是mysql中需要存储，否则无法得到改资源的信息
             // Map<String, Object> map = new HashMap<>();
             // map.put("$class","org.education.RegisterService");
             // map.put("serviceID", fileId);

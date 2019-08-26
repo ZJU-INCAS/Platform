@@ -107,7 +107,7 @@ public class AgencyServiceImpl implements AgencyService {
 
     @Override
     @Transactional
-    public void agencyBuyOwnership(String email, String serviceID, FileInfo fileInfo) {
+    public void agencyBuyOwnership(String email, String serviceID, FileInfo fileInfo, String transactionId) {
         // 扣除机构用户余额
         AgencyInfo agency = agencyInfoMapper.selectRecordById(email);
         Double amount = agency.getAccountBalance() - fileInfo.getFileReadPrice();
@@ -119,6 +119,7 @@ public class AgencyServiceImpl implements AgencyService {
         map.put("file_title",fileInfo.getFileTitle());
         map.put("file_ownerPrice",fileInfo.getFileReadPrice());
         map.put("file_name",fileInfo.getFileName());
+        map.put("transaction_id",fileInfo.getFileName());
         agencyConsumeMapper.addRecord(map);
         // 修改资源所有权
         fileInfoMapper.updateFileOwner(serviceID,email);
@@ -146,6 +147,12 @@ public class AgencyServiceImpl implements AgencyService {
     public boolean updateAgencyInfo(AgencyInfo agencyInfo) {
         int i = agencyInfoMapper.updateRecord(agencyInfo);
         return i > 0;
+    }
+
+    @Override
+    public List<String> getAgencyConsumeServiceIds(String email) {
+        List<String> ids = agencyConsumeMapper.getServiceIdsByEmail(email);
+        return ids;
     }
 
 }
