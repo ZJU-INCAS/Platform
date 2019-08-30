@@ -19,7 +19,7 @@ public interface AgencyInfoMapper {
     AgencyInfo selectRecordById(@Param("email") String email);
 
     @Update({"update agency_info set accountBalance=#{amount} where email=#{id}"})
-    int updateBankAccountById(@Param("id") String id, @Param("amount") String amount);
+    int updateAccountBalanceById(@Param("id") String id, @Param("amount") Double amount);
 
     @Select("select * from agency_info")
     List<AgencyInfo> selectAllRecords();

@@ -158,11 +158,11 @@ public class UserController {
         if (success){
             res.setStatus(0);
             res.setMessage("success");
-            res.setData("充值成功");
+            res.setData("转账成功");
         } else {
             res.setStatus(1);
             res.setMessage("failed");
-            res.setData("充值失败");
+            res.setData("转账失败");
         }
         return res;
     }
@@ -187,11 +187,11 @@ public class UserController {
         if (success){
             res.setStatus(0);
             res.setMessage("success");
-            res.setData("充值成功");
+            res.setData("转账成功");
         } else {
             res.setStatus(1);
             res.setMessage("failed");
-            res.setData("充值失败");
+            res.setData("转账成功");
         }
         return res;
     }

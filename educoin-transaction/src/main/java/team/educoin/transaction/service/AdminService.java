@@ -62,7 +62,7 @@ public interface AdminService {
      * @return void
      * =============================================================
      */
-    void acceptUserRecharge(String paymentId, String adminEmail);
+    void acceptUserRecharge(Recharge record, String adminEmail);
 
     /**
      * =============================================================

@@ -23,8 +23,11 @@ public interface UserInfoMapper {
     @Select({"select * from user_info where email=#{email}"})
     UserInfo selectRecordById(@Param("email") String email);
 
-    @Update({"update user_info set bankAccount=#{amount} where email=#{id}"})
-    int updateBankAccountById(@Param("id") String id, @Param("amount") String amount);
+    // @Update({"update user_info set bankAccount=#{amount} where email=#{id}"})
+    // int updateBankAccountById(@Param("id") String id, @Param("amount") String amount);
+
+    @Update({"update user_info set accountBalance=#{amount} where email=#{id}"})
+    int updateAccountBalanceById(@Param("id") String id, @Param("amount") Double amount);
 
     @Insert("insert into user_info(email,password) values(#{email},#{password})")
     int addRecord(UserInfo userInfo);

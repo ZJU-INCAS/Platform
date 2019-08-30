@@ -149,7 +149,8 @@ public class AdminController {
             Map<String, String> result = adminFabricClient.CheckUserRechargeFabric(rechargeInfo);
             System.out.println(result);
             // 修改 mysql 字段
-            adminService.acceptUserRecharge(record.getPaymentId(), email);
+            // adminService.acceptUserRecharge(record.getPaymentId(), email);
+            adminService.acceptUserRecharge(record, email);
             res.setStatus(0);
             res.setMessage("success");
             res.setData("已审核通过");
@@ -448,11 +449,6 @@ public class AdminController {
         adminService.rejectService(email, id);
         CommonResponse res = new CommonResponse(0, "success", "已审核拒绝");
         return res;
-    }
-
-    public void test(){
-        UserInfo userInfo = new UserInfo();
-        HashMap<Object, Object> map = new HashMap<>();
     }
 
 

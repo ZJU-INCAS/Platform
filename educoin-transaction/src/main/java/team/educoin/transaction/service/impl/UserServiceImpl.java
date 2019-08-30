@@ -161,8 +161,8 @@ public class UserServiceImpl implements UserService {
         int insert = tokenMapper.addTransfer(token);
         // 3. 扣除转出用户余额，增加转入用户余额
         // 注：用 String.valueOf() 转为 String 时，会变成科学计数法，所以要先变成包装类，再调用 toString，让它自己去做变换
-        userInfoMapper.updateBankAccountById(from, ((Double)(fromUser.getAccountBalance() - dto.getTransferNum())).toString());
-        userInfoMapper.updateBankAccountById(to, ((Double)(toUser.getAccountBalance() + dto.getTransferNum())).toString());
+        userInfoMapper.updateAccountBalanceById(from, (fromUser.getAccountBalance() - dto.getTransferNum()));
+        userInfoMapper.updateAccountBalanceById(to, (toUser.getAccountBalance() + dto.getTransferNum()));
         return insert > 0;
     }
 
@@ -203,8 +203,8 @@ public class UserServiceImpl implements UserService {
         int insert = tokenMapper.addTransfer(token);
         // 3. 扣除转出用户余额，增加转入用户余额
         // 注：用 String.valueOf() 转为 String 时，会变成科学计数法，所以要先变成包装类，再调用 toString，让它自己去做变换
-        userInfoMapper.updateBankAccountById(from, ((Double)(fromUser.getAccountBalance() - dto.getTransferNum())).toString());
-        agencyInfoMapper.updateBankAccountById(to, ((Double)(toAgency.getAccountBalance() + dto.getTransferNum())).toString());
+        userInfoMapper.updateAccountBalanceById(from, (fromUser.getAccountBalance() - dto.getTransferNum()));
+        agencyInfoMapper.updateAccountBalanceById(to, (toAgency.getAccountBalance() + dto.getTransferNum()));
         return insert > 0;
     }
 
@@ -219,8 +219,10 @@ public class UserServiceImpl implements UserService {
     public void userConsumeService(String email, String serviceID, FileInfo fileInfo, String transactionId) {
         // 扣除用户余额
         UserInfo user = userInfoMapper.selectRecordById(email);
-        Double amount = user.getAccountBalance() - fileInfo.getFileReadPrice();
-        userInfoMapper.updateBankAccountById(email, amount.toString());
+        userInfoMapper.updateAccountBalanceById(email, (user.getAccountBalance() - fileInfo.getFileReadPrice()));
+        // 资源所有者收入增加
+        AgencyInfo agencyInfo = agencyInfoMapper.selectRecordById(fileInfo.getFileOwner());
+        agencyInfoMapper.updateAccountBalanceById(fileInfo.getFileOwner(), (agencyInfo.getAccountBalance() + fileInfo.getFileReadPrice()));
         // 记录用户消费记录
         Map<String,Object> map = new HashMap<>();
         map.put("email",email);

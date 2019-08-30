@@ -64,8 +64,10 @@ public class AgencyServiceImpl implements AgencyService {
         }
         // 2. 将记录写入 mysql
         Withdraw withdraw = new Withdraw(email, paymentID, "alipay",amount);
-        int insert = withdrawMapper.addRecord(withdraw);
-        return insert > 0;
+        int i = withdrawMapper.addRecord(withdraw);
+        AgencyInfo agencyInfo = agencyInfoMapper.selectRecordById(email);
+        int j = agencyInfoMapper.updateAccountBalanceById(email, (agencyInfo.getAccountBalance() + amount));
+        return (i + j) > 1;
     }
 
     /**
@@ -108,16 +110,18 @@ public class AgencyServiceImpl implements AgencyService {
     @Override
     @Transactional
     public void agencyBuyOwnership(String email, String serviceID, FileInfo fileInfo, String transactionId) {
-        // 扣除机构用户余额
-        AgencyInfo agency = agencyInfoMapper.selectRecordById(email);
-        Double amount = agency.getAccountBalance() - fileInfo.getFileReadPrice();
-        agencyInfoMapper.updateBankAccountById(email,amount.toString());
+        // 原资源拥有者余额增加
+        AgencyInfo provider = agencyInfoMapper.selectRecordById(fileInfo.getFileOwner());
+        agencyInfoMapper.updateAccountBalanceById(provider.getEmail(), (provider.getAccountBalance() + fileInfo.getFileOwnerShipPrice()));
+        // 购买者余额扣除资源价格
+        AgencyInfo buyer = agencyInfoMapper.selectRecordById(email);
+        agencyInfoMapper.updateAccountBalanceById(email, (buyer.getAccountBalance() - fileInfo.getFileOwnerShipPrice()));
         // 记录机构用户消费记录
         Map<String,Object> map = new HashMap<>();
         map.put("email",email);
         map.put("service_id",fileInfo.getId());
         map.put("file_title",fileInfo.getFileTitle());
-        map.put("file_ownerPrice",fileInfo.getFileReadPrice());
+        map.put("file_ownerPrice",fileInfo.getFileOwnerShipPrice());
         map.put("file_name",fileInfo.getFileName());
         map.put("transaction_id",fileInfo.getFileName());
         agencyConsumeMapper.addRecord(map);

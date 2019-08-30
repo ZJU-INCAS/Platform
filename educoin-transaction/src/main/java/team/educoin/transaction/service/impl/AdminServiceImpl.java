@@ -2,10 +2,7 @@ package team.educoin.transaction.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import team.educoin.transaction.dao.AdminInfoMapper;
-import team.educoin.transaction.dao.FileInfoMapper;
-import team.educoin.transaction.dao.RechargeMapper;
-import team.educoin.transaction.dao.WithdrawMapper;
+import team.educoin.transaction.dao.*;
 import team.educoin.transaction.dto.CentralBankDto;
 import team.educoin.transaction.dto.ContractDto;
 import team.educoin.transaction.fabric.AdminFabricClient;
@@ -28,6 +25,8 @@ public class AdminServiceImpl implements AdminService {
     private RechargeMapper rechargeMapper;
     @Autowired
     private WithdrawMapper withdrawMapper;
+    @Autowired
+    private UserInfoMapper userInfoMapper;
     @Autowired
     private AdminInfoMapper adminInfoMapper;
     @Autowired
@@ -58,8 +57,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void acceptUserRecharge(String paymentId, String adminEmail) {
-        rechargeMapper.updateRecordByPaymentId(paymentId, adminEmail, 1);
+    public void acceptUserRecharge(Recharge record, String adminEmail) {
+        rechargeMapper.updateRecordByPaymentId(record.getPaymentId(), adminEmail, 1);
+        UserInfo userInfo = userInfoMapper.selectRecordById(record.getEmail());
+        Double amount = userInfo.getAccountBalance() + record.getRechargeAmount();
+        userInfoMapper.updateAccountBalanceById(record.getEmail(), amount);
     }
 
     @Override
