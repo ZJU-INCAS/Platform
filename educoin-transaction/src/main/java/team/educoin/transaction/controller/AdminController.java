@@ -3,9 +3,9 @@ package team.educoin.transaction.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
-import team.educoin.transaction.controller.CommonResponse;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.util.ResourceUtils;
 import team.educoin.transaction.dto.CentralBankDto;
 import team.educoin.transaction.dto.ContractDto;
 import team.educoin.transaction.fabric.AdminFabricClient;
@@ -21,6 +21,11 @@ import team.educoin.transaction.util.MyBeanMapUtil;
 import team.educoin.transaction.util.WatermarkUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -454,17 +459,17 @@ public class AdminController {
 
     /**
      * =============================================================
-     * @desc
+     * @desc 管理员处理资源侵权，通过资源 ID 获取水印
      * @author Messi-Q ; Modified by PandaClark
      * @date 2019/6/24 3:10 PM
      * @param id
      * @return CommonResponse
      * =============================================================
      */
-    @ApiOperation(value = "管理员处理资源侵权", notes = "管理员提取资源中的水印信息")
+    @ApiOperation(value = "管理员通过资源ID获取水印，处理资源侵权", notes = "管理员提取资源中的水印信息")
     @ResponseBody
     @RequestMapping(value = "/extractWatermarkInfo/{id}", method = RequestMethod.GET)
-    public CommonResponse extractWatermarkInfo(@PathVariable("id") String id) {
+    public CommonResponse extractWatermarkInfoById(@PathVariable("id") String id) {
         CommonResponse res;
 
         // 根据文件id获取文件名
@@ -473,7 +478,7 @@ public class AdminController {
 
         try {
             // 获得水印
-            String watermark = WatermarkUtil.extractWatermark(filename);
+            String watermark = WatermarkUtil.extractWatermark(filename, 0);
             res = new CommonResponse(0, "success", "watermark:" + watermark);
         } catch (Exception e) {
             e.printStackTrace();
@@ -483,6 +488,139 @@ public class AdminController {
         return res;
     }
 
+
+
+    /**
+     * =============================================================
+     * @desc 管理员处理资源侵权，提取上传资源中的水印
+     * @author PandaClark
+     * @date 2019/10/28 2:24 PM
+     * @param
+     * @return
+     * =============================================================
+     */
+    @ApiOperation(value = "管理员通过提取上传文件的水印，处理资源侵权", notes = "管理员提取资源中的水印信息")
+    @ResponseBody
+    @RequestMapping(value = "/extractWatermarkInfo", method = RequestMethod.POST)
+    public CommonResponse extractWatermarkInfoByPost(@RequestParam MultipartFile file, @RequestParam String id) throws IOException {
+        CommonResponse res;
+
+        String filename = file.getOriginalFilename();
+        // 文件上传操作
+        Files.copy(file.getInputStream(), Paths.get(FileUtil.EXTRACT_UPLOAD_DIR,filename), StandardCopyOption.REPLACE_EXISTING);
+
+        System.out.println("filename: " + filename);
+
+        try {
+            // 获得水印
+            String watermark = WatermarkUtil.extractWatermark(filename, 0);
+            Map<String, Object> result = new HashMap<>();
+            result.put("watermark", watermark);
+            FileInfo fileInfo = fileService.getFileInfoById(id);
+            result.put("fileInfo", fileInfo);
+            res = new CommonResponse(0, "success", result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            res = new CommonResponse(1, "failed", e.getMessage());
+        }
+
+        return res;
+    }
+
+
+    /**
+     * =============================================================
+     * @desc 水印嵌入和提取的测试接口
+     * @author PandaClark
+     * @date 2019/10/28 7:32 PM
+     * @param
+     * @return 嵌入水印的内容
+     * =============================================================
+     */
+    @ApiOperation(value = "添加水印脚本测试")
+    @ResponseBody
+    @RequestMapping(value = "/testWatermarkEmbed", method = RequestMethod.POST)
+    public String testWatermark1(@RequestParam MultipartFile file) throws IOException {
+
+        String filename = file.getOriginalFilename();
+        // 下载的时候嵌入水印
+        Files.copy(file.getInputStream(), Paths.get(FileUtil.TEST_EXTRACT_UPLOAD_DIR,filename), StandardCopyOption.REPLACE_EXISTING);
+
+        System.out.println("filename: " + filename);
+
+        String watermark = null;
+        try {
+            // 获得水印
+            // watermark = WatermarkUtil.embedWatermark(filename,"file-owner:thinpanda","downloader:zju-incas");
+            watermark = WatermarkUtil.embedWatermark(filename,"ZjuEducation@zju.edu.cn","thinpanda", 1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return watermark;
+
+    }
+
+    /**
+     * =============================================================
+     * @desc 水印嵌入或提取的测试接口
+     * @author PandaClark
+     * @date 2019/10/28 7:36 PM
+     * @param
+     * @return 从水印提取出的内容
+     * =============================================================
+     */
+    @ApiOperation(value = "提取水印脚本测试")
+    @ResponseBody
+    @RequestMapping(value = "/testWatermarkExtract", method = RequestMethod.POST)
+    public String testWatermark2(@RequestParam MultipartFile file) throws IOException {
+
+        String filename = file.getOriginalFilename();
+        // 文件上传操作
+        // 上传的是已经被嵌入水印的图片
+        Files.copy(file.getInputStream(), Paths.get(FileUtil.TEST_EXTRACT_OUT_DIR,filename), StandardCopyOption.REPLACE_EXISTING);
+
+        System.out.println("filename: " + filename);
+
+        String watermark = null;
+        try {
+            // 获得水印
+            watermark = WatermarkUtil.extractWatermark(filename, 1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return watermark;
+
+    }
+
+
+
+    // @ApiOperation(value = "管理员提取水印测试")
+    // @ResponseBody
+    // @RequestMapping(value = "/justTestJavaInvokePython", method = RequestMethod.POST)
+    public String justTest() throws IOException, InterruptedException {
+
+        // String command = "python3 /Users/thinpanda/repository/InCas_Lab_blockchain/Java/Platform/educoin-transaction/target/classes/watermark/image_watermark_embed.py /Users/thinpanda/repository/InCas_Lab_blockchain/Java/upload/docker-birthday.jpg \"owner:ZjuEducation@zju.edu.cn -- buyer:thinpanda\" /Users/thinpanda/repository/InCas_Lab_blockchain/Java/extract/docker-birthday.png";
+        String[] command = new String[]{"python3", "/Users/thinpanda/repository/InCas_Lab_blockchain/Java/Platform/educoin-transaction/target/classes/watermark/image_watermark_embed.py", "/Users/thinpanda/repository/InCas_Lab_blockchain/Java/upload/docker-birthday.jpg", "owner:ZjuEducation@zju.edu.cn -- buyer:thinpanda", "/Users/thinpanda/repository/InCas_Lab_blockchain/Java/extract/docker-birthday.png"};
+        System.out.println(command);
+        Process process = Runtime.getRuntime().exec(command);
+        process.waitFor();
+        BufferedInputStream in = new BufferedInputStream(process.getInputStream());
+        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+        String line;
+        String result = "aaa";
+        while ((line = br.readLine()) != null) {
+            result = line;
+            System.out.println(line);
+        }
+        br.close();
+        in.close();
+        // 打印嵌入水印结果
+        System.out.println("给资源嵌入水印：" + result);
+
+        return "aaa";
+    }
 }
 
 

@@ -19,6 +19,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns("/","/error","/csrf")
                 .excludePathPatterns("/login/**")
+                .excludePathPatterns("/integration/**")
                 //放行 swagger2
                 . excludePathPatterns("/**.html","/v2/api-docs","/swagger-resources/**","/webjars/**");
     }

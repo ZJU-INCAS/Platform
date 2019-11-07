@@ -10,7 +10,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-import team.educoin.transaction.controller.CommonResponse;
 import team.educoin.transaction.fabric.AgencyFabricClient;
 import team.educoin.transaction.fabric.FileFabricClient;
 import team.educoin.transaction.pojo.AgencyInfo;
@@ -422,7 +421,7 @@ public class AgencyController {
 
 
         // 文件上传操作
-        Files.copy(file.getInputStream(), Paths.get(FileUtil.UPLOAD_DIR,fileName), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(file.getInputStream(), Paths.get(FileUtil.FILE_UPLOAD_DIR,fileName), StandardCopyOption.REPLACE_EXISTING);
 
 
         // 资源注册操作
@@ -564,12 +563,12 @@ public class AgencyController {
 
         try {
             // 嵌入水印
-            WatermarkUtil.embedWatermark(filename, owner, buyer);
+            WatermarkUtil.embedWatermark(filename, owner, buyer, 0);
             // 资源下载开始
             response.setContentType("application/force-download");  //设置强制下载不打开
             response.addHeader("Content-Disposition", "attachment;fileName=" + new String(filename.getBytes("UTF-8"), "iso-8859-1"));// 设置文件名
             // 文件下载操作
-            StreamUtils.copy(new FileInputStream(new File(FileUtil.DOWNLOAD_DIR) + "/" + filename), response.getOutputStream());
+            StreamUtils.copy(new FileInputStream(new File(FileUtil.FILE_DOWNLOAD_DIR) + "/" + filename), response.getOutputStream());
             res = new CommonResponse(0, "success", "资源下载成功");
         } catch (Exception e) {
             e.printStackTrace();
