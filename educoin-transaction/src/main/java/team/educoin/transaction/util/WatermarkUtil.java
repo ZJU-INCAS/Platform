@@ -3,6 +3,8 @@ package team.educoin.transaction.util;
 import org.springframework.util.ResourceUtils;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
@@ -22,12 +24,21 @@ public class WatermarkUtil {
     private static String imageWaterMarkExtractTool;
 
     static {
+        Path watermark = Paths.get("watermark").toAbsolutePath().normalize();
         try {
-            pdfWaterMarkEmbedTool = ResourceUtils.getURL("classpath:watermark/pdf_watermark_embed.py").getPath();
-            imageWaterMarkEmbedTool = ResourceUtils.getURL("classpath:watermark/image_watermark_embed.py").getPath();
-            tmpFile = ResourceUtils.getURL("classpath:watermark/tmp.pdf").getPath();  // PDF水印使用
-            pdfWaterMarkExtractTool = ResourceUtils.getURL("classpath:watermark/pdf_watermark_extract.py").getPath();
-            imageWaterMarkExtractTool = ResourceUtils.getURL("classpath:watermark/image_watermark_extract.py").getPath();
+            // 本机部署，jar 包下路径失效
+            // pdfWaterMarkEmbedTool = ResourceUtils.getURL("classpath:watermark/pdf_watermark_embed.py").getPath();
+            // imageWaterMarkEmbedTool = ResourceUtils.getURL("classpath:watermark/image_watermark_embed.py").getPath();
+            // tmpFile = ResourceUtils.getURL("classpath:watermark/tmp.pdf").getPath();  // PDF水印使用
+            // pdfWaterMarkExtractTool = ResourceUtils.getURL("classpath:watermark/pdf_watermark_extract.py").getPath();
+            // imageWaterMarkExtractTool = ResourceUtils.getURL("classpath:watermark/image_watermark_extract.py").getPath();
+
+            // 服务端 jar 包部署
+            pdfWaterMarkEmbedTool = ResourceUtils.getURL(FileUtil.WATERMARK_DIR + "/pdf_watermark_embed.py").getPath();
+            imageWaterMarkEmbedTool = ResourceUtils.getURL(FileUtil.WATERMARK_DIR + "/image_watermark_embed.py").getPath();
+            tmpFile = ResourceUtils.getURL(FileUtil.WATERMARK_DIR + "/tmp.pdf").getPath();  // PDF水印使用
+            pdfWaterMarkExtractTool = ResourceUtils.getURL(FileUtil.WATERMARK_DIR + "/pdf_watermark_extract.py").getPath();
+            imageWaterMarkExtractTool = ResourceUtils.getURL(FileUtil.WATERMARK_DIR + "/image_watermark_extract.py").getPath();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -42,7 +53,7 @@ public class WatermarkUtil {
      * @return java.lang.String
      * =============================================================
      */
-    public static String embedWatermark(String filename, String owner, String buyer, int test) throws IOException, InterruptedException {
+    public static String embedWatermark(String id, String filename, String owner, String buyer, int test) throws IOException, InterruptedException {
         // 获取文件类型(后缀名)
         String[] allowImageTypes = new String[]{"jpg", "jpeg", "png", "bmp", "gif"};
         String type = filename.substring(filename.lastIndexOf(".") + 1);
@@ -50,7 +61,7 @@ public class WatermarkUtil {
 
         // 初始化参数
         String fileEmbed = test ==  0 ? (FileUtil.FILE_UPLOAD_DIR + "/" + filename) : (FileUtil.TEST_EXTRACT_UPLOAD_DIR + "/" + filename);
-        String waterMarkInfo = "owner:" + owner + " -- buyer:" + buyer;
+        String waterMarkInfo = id + ";" + owner + ";" + buyer;
         String fileEmbedOut = test == 0 ? (FileUtil.FILE_DOWNLOAD_DIR + "/" + filename) : (FileUtil.TEST_EXTRACT_OUT_DIR + "/" + filename);
         // String tmpFile = ResourceUtils.getURL("classpath:static/watermark/tmp.pdf").getPath();  // PDF水印使用
 
@@ -74,7 +85,7 @@ public class WatermarkUtil {
             fileEmbedOut = fileEmbedOut.substring(0, fileEmbedOut.lastIndexOf('.')) + ".png";
             // command = String.format("python3 %s %s %s %s", imageWaterMarkEmbedTool, fileEmbed, waterMarkInfo, fileEmbedOut);
             command = new String[]{
-                    "python3",
+                    "python",
                     imageWaterMarkEmbedTool,
                     fileEmbed,
                     waterMarkInfo,
@@ -84,13 +95,13 @@ public class WatermarkUtil {
             return "暂时只支持下载图片和PDF文档并添加水印";
         }
 
-        // System.out.println("command: " + command);
+        System.out.println("command: " + Arrays.toString(command));
         Process process = Runtime.getRuntime().exec(command);
         process.waitFor();
         BufferedInputStream in = new BufferedInputStream(process.getInputStream());
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
         String line;
-        String result = "aaa";
+        String result = "default";
         while ((line = br.readLine()) != null) {
             result = line;
         }
@@ -131,7 +142,8 @@ public class WatermarkUtil {
         }
 
         // 调用python脚本提取水印信息
-        String command = String.format("python3 %s %s", toolUrl, fileInfringed);
+        String command = String.format("python %s %s", toolUrl, fileInfringed);
+        System.out.println("command: " + command);
         Process process = Runtime.getRuntime().exec(command);
         process.waitFor();
         BufferedInputStream in = new BufferedInputStream(process.getInputStream());

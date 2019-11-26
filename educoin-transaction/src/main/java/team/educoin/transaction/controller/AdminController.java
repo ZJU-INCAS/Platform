@@ -23,6 +23,7 @@ import team.educoin.transaction.util.WatermarkUtil;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
@@ -552,7 +553,7 @@ public class AdminController {
         try {
             // 获得水印
             // watermark = WatermarkUtil.embedWatermark(filename,"file-owner:thinpanda","downloader:zju-incas");
-            watermark = WatermarkUtil.embedWatermark(filename,"ZjuEducation@zju.edu.cn","thinpanda", 1);
+            watermark = WatermarkUtil.embedWatermark("资源id", filename,"ZjuEducation@zju.edu.cn","thinpanda", 1);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -596,30 +597,24 @@ public class AdminController {
 
 
 
-    // @ApiOperation(value = "管理员提取水印测试")
-    // @ResponseBody
-    // @RequestMapping(value = "/justTestJavaInvokePython", method = RequestMethod.POST)
-    public String justTest() throws IOException, InterruptedException {
+    @ApiOperation(value = "测试接口")
+    @ResponseBody
+    @RequestMapping(value = "/justTestJavaInvokePython", method = RequestMethod.GET)
+    public String justTest() throws IOException {
 
-        // String command = "python3 /Users/thinpanda/repository/InCas_Lab_blockchain/Java/Platform/educoin-transaction/target/classes/watermark/image_watermark_embed.py /Users/thinpanda/repository/InCas_Lab_blockchain/Java/upload/docker-birthday.jpg \"owner:ZjuEducation@zju.edu.cn -- buyer:thinpanda\" /Users/thinpanda/repository/InCas_Lab_blockchain/Java/extract/docker-birthday.png";
-        String[] command = new String[]{"python3", "/Users/thinpanda/repository/InCas_Lab_blockchain/Java/Platform/educoin-transaction/target/classes/watermark/image_watermark_embed.py", "/Users/thinpanda/repository/InCas_Lab_blockchain/Java/upload/docker-birthday.jpg", "owner:ZjuEducation@zju.edu.cn -- buyer:thinpanda", "/Users/thinpanda/repository/InCas_Lab_blockchain/Java/extract/docker-birthday.png"};
-        System.out.println(command);
-        Process process = Runtime.getRuntime().exec(command);
-        process.waitFor();
-        BufferedInputStream in = new BufferedInputStream(process.getInputStream());
-        BufferedReader br = new BufferedReader(new InputStreamReader(in));
-        String line;
-        String result = "aaa";
-        while ((line = br.readLine()) != null) {
-            result = line;
-            System.out.println(line);
+        Path watermark = Paths.get("watermark").toAbsolutePath().normalize();
+        try {
+            if (!Files.exists(watermark)){
+                Files.createDirectory(watermark);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        br.close();
-        in.close();
-        // 打印嵌入水印结果
-        System.out.println("给资源嵌入水印：" + result);
+        String imageWaterMarkEmbedTool = ResourceUtils.getURL(watermark + "/image_watermark_embed.py").getPath();
 
-        return "aaa";
+        System.out.println(imageWaterMarkEmbedTool);
+
+        return imageWaterMarkEmbedTool;
     }
 }
 

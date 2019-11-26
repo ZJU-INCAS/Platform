@@ -555,15 +555,16 @@ public class AgencyController {
 
         // 根据文件id获取文件名
         FileInfo fileInfo = fileService.getFileInfoById(id);
+        String fileId = fileInfo.getId();
         String filename = fileInfo.getFileName();
 
         // 根据文件id获取该文件的所有者email
-        String owner = fileInfo.getId();  // 当前资源所有者的email
+        String owner = fileInfo.getFileInitialProvider();  // 当前资源所有者的email
         String buyer = (String) request.getAttribute("email");  // 当前资源使用者的email
 
         try {
             // 嵌入水印
-            WatermarkUtil.embedWatermark(filename, owner, buyer, 0);
+            WatermarkUtil.embedWatermark(fileId, filename, owner, buyer, 0);
             // 资源下载开始
             response.setContentType("application/force-download");  //设置强制下载不打开
             response.addHeader("Content-Disposition", "attachment;fileName=" + new String(filename.getBytes("UTF-8"), "iso-8859-1"));// 设置文件名

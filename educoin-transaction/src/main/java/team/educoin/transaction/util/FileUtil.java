@@ -21,9 +21,11 @@ public class FileUtil {
     // 测试侵权追踪脚本时，上传文件和嵌入水印文件的路径
     public static String TEST_EXTRACT_UPLOAD_DIR;
     public static String TEST_EXTRACT_OUT_DIR;
+    // python 脚本文件的路径
+    public static String WATERMARK_DIR;
 
     static {
-        Path path = Paths.get("..","asserts").toAbsolutePath().normalize();
+        Path path = Paths.get("asserts").toAbsolutePath().normalize();
         try {
             if (!Files.exists(path)){
                 Files.createDirectory(path);
@@ -35,16 +37,19 @@ public class FileUtil {
 
     static {
 
-        Path path1 = Paths.get("..","asserts/upload").toAbsolutePath().normalize();
-        Path path2 = Paths.get("..","asserts/download").toAbsolutePath().normalize();
-        Path path3 = Paths.get("..","asserts/extract_upload").toAbsolutePath().normalize();
-        Path path4 = Paths.get("..","asserts/test_extract_upload").toAbsolutePath().normalize();
-        Path path5 = Paths.get("..","asserts/test_extract_out").toAbsolutePath().normalize();
+        WATERMARK_DIR = Paths.get("watermark_tool").toAbsolutePath().normalize().toString();
+
+        Path path1 = Paths.get("asserts/upload").toAbsolutePath().normalize();
+        Path path2 = Paths.get("asserts/download").toAbsolutePath().normalize();
+        Path path3 = Paths.get("asserts/extract_upload").toAbsolutePath().normalize();
+        Path path4 = Paths.get("asserts/test_extract_upload").toAbsolutePath().normalize();
+        Path path5 = Paths.get("asserts/test_extract_out").toAbsolutePath().normalize();
         FILE_UPLOAD_DIR = path1.toString();
         FILE_DOWNLOAD_DIR = path2.toString();
         EXTRACT_UPLOAD_DIR = path3.toString();
         TEST_EXTRACT_UPLOAD_DIR = path4.toString();
         TEST_EXTRACT_OUT_DIR = path5.toString();
+
         try {
             if (!Files.exists(path1)){
                 Files.createDirectory(path1);

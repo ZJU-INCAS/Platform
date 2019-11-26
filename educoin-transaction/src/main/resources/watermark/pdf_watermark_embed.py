@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import sys
 import PyPDF2
 from reportlab.lib.units import cm
