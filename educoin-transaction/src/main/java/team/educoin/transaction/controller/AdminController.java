@@ -1,21 +1,20 @@
 package team.educoin.transaction.controller;
 
+import com.alibaba.fastjson.JSON;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.util.ResourceUtils;
+import springfox.documentation.spring.web.json.Json;
 import team.educoin.transaction.dto.CentralBankDto;
 import team.educoin.transaction.dto.ContractDto;
 import team.educoin.transaction.fabric.AdminFabricClient;
 import team.educoin.transaction.fabric.AgencyFabricClient;
 import team.educoin.transaction.fabric.FileFabricClient;
 import team.educoin.transaction.pojo.*;
-import team.educoin.transaction.service.AdminService;
-import team.educoin.transaction.service.AgencyService;
-import team.educoin.transaction.service.FileService;
-import team.educoin.transaction.service.UserService;
+import team.educoin.transaction.service.*;
 import team.educoin.transaction.util.FileUtil;
 import team.educoin.transaction.util.MyBeanMapUtil;
 import team.educoin.transaction.util.WatermarkUtil;
@@ -26,7 +25,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +55,8 @@ public class AdminController {
     private AgencyFabricClient agencyFabricClient;
     @Autowired
     private FileFabricClient fileFabricClient;
+    @Autowired
+    private AppealService appealService;
 
 
     /**
@@ -411,7 +411,7 @@ public class AdminController {
      */
     @ApiOperation(value = "管理员审核通过资源", notes = "管理员审核通过资源")
     @ResponseBody
-    @RequestMapping( value = "/serviceY", method = RequestMethod.GET )
+    @RequestMapping( value = "/serviceY", method = RequestMethod.POST )
     public CommonResponse checkService(HttpServletRequest request, @RequestParam("id") String id ){
 
         CommonResponse res = null;
@@ -449,7 +449,7 @@ public class AdminController {
      */
     @ApiOperation(value = "管理员审核拒绝资源", notes = "管理员审核拒绝资源")
     @ResponseBody
-    @RequestMapping( value = "/serviceR", method = RequestMethod.GET )
+    @RequestMapping( value = "/serviceR", method = RequestMethod.POST )
     public CommonResponse rejectService( HttpServletRequest request,@RequestParam("id") String id ){
         String email = (String) request.getAttribute("email");
         adminService.rejectService(email, id);
@@ -596,6 +596,113 @@ public class AdminController {
     }
 
 
+    /**
+     * =============================================================
+     * @desc 获取未审核的侵权上诉记录
+     * @author PandaClark
+     * @date 2019/12/15 6:47 PM
+     * @param
+     * @return team.educoin.transaction.controller.CommonResponse
+     * =============================================================
+     */
+    @ApiOperation(value = "获取未审核的侵权上诉记录")
+    @ResponseBody
+    @RequestMapping(value = "/appealList/unchecked", method = RequestMethod.GET)
+    public CommonResponse getUncheckedAppealList(){
+        CommonResponse res = null;
+        List<Appeal> list = null;
+        try {
+            list = appealService.getUncheckedAppealList();
+            res = new CommonResponse(0, "success", list);
+        }catch (Exception e){
+            e.printStackTrace();
+            res = new CommonResponse(1, "failed", e.getMessage());
+        }
+        return res;
+    }
+
+
+    /**
+     * =============================================================
+     * @desc 获取已审核的侵权上诉记录
+     * @author PandaClark
+     * @date 2019/12/15 6:47 PM
+     * @param
+     * @return team.educoin.transaction.controller.CommonResponse
+     * =============================================================
+     */
+    @ApiOperation(value = "获取已审核的侵权上诉记录")
+    @ResponseBody
+    @RequestMapping(value = "/appealList/checked", method = RequestMethod.GET)
+    public CommonResponse getCheckedAppealList(){
+        CommonResponse res = null;
+        List<Appeal> listY = null;
+        List<Appeal> listR = null;
+        Map<String, List> map = new HashMap();
+        try {
+            listY = appealService.getApprovedAppealList();
+            listR = appealService.getRejectAppealList();
+            map.put("approved", listY);
+            map.put("reject", listR);
+            res = new CommonResponse(0, "success", map);
+        }catch (Exception e){
+            e.printStackTrace();
+            res = new CommonResponse(1, "failed", e.getMessage());
+        }
+        return res;
+    }
+
+
+    /**
+     * =============================================================
+     * @desc 获取审核通过的侵权上诉记录
+     * @author PandaClark
+     * @date 2019/12/15 6:47 PM
+     * @param
+     * @return team.educoin.transaction.controller.CommonResponse
+     * =============================================================
+     */
+    @ApiOperation(value = "获取审核通过的侵权上诉记录")
+    @ResponseBody
+    @RequestMapping(value = "/appealList/approved", method = RequestMethod.GET)
+    public CommonResponse getApprovedAppealList(){
+        CommonResponse res = null;
+        List<Appeal> list = null;
+        try {
+            list = appealService.getApprovedAppealList();
+            res = new CommonResponse(0, "success", list);
+        }catch (Exception e){
+            e.printStackTrace();
+            res = new CommonResponse(1, "failed", e.getMessage());
+        }
+        return res;
+    }
+
+    /**
+     * =============================================================
+     * @desc 获取审核拒绝的侵权上诉记录
+     * @author PandaClark
+     * @date 2019/12/15 6:47 PM
+     * @param
+     * @return team.educoin.transaction.controller.CommonResponse
+     * =============================================================
+     */
+    @ApiOperation(value = "获取审核拒绝的侵权上诉记录")
+    @ResponseBody
+    @RequestMapping(value = "/appealList/reject", method = RequestMethod.GET)
+    public CommonResponse getRejectAppealList(){
+        CommonResponse res = null;
+        List<Appeal> list = null;
+        try {
+            list = appealService.getRejectAppealList();
+            res = new CommonResponse(0, "success", list);
+        }catch (Exception e){
+            e.printStackTrace();
+            res = new CommonResponse(1, "failed", e.getMessage());
+        }
+        return res;
+    }
+
 
     @ApiOperation(value = "测试接口")
     @ResponseBody
@@ -616,6 +723,59 @@ public class AdminController {
 
         return imageWaterMarkEmbedTool;
     }
+
+
+    /**
+     * =============================================================
+     * @desc 管理员同意侵权上诉
+     * @author PandaClark
+     * @date 2019/12/15 6:47 PM
+     * @param
+     * @return team.educoin.transaction.controller.CommonResponse
+     * =============================================================
+     */
+    @ApiOperation(value = "获取审核拒绝的侵权上诉记录")
+    @ResponseBody
+    @RequestMapping(value = "/appeal/approve", method = RequestMethod.POST)
+    public CommonResponse approveAppeal(HttpServletRequest request, @RequestParam("id") String id){
+        CommonResponse res = null;
+        String email = (String) request.getAttribute("email");
+        try {
+            boolean update = appealService.approveAppeal(id, email);
+            res = new CommonResponse(0, "success", update);
+        }catch (Exception e){
+            e.printStackTrace();
+            res = new CommonResponse(1, "failed", e.getMessage());
+        }
+        return res;
+    }
+
+
+    /**
+     * =============================================================
+     * @desc 管理员拒绝侵权上诉
+     * @author PandaClark
+     * @date 2019/12/15 6:47 PM
+     * @param
+     * @return team.educoin.transaction.controller.CommonResponse
+     * =============================================================
+     */
+    @ApiOperation(value = "获取审核拒绝的侵权上诉记录")
+    @ResponseBody
+    @RequestMapping(value = "/appeal/reject", method = RequestMethod.POST)
+    public CommonResponse rejectAppeal(HttpServletRequest request, @RequestParam("id") String id){
+        CommonResponse res = null;
+        String email = (String) request.getAttribute("email");
+        try {
+            boolean update = appealService.rejectAppeal(id, email);
+            res = new CommonResponse(0, "success", update);
+        }catch (Exception e){
+            e.printStackTrace();
+            res = new CommonResponse(1, "failed", e.getMessage());
+        }
+        return res;
+    }
+
 }
 
 

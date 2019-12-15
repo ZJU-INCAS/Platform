@@ -117,7 +117,7 @@ public class WatermarkUtil {
      * @desc
      * @author PandaClark
      * @date 2019/11/4 5:04 PM
-     * @param test == 0：管理员上传疑似侵权文件提取水印；test == 1：测试提取水印的脚本
+     * @param test == 0：机构用户上传疑似侵权文件提取水印；test == 1：测试提取水印的脚本
      * @return java.lang.String
      * =============================================================
      */

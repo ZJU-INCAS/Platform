@@ -13,9 +13,11 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import team.educoin.transaction.fabric.AgencyFabricClient;
 import team.educoin.transaction.fabric.FileFabricClient;
 import team.educoin.transaction.pojo.AgencyInfo;
+import team.educoin.transaction.pojo.Appeal;
 import team.educoin.transaction.pojo.FileInfo;
 import team.educoin.transaction.pojo.Withdraw;
 import team.educoin.transaction.service.AgencyService;
+import team.educoin.transaction.service.AppealService;
 import team.educoin.transaction.service.FileService;
 import team.educoin.transaction.util.FileUtil;
 import team.educoin.transaction.util.MyBeanMapUtil;
@@ -51,6 +53,8 @@ public class AgencyController {
     private AgencyFabricClient agencyFabricClient;
     @Autowired
     private FileFabricClient fileFabricClient;
+    @Autowired
+    private AppealService appealService;
 
 
     /**
@@ -580,4 +584,80 @@ public class AgencyController {
 
     }
 
+    /**
+     * =============================================================
+     * @desc 机构用户资源侵权上诉
+     * @author PandaClark
+     * @date 2019/11/3 7:22 PM
+     * @param
+     * @return
+     * =============================================================
+     */
+    @RequestMapping(value = "/appeal", method = RequestMethod.POST)
+    @ApiOperation(value = "机构用户资源侵权上诉", notes = "机构用户资源侵权上诉")
+    public CommonResponse appealRegister(@RequestParam("id") String id, @RequestParam("detail") String detail, @RequestParam("file") MultipartFile file, HttpServletRequest request){
+        CommonResponse res = null;
+        String agency = (String) request.getAttribute("email");
+
+        // 根据文件id获取文件
+        FileInfo fileInfo = fileService.getFileInfoById(id);
+
+        if (fileInfo == null){
+            return new CommonResponse(1, "failed", "resource does not exist");
+        }
+        String fileId = fileInfo.getId();
+
+        String filename = file.getOriginalFilename();
+
+        Appeal appeal = new Appeal(UUIDutil.getUUID(), agency, fileId, filename, detail, 0);
+
+        try {
+            // 上传机构用户提供的疑似侵权资料
+            Files.copy(file.getInputStream(), Paths.get(FileUtil.EXTRACT_UPLOAD_DIR, filename), StandardCopyOption.REPLACE_EXISTING);
+            // 提取水印
+            String watermark = WatermarkUtil.extractWatermark(filename, 0);
+            appeal.setWatermark(watermark);
+            System.out.println(appeal);
+
+            // 插入数据库
+            appealService.registerAppeal(appeal);
+            res = new CommonResponse(0, "success", "申诉请求已送达");
+        } catch (Exception e) {
+            e.printStackTrace();
+            res = new CommonResponse(1, "failed", e.getMessage());
+        }
+
+        return res;
+    }
+
+
+    /**
+     * =============================================================
+     * @desc 机构用户获取自己的侵权上诉记录
+     * @author PandaClark
+     * @date 2019/12/15 2:29 PM
+     * @param
+     * @return
+     * =============================================================
+     */
+    @RequestMapping(value = "/appeal/{id}", method = RequestMethod.GET)
+    @ApiOperation(value = "机构用户获取自己的侵权上诉记录", notes = "机构用户资源侵权上诉")
+    public CommonResponse appealList(@PathVariable("id") String id, HttpServletRequest request){
+        CommonResponse res = new CommonResponse();
+
+        String agency = (String) request.getAttribute("email");
+
+        List<Appeal> agencyAppealList = null;
+
+        try {
+            agencyAppealList = appealService.getAgencyAppealList(agency);
+            // System.out.println("agencyAppealList: " + agencyAppealList);
+            res = new CommonResponse(0, "success", agencyAppealList);
+        }catch (Exception e){
+            e.printStackTrace();
+            res = new CommonResponse(1, "failed", e.getMessage());
+        }
+
+        return res;
+    }
 }
